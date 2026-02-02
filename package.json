@@ -1,0 +1,19 @@
+{
+  "name": "dedosfacil",
+  "version": "1.0.0",
+  "description": "Depósito de cuentas anuales fácil - Sin programa D2",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+  },
+  "keywords": ["cuentas-anuales", "deposito", "registro-mercantil", "d2"],
+  "author": "Demi",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
