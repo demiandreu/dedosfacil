@@ -402,6 +402,8 @@ function FormularioNRUA() {
           }))]
         }
         
+       // Ordenar por fecha de entrada (enero → diciembre)
+        allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
         setExtractedStays(allStays)
       } else {
         console.error('Error processing file:', data.error)
