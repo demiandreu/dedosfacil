@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Landing from './pages/Landing'
 import FormularioNRUA from './pages/FormularioNRUA'
 import Exito from './pages/Exito'
+import Admin from './pages/Admin'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/formulario" element={<FormularioNRUA />} />
         <Route path="/formulario-nrua" element={<FormularioNRUA />} />
         <Route path="/exito" element={<Exito />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   )
