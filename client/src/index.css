@@ -1245,3 +1245,31 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.5rem;
   align-items: center;
 }
+/* Authorization Box */
+.authorization-box {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.checkbox-label.authorization {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.checkbox-label.authorization input[type="checkbox"] {
+  margin-top: 4px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.checkbox-label.authorization span {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #92400e;
+}
