@@ -16,26 +16,26 @@ import {
 } from 'lucide-react'
 
 const translations = {
-  es: {
+es: {
     urgentBanner: {
       text: "⚠️ URGENTE: Solo quedan",
       days: "días",
-      text2: "para presentar. Si no lo haces, pierdes tu licencia.",
+      text2: "para presentar el Modelo N2. Si no lo haces, pierdes tu licencia.",
       cta: "Empezar ahora →"
     },
     nav: { howItWorks: "Cómo funciona", pricing: "Precios", faq: "FAQ", startNow: "Empezar ahora" },
     hero: {
       badge: "Plazo límite: 2 de marzo",
-      title: "¿Tienes un piso en",
-      titleHighlight: "Airbnb o Booking?",
-      subtitle: "Estás obligado a presentar el Depósito de Arrendamientos (NRUA) antes del 2 de marzo.",
-      subtitleBold: " Si no lo haces, te revocan la licencia y no puedes seguir alquilando.",
-      cta: "Presentar mi NRUA",
+      title: "Presenta tu Modelo N2",
+      titleHighlight: "en 10 minutos",
+      subtitle: "Cumple con el Depósito de Arrendamientos obligatorio antes del 2 de marzo.",
+      subtitleBold: " Sin descargar programas. Sin certificado digital. Nosotros lo presentamos por ti.",
+      cta: "Presentar ahora",
       priceFrom: "Desde",
-      trust1: "Sin programa N2", trust2: "100% Legal", trust3: "24-48h"
+      trust1: "Sin programa N2", trust2: "Sin certificado digital", trust3: "100% Legal", trust4: "24-48h"
     },
     warning: {
-      title: "⚠️ Si no presentas antes del 2 de marzo:",
+      title: "⚠️ Si no presentas el Modelo N2 antes del 2 de marzo:",
       items: [
         "Te revocan el NRUA = No puedes anunciar en Airbnb, Booking, VRBO...",
         "Pierdes tu fuente de ingresos inmediatamente",
@@ -43,7 +43,7 @@ const translations = {
       ]
     },
     problem: {
-      title: "😤 El problema: Programa N2",
+      title: "😤 El problema: Hacerlo tú mismo",
       subtitle: "El Gobierno te obliga a usar un programa que SOLO funciona en Windows",
       items: [
         "Solo funciona en Windows (si tienes Mac, no puedes)",
@@ -55,7 +55,7 @@ const translations = {
       ]
     },
     solution: {
-      title: "😊 Nuestra solución: Tú subes, nosotros presentamos",
+      title: "😊 Con DedosFácil: Tú subes, nosotros presentamos",
       items: [
         "Funciona desde cualquier dispositivo",
         "Descargas CSV de Airbnb/Booking (2 min)",
@@ -67,12 +67,12 @@ const translations = {
     howItWorks: {
       title: "¿Cómo funciona?",
       subtitle: "3 pasos y listo. Tú tardas 5 minutos.",
-      step1: "Descarga tu historial",
-      step1desc: "Entra en Airbnb o Booking y descarga el CSV de reservas de 2025.",
-      step2: "Súbelo y paga",
+      step1: "Descarga tu CSV",
+      step1desc: "Exporta tus reservas de 2025 desde Airbnb o Booking.",
+      step2: "Súbelo a DedosFácil",
       step2desc: "Rellena tus datos, sube el archivo y paga de forma segura.",
       step3: "Recibe tu justificante",
-      step3desc: "En 24-48h te enviamos el justificante oficial por email."
+      step3desc: "En 24-48h te enviamos el comprobante oficial por email."
     },
     download: {
       title: "📥 ¿Cómo descargo mis reservas?",
@@ -89,33 +89,33 @@ const translations = {
     },
     pricing: {
       title: "Precios claros",
-      note: "* Tasas del Registro no incluidas",
-    plans: [
-  { name: "1 Propiedad", price: "69€", features: ["1 NRUA", "Presentación oficial", "Justificante", "Soporte email", "Entrega 48h"] },
-  { name: "3 Propiedades", price: "199€", period: "ahorra 8€", features: ["Hasta 3 NRUA", "Presentación oficial", "Justificante", "Soporte prioritario", "Entrega 24h"], popular: true },
-  { name: "10 Propiedades", price: "399€", period: "ahorra 291€", features: ["Hasta 10 NRUA", "Gestión completa", "Soporte telefónico", "Entrega prioritaria"] }
-],
+      note: "* Tasas del Registro (27€/NRUA) no incluidas",
+      plans: [
+        { name: "1 Propiedad", price: "69€", features: ["1 NRUA", "Presentación oficial", "Justificante", "Soporte email", "Entrega 48h"] },
+        { name: "3 Propiedades", price: "199€", period: "ahorra 8€", features: ["Hasta 3 NRUA", "Presentación oficial", "Justificante", "Soporte prioritario", "Entrega 24h"], popular: true },
+        { name: "10 Propiedades", price: "399€", period: "ahorra 291€", features: ["Hasta 10 NRUA", "Gestión completa", "Soporte telefónico", "Entrega prioritaria"] }
+      ],
       select: "Seleccionar",
       popular: "Más popular"
     },
     faq: {
       title: "Preguntas frecuentes",
       items: [
-        { q: "¿Qué es el NRUA?", a: "Es el Número de Registro Único de Arrendamientos. Si alquilas tu piso en Airbnb, Booking u otra plataforma, tienes que informar cada año de todas las estancias. El plazo es el 2 de marzo." },
-        { q: "¿Qué pasa si no presento?", a: "Te revocan el NRUA. Esto significa que no puedes seguir anunciando tu piso en ninguna plataforma. Pierdes tu fuente de ingresos." },
-        { q: "¿Es legal que lo hagáis vosotros?", a: "Sí, 100% legal. La normativa permite que lo presente el titular o quien gestione el alquiler. Actuamos como gestores autorizados." },
-        { q: "¿Qué datos necesitáis?", a: "Tu código NRUA (está en tu licencia) y el historial de reservas de 2025 (CSV de Airbnb o Booking)." },
-        { q: "¿Y si no tuve alquileres en 2025?", a: "También hay que presentar marcando 'sin actividad'. Nosotros nos encargamos igualmente." }
+        { q: "¿Qué es el Modelo N2?", a: "Es el Depósito de Arrendamientos obligatorio. Si tienes un NRUA (licencia para alquilar en Airbnb, Booking, etc.), debes presentar cada año un informe con todas las estancias. El plazo para 2025 es el 2 de marzo de 2026." },
+        { q: "¿Qué pasa si no presento el Modelo N2?", a: "Te revocan el NRUA automáticamente. Esto significa que no puedes seguir anunciando tu piso en ninguna plataforma. Pierdes tu fuente de ingresos." },
+        { q: "¿Es legal que lo hagáis vosotros?", a: "Sí, 100% legal. El artículo 10.4 del Real Decreto 1312/2024 permite que lo presente el titular o quien acredite la gestión del alquiler. Actuamos como gestores autorizados con tu autorización expresa." },
+        { q: "¿Qué datos necesitáis?", a: "Tu número NRUA completo (el código largo que empieza por ES de la Ventanilla Única) y el historial de reservas de 2025 (CSV de Airbnb o Booking)." },
+        { q: "¿Y si no tuve alquileres en 2025?", a: "También hay que presentar el Modelo N2 marcando 'sin actividad'. Si no lo haces, te revocan el NRUA igualmente. Nosotros nos encargamos." }
       ]
     },
     cta: {
       title: "No pierdas tu licencia",
-      subtitle: "Quedan pocos días. Presenta tu NRUA ahora.",
+      subtitle: "Quedan pocos días. Presenta tu Modelo N2 ahora.",
       button: "Empezar ahora",
       daysLeft: "días restantes"
     },
     footer: {
-      slogan: "Trámites registrales sin complicaciones",
+      slogan: "Presentación del Modelo N2 sin complicaciones",
       legal: "Legal", legalNotice: "Aviso legal", privacy: "Privacidad", cookies: "Cookies",
       contact: "Contacto",
       copyright: "© 2026 DedosFácil. Todos los derechos reservados.",
@@ -123,26 +123,27 @@ const translations = {
       cuentasLink: "Más info"
     }
   },
+  
   en: {
     urgentBanner: {
       text: "⚠️ URGENT: Only",
       days: "days left",
-      text2: "to submit. If you don't, you lose your license.",
+      text2: "to submit Form N2. If you don't, you lose your license.",
       cta: "Start now →"
     },
     nav: { howItWorks: "How it works", pricing: "Pricing", faq: "FAQ", startNow: "Start now" },
     hero: {
       badge: "Deadline: March 2nd",
-      title: "Do you have a property on",
-      titleHighlight: "Airbnb or Booking?",
-      subtitle: "You must submit the Rental Declaration (NRUA) before March 2nd.",
-      subtitleBold: " If you don't, your license will be revoked and you can't rent anymore.",
-      cta: "Submit my NRUA",
+      title: "Submit your Form N2",
+      titleHighlight: "in 10 minutes",
+      subtitle: "Comply with the mandatory Rental Declaration before March 2nd.",
+      subtitleBold: " No software to download. No digital certificate. We submit it for you.",
+      cta: "Submit now",
       priceFrom: "From",
-      trust1: "No N2 software", trust2: "100% Legal", trust3: "24-48h"
+      trust1: "No N2 software", trust2: "No digital certificate", trust3: "100% Legal", trust4: "24-48h"
     },
     warning: {
-      title: "⚠️ If you don't submit before March 2nd:",
+      title: "⚠️ If you don't submit Form N2 before March 2nd:",
       items: [
         "NRUA revoked = You can't advertise on Airbnb, Booking, VRBO...",
         "You lose your income source immediately",
@@ -150,10 +151,10 @@ const translations = {
       ]
     },
     problem: {
-      title: "😤 The problem: N2 Software",
+      title: "😤 The problem: Doing it yourself",
       subtitle: "The Government requires you to use a program that ONLY works on Windows",
       items: [
-        "Only works on Windows (if you have Mac, you can't)",
+        "Only works on Windows (Mac users can't)",
         "Download and install N2 software",
         "Understand NRUA and CRU codes",
         "Generate XBRL files",
@@ -162,7 +163,7 @@ const translations = {
       ]
     },
     solution: {
-      title: "😊 Our solution: You upload, we submit",
+      title: "😊 With DedosFácil: You upload, we submit",
       items: [
         "Works from any device",
         "Download CSV from Airbnb/Booking (2 min)",
@@ -174,12 +175,12 @@ const translations = {
     howItWorks: {
       title: "How does it work?",
       subtitle: "3 steps and done. Takes you 5 minutes.",
-      step1: "Download your history",
-      step1desc: "Go to Airbnb or Booking and download the 2025 reservations CSV.",
-      step2: "Upload and pay",
+      step1: "Download your CSV",
+      step1desc: "Export your 2025 reservations from Airbnb or Booking.",
+      step2: "Upload to DedosFácil",
       step2desc: "Fill in your details, upload the file and pay securely.",
       step3: "Receive your certificate",
-      step3desc: "In 24-48h we send you the official certificate by email."
+      step3desc: "In 24-48h we send you the official receipt by email."
     },
     download: {
       title: "📥 How do I download my reservations?",
@@ -191,38 +192,38 @@ const translations = {
         title: "From Booking:",
         steps: ["Go to Booking Extranet", "Go to 'Reservations' → 'History'", "Click 'Export'", "Save the CSV file"]
       },
-      other: "Using VRBO or another platform? Download the PDF or booking report and upload it anyway.",
-      noFile: "Don't have a file? Don't worry, you can also fill in the stays manually in the form."
+      other: "Using VRBO or another platform? Download the PDF or reservation report and upload it anyway.",
+      noFile: "No file? Don't worry, you can also fill in the stays manually in the form."
     },
     pricing: {
       title: "Clear pricing",
-      note: "* Registry fees not included",
+      note: "* Registry fees (27€/NRUA) not included",
       plans: [
-        { name: "1 Property", price: "€69", features: ["1 NRUA", "Official submission", "Certificate", "Email support", "48h delivery"] },
-        { name: "3 Properties", price: "€199", period: "save €38", features: ["Up to 3 NRUA", "Official submission", "Certificate", "Priority support", "24h delivery"], popular: true },
-        { name: "10 Properties", price: "€399", period: "save €341", features: ["Up to 10 NRUA", "Full management", "Phone support", "Priority delivery"] }
+        { name: "1 Property", price: "69€", features: ["1 NRUA", "Official submission", "Certificate", "Email support", "48h delivery"] },
+        { name: "3 Properties", price: "199€", period: "save 8€", features: ["Up to 3 NRUA", "Official submission", "Certificate", "Priority support", "24h delivery"], popular: true },
+        { name: "10 Properties", price: "399€", period: "save 291€", features: ["Up to 10 NRUA", "Full management", "Phone support", "Priority delivery"] }
       ],
       select: "Select",
       popular: "Most popular"
     },
     faq: {
-      title: "FAQ",
+      title: "Frequently asked questions",
       items: [
-        { q: "What is NRUA?", a: "It's the Unique Rental Registration Number. If you rent your property on Airbnb, Booking or another platform, you must report all stays every year. Deadline is March 2nd." },
-        { q: "What happens if I don't submit?", a: "Your NRUA gets revoked. This means you can't advertise your property on any platform. You lose your income." },
-        { q: "Is it legal for you to do this?", a: "Yes, 100% legal. The regulation allows submission by the owner or property manager. We act as authorized agents." },
-        { q: "What data do you need?", a: "Your NRUA code (on your license) and the 2025 reservation history (CSV from Airbnb or Booking)." },
-        { q: "What if I had no rentals in 2025?", a: "You still need to submit marking 'no activity'. We take care of it." }
+        { q: "What is Form N2?", a: "It's the mandatory Rental Declaration. If you have an NRUA (license to rent on Airbnb, Booking, etc.), you must submit an annual report with all stays. The deadline for 2025 is March 2nd, 2026." },
+        { q: "What happens if I don't submit Form N2?", a: "Your NRUA is automatically revoked. This means you can't advertise your property on any platform. You lose your income source." },
+        { q: "Is it legal for you to do this?", a: "Yes, 100% legal. Article 10.4 of Royal Decree 1312/2024 allows submission by the owner or anyone who manages the rental. We act as authorized managers with your express authorization." },
+        { q: "What data do you need?", a: "Your complete NRUA number (the long code starting with ES from the Single Window) and the 2025 reservation history (CSV from Airbnb or Booking)." },
+        { q: "What if I had no rentals in 2025?", a: "You still need to submit Form N2 marking 'no activity'. If you don't, your NRUA is revoked anyway. We take care of it." }
       ]
     },
     cta: {
       title: "Don't lose your license",
-      subtitle: "Few days left. Submit your NRUA now.",
+      subtitle: "Few days left. Submit your Form N2 now.",
       button: "Start now",
-      daysLeft: "days remaining"
+      daysLeft: "days left"
     },
     footer: {
-      slogan: "Registry procedures without hassle",
+      slogan: "Form N2 submission without complications",
       legal: "Legal", legalNotice: "Legal notice", privacy: "Privacy", cookies: "Cookies",
       contact: "Contact",
       copyright: "© 2026 DedosFácil. All rights reserved.",
@@ -230,35 +231,36 @@ const translations = {
       cuentasLink: "More info"
     }
   },
-  fr: {
+  
+ fr: {
     urgentBanner: {
       text: "⚠️ URGENT: Plus que",
       days: "jours",
-      text2: "pour déposer. Sinon, vous perdez votre licence.",
+      text2: "pour déposer le Formulaire N2. Sinon, vous perdez votre licence.",
       cta: "Commencer →"
     },
     nav: { howItWorks: "Comment ça marche", pricing: "Tarifs", faq: "FAQ", startNow: "Commencer" },
     hero: {
       badge: "Date limite: 2 mars",
-      title: "Vous avez un bien sur",
-      titleHighlight: "Airbnb ou Booking?",
-      subtitle: "Vous devez déposer la Déclaration de Location (NRUA) avant le 2 mars.",
-      subtitleBold: " Sinon, votre licence sera révoquée et vous ne pourrez plus louer.",
-      cta: "Déposer mon NRUA",
+      title: "Déposez votre Formulaire N2",
+      titleHighlight: "en 10 minutes",
+      subtitle: "Respectez le Dépôt de Locations obligatoire avant le 2 mars.",
+      subtitleBold: " Sans télécharger de logiciel. Sans certificat numérique. Nous le déposons pour vous.",
+      cta: "Déposer maintenant",
       priceFrom: "À partir de",
-      trust1: "Sans logiciel N2", trust2: "100% Légal", trust3: "24-48h"
+      trust1: "Sans logiciel N2", trust2: "Sans certificat numérique", trust3: "100% Légal", trust4: "24-48h"
     },
     warning: {
-      title: "⚠️ Si vous ne déposez pas avant le 2 mars:",
+      title: "⚠️ Si vous ne déposez pas le Formulaire N2 avant le 2 mars:",
       items: [
-        "NRUA révoqué = Impossible de publier sur Airbnb, Booking, VRBO...",
+        "NRUA révoqué = Vous ne pouvez plus publier sur Airbnb, Booking, VRBO...",
         "Vous perdez votre source de revenus immédiatement",
         "Processus long et coûteux pour récupérer votre licence"
       ]
     },
     problem: {
-      title: "😤 Le problème: Logiciel N2",
-      subtitle: "Le Gouvernement vous oblige à utiliser un logiciel qui ne fonctionne QUE sur Windows",
+      title: "😤 Le problème: Le faire vous-même",
+      subtitle: "Le Gouvernement vous oblige à utiliser un programme qui fonctionne UNIQUEMENT sur Windows",
       items: [
         "Fonctionne uniquement sur Windows (pas sur Mac)",
         "Télécharger et installer le logiciel N2",
@@ -269,7 +271,7 @@ const translations = {
       ]
     },
     solution: {
-      title: "😊 Notre solution: Vous uploadez, nous déposons",
+      title: "😊 Avec DedosFácil: Vous téléchargez, nous déposons",
       items: [
         "Fonctionne depuis n'importe quel appareil",
         "Téléchargez le CSV d'Airbnb/Booking (2 min)",
@@ -280,56 +282,56 @@ const translations = {
     },
     howItWorks: {
       title: "Comment ça marche?",
-      subtitle: "3 étapes et c'est fait. Vous en avez pour 5 minutes.",
-      step1: "Téléchargez votre historique",
-      step1desc: "Allez sur Airbnb ou Booking et téléchargez le CSV des réservations 2025.",
-      step2: "Uploadez et payez",
-      step2desc: "Remplissez vos données, uploadez le fichier et payez en sécurité.",
+      subtitle: "3 étapes et c'est fait. Ça vous prend 5 minutes.",
+      step1: "Téléchargez votre CSV",
+      step1desc: "Exportez vos réservations 2025 depuis Airbnb ou Booking.",
+      step2: "Téléchargez sur DedosFácil",
+      step2desc: "Remplissez vos données, téléchargez le fichier et payez en toute sécurité.",
       step3: "Recevez votre certificat",
-      step3desc: "En 24-48h nous vous envoyons le certificat officiel par email."
+      step3desc: "En 24-48h nous vous envoyons le reçu officiel par email."
     },
     download: {
       title: "📥 Comment télécharger mes réservations?",
       airbnb: {
         title: "Depuis Airbnb:",
-        steps: ["Allez sur airbnb.com → Votre compte", "Allez dans 'Historique des transactions'", "Cliquez sur 'Exporter CSV'", "Enregistrez le fichier"]
+        steps: ["Allez sur airbnb.com → Votre compte", "Allez à 'Historique des transactions'", "Cliquez sur 'Exporter CSV'", "Enregistrez le fichier"]
       },
       booking: {
         title: "Depuis Booking:",
-        steps: ["Allez sur l'Extranet Booking", "Allez dans 'Réservations' → 'Historique'", "Cliquez sur 'Exporter'", "Enregistrez le fichier CSV"]
+        steps: ["Allez sur Extranet Booking", "Allez à 'Réservations' → 'Historique'", "Cliquez sur 'Exporter'", "Enregistrez le fichier CSV"]
       },
-      other: "Vous utilisez VRBO ou autre? Téléchargez le PDF ou rapport de réservations et uploadez-le.",
-      noFile: "Pas de fichier? Pas de souci, vous pouvez aussi remplir les séjours manuellement."
+      other: "Vous utilisez VRBO ou une autre plateforme? Téléchargez le PDF ou le rapport de réservations et téléchargez-le quand même.",
+      noFile: "Pas de fichier? Pas de souci, vous pouvez aussi remplir les séjours manuellement dans le formulaire."
     },
     pricing: {
       title: "Tarifs clairs",
-      note: "* Frais de Registre non inclus",
+      note: "* Frais de Registre (27€/NRUA) non inclus",
       plans: [
         { name: "1 Propriété", price: "69€", features: ["1 NRUA", "Dépôt officiel", "Certificat", "Support email", "Livraison 48h"] },
-        { name: "3 Propriétés", price: "199€", period: "économisez 38€", features: ["Jusqu'à 3 NRUA", "Dépôt officiel", "Certificat", "Support prioritaire", "Livraison 24h"], popular: true },
-        { name: "10 Propriétés", price: "399€", period: "économisez 341€", features: ["Jusqu'à 10 NRUA", "Gestion complète", "Support téléphonique", "Livraison prioritaire"] }
+        { name: "3 Propriétés", price: "199€", period: "économisez 8€", features: ["Jusqu'à 3 NRUA", "Dépôt officiel", "Certificat", "Support prioritaire", "Livraison 24h"], popular: true },
+        { name: "10 Propriétés", price: "399€", period: "économisez 291€", features: ["Jusqu'à 10 NRUA", "Gestion complète", "Support téléphonique", "Livraison prioritaire"] }
       ],
-      select: "Choisir",
+      select: "Sélectionner",
       popular: "Le plus populaire"
     },
     faq: {
-      title: "FAQ",
+      title: "Questions fréquentes",
       items: [
-        { q: "Qu'est-ce que le NRUA?", a: "C'est le Numéro d'Enregistrement Unique des Locations. Si vous louez sur Airbnb, Booking ou autre, vous devez déclarer tous les séjours chaque année. Date limite: 2 mars." },
-        { q: "Que se passe-t-il si je ne dépose pas?", a: "Votre NRUA est révoqué. Vous ne pouvez plus publier votre bien sur aucune plateforme. Vous perdez vos revenus." },
-        { q: "Est-ce légal que vous le fassiez?", a: "Oui, 100% légal. La réglementation permet le dépôt par le propriétaire ou le gestionnaire. Nous agissons comme mandataires autorisés." },
-        { q: "Quelles données avez-vous besoin?", a: "Votre code NRUA (sur votre licence) et l'historique des réservations 2025 (CSV d'Airbnb ou Booking)." },
-        { q: "Et si je n'ai pas eu de locations en 2025?", a: "Il faut quand même déposer en indiquant 'sans activité'. Nous nous en chargeons." }
+        { q: "Qu'est-ce que le Formulaire N2?", a: "C'est le Dépôt de Locations obligatoire. Si vous avez un NRUA (licence pour louer sur Airbnb, Booking, etc.), vous devez soumettre un rapport annuel avec tous les séjours. La date limite pour 2025 est le 2 mars 2026." },
+        { q: "Que se passe-t-il si je ne dépose pas le Formulaire N2?", a: "Votre NRUA est automatiquement révoqué. Cela signifie que vous ne pouvez plus publier votre propriété sur aucune plateforme. Vous perdez votre source de revenus." },
+        { q: "Est-ce légal que vous le fassiez?", a: "Oui, 100% légal. L'article 10.4 du Décret Royal 1312/2024 permet le dépôt par le propriétaire ou toute personne qui gère la location. Nous agissons comme gestionnaires autorisés avec votre autorisation expresse." },
+        { q: "Quelles données avez-vous besoin?", a: "Votre numéro NRUA complet (le long code commençant par ES du Guichet Unique) et l'historique des réservations 2025 (CSV d'Airbnb ou Booking)." },
+        { q: "Et si je n'ai pas eu de locations en 2025?", a: "Vous devez quand même déposer le Formulaire N2 en indiquant 'sans activité'. Sinon, votre NRUA est révoqué de toute façon. Nous nous en occupons." }
       ]
     },
     cta: {
       title: "Ne perdez pas votre licence",
-      subtitle: "Il reste peu de jours. Déposez votre NRUA maintenant.",
+      subtitle: "Il reste peu de jours. Déposez votre Formulaire N2 maintenant.",
       button: "Commencer",
       daysLeft: "jours restants"
     },
     footer: {
-      slogan: "Démarches sans complications",
+      slogan: "Dépôt du Formulaire N2 sans complications",
       legal: "Légal", legalNotice: "Mentions légales", privacy: "Confidentialité", cookies: "Cookies",
       contact: "Contact",
       copyright: "© 2026 DedosFácil. Tous droits réservés.",
@@ -337,37 +339,38 @@ const translations = {
       cuentasLink: "Plus d'infos"
     }
   },
-  de: {
+  
+ de: {
     urgentBanner: {
       text: "⚠️ DRINGEND: Nur noch",
       days: "Tage",
-      text2: "zum Einreichen. Sonst verlieren Sie Ihre Lizenz.",
+      text2: "um Formular N2 einzureichen. Sonst verlieren Sie Ihre Lizenz.",
       cta: "Jetzt starten →"
     },
-    nav: { howItWorks: "So geht's", pricing: "Preise", faq: "FAQ", startNow: "Jetzt starten" },
+    nav: { howItWorks: "So funktioniert's", pricing: "Preise", faq: "FAQ", startNow: "Jetzt starten" },
     hero: {
       badge: "Frist: 2. März",
-      title: "Haben Sie eine Immobilie auf",
-      titleHighlight: "Airbnb oder Booking?",
-      subtitle: "Sie müssen die Vermietungserklärung (NRUA) vor dem 2. März einreichen.",
-      subtitleBold: " Sonst wird Ihre Lizenz widerrufen und Sie können nicht mehr vermieten.",
-      cta: "Mein NRUA einreichen",
+      title: "Reichen Sie Ihr Formular N2 ein",
+      titleHighlight: "in 10 Minuten",
+      subtitle: "Erfüllen Sie die obligatorische Mietmeldung vor dem 2. März.",
+      subtitleBold: " Keine Software herunterladen. Kein digitales Zertifikat. Wir reichen es für Sie ein.",
+      cta: "Jetzt einreichen",
       priceFrom: "Ab",
-      trust1: "Ohne N2-Software", trust2: "100% Legal", trust3: "24-48h"
+      trust1: "Ohne N2-Software", trust2: "Ohne digitales Zertifikat", trust3: "100% Legal", trust4: "24-48h"
     },
     warning: {
-      title: "⚠️ Wenn Sie nicht vor dem 2. März einreichen:",
+      title: "⚠️ Wenn Sie Formular N2 nicht vor dem 2. März einreichen:",
       items: [
-        "NRUA widerrufen = Keine Werbung auf Airbnb, Booking, VRBO möglich...",
-        "Sie verlieren sofort Ihre Einnahmequelle",
-        "Langer und teurer Prozess zur Wiederherstellung"
+        "NRUA widerrufen = Sie können nicht mehr auf Airbnb, Booking, VRBO inserieren...",
+        "Sie verlieren sofort Ihre Einkommensquelle",
+        "Langer und teurer Prozess zur Wiedererlangung Ihrer Lizenz"
       ]
     },
     problem: {
-      title: "😤 Das Problem: N2-Software",
-      subtitle: "Die Regierung verlangt eine Software, die NUR auf Windows funktioniert",
+      title: "😤 Das Problem: Es selbst machen",
+      subtitle: "Die Regierung verlangt ein Programm, das NUR unter Windows funktioniert",
       items: [
-        "Funktioniert nur auf Windows (nicht auf Mac)",
+        "Funktioniert nur unter Windows (Mac-Nutzer können nicht)",
         "N2-Software herunterladen und installieren",
         "NRUA- und CRU-Codes verstehen",
         "XBRL-Dateien generieren",
@@ -376,74 +379,75 @@ const translations = {
       ]
     },
     solution: {
-      title: "😊 Unsere Lösung: Sie laden hoch, wir reichen ein",
+      title: "😊 Mit DedosFácil: Sie laden hoch, wir reichen ein",
       items: [
         "Funktioniert von jedem Gerät",
         "CSV von Airbnb/Booking herunterladen (2 Min)",
-        "An uns senden und wir machen alles",
-        "Ohne digitales Zertifikat",
-        "Offizielle Bescheinigung in 24-48h"
+        "Senden Sie es uns und wir erledigen alles",
+        "Kein digitales Zertifikat nötig",
+        "Offizielle Bescheinigung in 24-48h erhalten"
       ]
     },
     howItWorks: {
       title: "Wie funktioniert es?",
       subtitle: "3 Schritte und fertig. Dauert 5 Minuten.",
-      step1: "Verlauf herunterladen",
-      step1desc: "Gehen Sie zu Airbnb oder Booking und laden Sie die 2025 Reservierungen als CSV herunter.",
-      step2: "Hochladen und bezahlen",
+      step1: "CSV herunterladen",
+      step1desc: "Exportieren Sie Ihre 2025-Buchungen von Airbnb oder Booking.",
+      step2: "Bei DedosFácil hochladen",
       step2desc: "Füllen Sie Ihre Daten aus, laden Sie die Datei hoch und bezahlen Sie sicher.",
       step3: "Bescheinigung erhalten",
-      step3desc: "In 24-48h senden wir Ihnen die offizielle Bescheinigung per E-Mail."
+      step3desc: "In 24-48h senden wir Ihnen die offizielle Quittung per E-Mail."
     },
     download: {
-      title: "📥 Wie lade ich meine Reservierungen herunter?",
+      title: "📥 Wie lade ich meine Buchungen herunter?",
       airbnb: {
         title: "Von Airbnb:",
         steps: ["Gehen Sie zu airbnb.com → Ihr Konto", "Gehen Sie zu 'Transaktionsverlauf'", "Klicken Sie auf 'CSV exportieren'", "Speichern Sie die Datei"]
       },
       booking: {
         title: "Von Booking:",
-        steps: ["Gehen Sie zum Booking Extranet", "Gehen Sie zu 'Reservierungen' → 'Verlauf'", "Klicken Sie auf 'Exportieren'", "Speichern Sie die CSV-Datei"]
+        steps: ["Gehen Sie zum Booking Extranet", "Gehen Sie zu 'Buchungen' → 'Verlauf'", "Klicken Sie auf 'Exportieren'", "Speichern Sie die CSV-Datei"]
       },
-      other: "Sie nutzen VRBO oder andere? Laden Sie das PDF oder den Buchungsbericht herunter und laden Sie es hoch.",
+      other: "Sie nutzen VRBO oder eine andere Plattform? Laden Sie das PDF oder den Buchungsbericht herunter und laden Sie es trotzdem hoch.",
       noFile: "Keine Datei? Kein Problem, Sie können die Aufenthalte auch manuell im Formular eingeben."
     },
     pricing: {
       title: "Klare Preise",
-      note: "* Registergebühren nicht enthalten",
+      note: "* Registergebühren (27€/NRUA) nicht enthalten",
       plans: [
-        { name: "1 Immobilie", price: "69€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "48h Lieferung"] },
-        { name: "3 Immobilien", price: "199€", period: "sparen 38€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "24h Lieferung"], popular: true },
-        { name: "10 Immobilien", price: "399€", period: "sparen 341€", features: ["Bis zu 10 NRUA", "Vollständige Verwaltung", "Telefon-Support", "Prioritäts-Lieferung"] }
+        { name: "1 Immobilie", price: "69€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "Lieferung 48h"] },
+        { name: "3 Immobilien", price: "199€", period: "sparen Sie 8€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
+        { name: "10 Immobilien", price: "399€", period: "sparen Sie 291€", features: ["Bis zu 10 NRUA", "Komplette Verwaltung", "Telefon-Support", "Prioritätslieferung"] }
       ],
       select: "Auswählen",
       popular: "Am beliebtesten"
     },
     faq: {
-      title: "FAQ",
+      title: "Häufig gestellte Fragen",
       items: [
-        { q: "Was ist NRUA?", a: "Es ist die einheitliche Vermietungsregistrierungsnummer. Wenn Sie auf Airbnb, Booking oder anderen Plattformen vermieten, müssen Sie jährlich alle Aufenthalte melden. Frist: 2. März." },
-        { q: "Was passiert, wenn ich nicht einreiche?", a: "Ihr NRUA wird widerrufen. Sie können Ihre Immobilie auf keiner Plattform mehr bewerben. Sie verlieren Ihr Einkommen." },
-        { q: "Ist es legal, dass Sie das machen?", a: "Ja, 100% legal. Die Vorschrift erlaubt die Einreichung durch Eigentümer oder Verwalter. Wir handeln als autorisierte Vertreter." },
-        { q: "Welche Daten brauchen Sie?", a: "Ihren NRUA-Code (auf Ihrer Lizenz) und den 2025 Reservierungsverlauf (CSV von Airbnb oder Booking)." },
-        { q: "Was wenn ich 2025 keine Vermietungen hatte?", a: "Trotzdem einreichen mit 'keine Aktivität'. Wir kümmern uns darum." }
+        { q: "Was ist Formular N2?", a: "Es ist die obligatorische Mietmeldung. Wenn Sie eine NRUA haben (Lizenz zur Vermietung auf Airbnb, Booking usw.), müssen Sie jährlich einen Bericht mit allen Aufenthalten einreichen. Die Frist für 2025 ist der 2. März 2026." },
+        { q: "Was passiert, wenn ich Formular N2 nicht einreiche?", a: "Ihre NRUA wird automatisch widerrufen. Das bedeutet, Sie können Ihre Immobilie auf keiner Plattform mehr inserieren. Sie verlieren Ihre Einkommensquelle." },
+        { q: "Ist es legal, dass Sie das machen?", a: "Ja, 100% legal. Artikel 10.4 des Königlichen Dekrets 1312/2024 erlaubt die Einreichung durch den Eigentümer oder jeden, der die Vermietung verwaltet. Wir handeln als autorisierte Verwalter mit Ihrer ausdrücklichen Genehmigung." },
+        { q: "Welche Daten benötigen Sie?", a: "Ihre vollständige NRUA-Nummer (der lange Code, der mit ES beginnt, vom Einheitlichen Fenster) und den Buchungsverlauf 2025 (CSV von Airbnb oder Booking)." },
+        { q: "Was, wenn ich 2025 keine Vermietungen hatte?", a: "Sie müssen trotzdem Formular N2 mit 'keine Aktivität' einreichen. Andernfalls wird Ihre NRUA trotzdem widerrufen. Wir kümmern uns darum." }
       ]
     },
     cta: {
       title: "Verlieren Sie nicht Ihre Lizenz",
-      subtitle: "Nur noch wenige Tage. Reichen Sie Ihr NRUA jetzt ein.",
+      subtitle: "Nur noch wenige Tage. Reichen Sie jetzt Ihr Formular N2 ein.",
       button: "Jetzt starten",
-      daysLeft: "Tage verbleibend"
+      daysLeft: "Tage übrig"
     },
     footer: {
-      slogan: "Registerverfahren ohne Komplikationen",
+      slogan: "Formular N2 Einreichung ohne Komplikationen",
       legal: "Rechtliches", legalNotice: "Impressum", privacy: "Datenschutz", cookies: "Cookies",
       contact: "Kontakt",
       copyright: "© 2026 DedosFácil. Alle Rechte vorbehalten.",
-      cuentas: "Müssen Sie einen Jahresabschluss einreichen? ",
+      cuentas: "Müssen Sie Jahresabschlüsse einreichen? ",
       cuentasLink: "Mehr Info"
     }
   }
+  
 }
 
 function Landing() {
@@ -644,7 +648,7 @@ function Landing() {
           <div className="footer-content">
             <div className="footer-brand"><div className="logo"><span className="logo-icon">DF</span><span className="logo-text">DedosFácil</span></div><p>{t.footer.slogan}</p></div>
             <div className="footer-links"><h4>{t.footer.legal}</h4><a href="/aviso-legal">{t.footer.legalNotice}</a><a href="/privacidad">{t.footer.privacy}</a><a href="/cookies">{t.footer.cookies}</a></div>
-            <div className="footer-contact"><h4>{t.footer.contact}</h4><a href="mailto:info@dedosfacil.es"><Mail size={16} />info@dedosfacil.es</a></div>
+            <div className="footer-contact"><h4>{t.footer.contact}</h4><a href="mailto:support@dedosfacil.es"><Mail size={16} />support@dedosfacil.es</a></div>
           </div>
           <div className="footer-bottom">
             <p>{t.footer.copyright}</p>
