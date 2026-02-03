@@ -354,7 +354,6 @@ function FormularioNRUA() {
   const [uploadedFile, setUploadedFile] = useState(null)
   const [fileProcessed, setFileProcessed] = useState(false)
 const [isProcessing, setIsProcessing] = useState(false)
- const [isProcessing, setIsProcessing] = useState(false)
   const [extractedStays, setExtractedStays] = useState([])
   const [errors, setErrors] = useState({})
   
