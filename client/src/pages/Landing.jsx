@@ -84,6 +84,7 @@ const translations = {
         title: "Desde Booking:",
         steps: ["Entra en Extranet de Booking", "Ve a 'Reservas' → 'Historial'", "Haz clic en 'Exportar'", "Guarda el archivo CSV"]
       },
+      other: "¿Usas VRBO u otra plataforma? Descarga el PDF o informe de reservas y súbelo igualmente.",
       noFile: "¿No tienes archivo? No te preocupes, también puedes rellenar las estancias manualmente en el formulario."
     },
     pricing: {
@@ -190,6 +191,7 @@ const translations = {
         title: "From Booking:",
         steps: ["Go to Booking Extranet", "Go to 'Reservations' → 'History'", "Click 'Export'", "Save the CSV file"]
       },
+      other: "Using VRBO or another platform? Download the PDF or booking report and upload it anyway.",
       noFile: "Don't have a file? Don't worry, you can also fill in the stays manually in the form."
     },
     pricing: {
@@ -296,6 +298,7 @@ const translations = {
         title: "Depuis Booking:",
         steps: ["Allez sur l'Extranet Booking", "Allez dans 'Réservations' → 'Historique'", "Cliquez sur 'Exporter'", "Enregistrez le fichier CSV"]
       },
+      other: "Vous utilisez VRBO ou autre? Téléchargez le PDF ou rapport de réservations et uploadez-le.",
       noFile: "Pas de fichier? Pas de souci, vous pouvez aussi remplir les séjours manuellement."
     },
     pricing: {
@@ -402,6 +405,7 @@ const translations = {
         title: "Von Booking:",
         steps: ["Gehen Sie zum Booking Extranet", "Gehen Sie zu 'Reservierungen' → 'Verlauf'", "Klicken Sie auf 'Exportieren'", "Speichern Sie die CSV-Datei"]
       },
+      other: "Sie nutzen VRBO oder andere? Laden Sie das PDF oder den Buchungsbericht herunter und laden Sie es hoch.",
       noFile: "Keine Datei? Kein Problem, Sie können die Aufenthalte auch manuell im Formular eingeben."
     },
     pricing: {
@@ -585,6 +589,7 @@ function Landing() {
               <ol>{t.download.booking.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>
             </div>
           </div>
+          <p className="download-other">{t.download.other}</p>
           <p className="download-note">{t.download.noFile}</p>
         </div>
       </section>
