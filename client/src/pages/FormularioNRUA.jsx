@@ -50,6 +50,14 @@ const translations = {
       checkIn: "Entrada",
       checkOut: "Salida",
       guests: "Huéspedes",
+      purpose: "Finalidad",
+purposes: {
+  vacation: "Vacacional/Turístico",
+  work: "Laboral",
+  study: "Estudios",
+  medical: "Tratamiento médico",
+  other: "Otros"
+},
       addStay: "Añadir estancia",
       staysFound: "estancia(s)",
       noFile: "¿No tienes el archivo?",
@@ -114,6 +122,14 @@ const translations = {
       checkIn: "Check-in",
       checkOut: "Check-out",
       guests: "Guests",
+      purpose: "Purpose",
+purposes: {
+  vacation: "Vacation/Tourist",
+  work: "Work",
+  study: "Studies",
+  medical: "Medical treatment",
+  other: "Other"
+},
       addStay: "Add stay",
       staysFound: "stay(s)",
       noFile: "Don't have the file?",
@@ -178,6 +194,14 @@ const translations = {
       checkIn: "Arrivée",
       checkOut: "Départ",
       guests: "Voyageurs",
+      purpose: "Finalité",
+purposes: {
+  vacation: "Vacances/Tourisme",
+  work: "Travail",
+  study: "Études",
+  medical: "Traitement médical",
+  other: "Autre"
+},
       addStay: "Ajouter un séjour",
       staysFound: "séjour(s)",
       noFile: "Pas de fichier?",
@@ -242,6 +266,14 @@ const translations = {
       checkIn: "Check-in",
       checkOut: "Check-out",
       guests: "Gäste",
+      purpose: "Zweck",
+purposes: {
+  vacation: "Urlaub/Tourismus",
+  work: "Arbeit",
+  study: "Studium",
+  medical: "Medizinische Behandlung",
+  other: "Sonstiges"
+},
       addStay: "Aufenthalt hinzufügen",
       staysFound: "Aufenthalt(e)",
       noFile: "Keine Datei?",
@@ -329,10 +361,11 @@ function FormularioNRUA() {
           e.file = t.errors.required
         } else {
           // Verificar que todas las estancias tengan huéspedes
-          const missingGuests = extractedStays.some(s => !s.guests || parseInt(s.guests) < 1)
-          if (missingGuests) {
-            e.stays = t.errors.missingGuests || 'Añade el número de huéspedes para todas las estancias'
-          }
+        const missingGuests = extractedStays.some(s => !s.guests || parseInt(s.guests) < 1)
+const missingPurpose = extractedStays.some(s => !s.purpose)
+if (missingGuests || missingPurpose) {
+  e.stays = 'Completa huéspedes y finalidad para todas las estancias'
+}
         }
       }
     }
@@ -618,35 +651,48 @@ function FormularioNRUA() {
                   <p className="stays-instructions">{t.step3.reviewInstructions}</p>
                   
                   <div className="stays-table">
-                    <div className="stays-table-header">
-                      <span>{t.step3.checkIn}</span>
-                      <span>{t.step3.checkOut}</span>
-                      <span>{t.step3.guests} *</span>
-                      <span></span>
-                    </div>
-                    {extractedStays.map((stay, i) => (
-                      <div key={i} className="stays-table-row">
-                        <input 
-                          type="date" 
-                          value={stay.checkIn} 
-                          onChange={e => updateStay(i, 'checkIn', e.target.value)}
-                        />
-                        <input 
-                          type="date" 
-                          value={stay.checkOut} 
-                          onChange={e => updateStay(i, 'checkOut', e.target.value)}
-                        />
-                        <input 
-                          type="number" 
-                          min="1" 
-                          max="20"
-                          value={stay.guests} 
-                          onChange={e => updateStay(i, 'guests', e.target.value)}
-                          className={!stay.guests || stay.guests < 1 ? 'needs-input' : ''}
-                        />
-                        <button className="btn-icon-small" onClick={() => removeStay(i)}>×</button>
-                      </div>
-                    ))}
+                 <div className="stays-table-header">
+  <span>{t.step3.checkIn}</span>
+  <span>{t.step3.checkOut}</span>
+  <span>{t.step3.guests} *</span>
+  <span>{t.step3.purpose} *</span>
+  <span></span>
+</div>
+                 {extractedStays.map((stay, i) => (
+  <div key={i} className="stays-table-row">
+    <input 
+      type="date" 
+      value={stay.checkIn} 
+      onChange={e => updateStay(i, 'checkIn', e.target.value)}
+    />
+    <input 
+      type="date" 
+      value={stay.checkOut} 
+      onChange={e => updateStay(i, 'checkOut', e.target.value)}
+    />
+    <input 
+      type="number" 
+      min="1" 
+      max="20"
+      value={stay.guests} 
+      onChange={e => updateStay(i, 'guests', e.target.value)}
+      className={!stay.guests || stay.guests < 1 ? 'needs-input' : ''}
+    />
+    <select
+      value={stay.purpose || ''}
+      onChange={e => updateStay(i, 'purpose', e.target.value)}
+      className={!stay.purpose ? 'needs-input' : ''}
+    >
+      <option value="">--</option>
+      <option value="1">{t.step3.purposes.vacation}</option>
+      <option value="2">{t.step3.purposes.work}</option>
+      <option value="3">{t.step3.purposes.study}</option>
+      <option value="4">{t.step3.purposes.medical}</option>
+      <option value="5">{t.step3.purposes.other}</option>
+    </select>
+    <button className="btn-icon-small" onClick={() => removeStay(i)}>×</button>
+  </div>
+))}
                   </div>
                   
                   <button className="btn btn-secondary btn-small add-stay-btn" onClick={addEmptyStay}>
