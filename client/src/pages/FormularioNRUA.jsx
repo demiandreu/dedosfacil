@@ -37,6 +37,7 @@ const translations = {
       selectProvince: "Selecciona..."
     },
     step3: {
+      processing: "Extrayendo datos... (puede tardar 1-2 minutos)",
       formatHelp: "¿Qué formato debe tener mi archivo?",
 formatInfo: "Acepta archivos CSV o Excel exportados de Airbnb, Booking, VRBO u otras plataformas. El archivo debe contener columnas con fechas de entrada y salida. Formatos de fecha aceptados: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
       title: "Historial de reservas",
@@ -117,6 +118,7 @@ downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
       selectProvince: "Select..."
     },
     step3: {
+      processing: "Extracting data... (may take 1-2 minutes)",
       formatHelp: "What format should my file have?",
 formatInfo: "Accepts CSV or Excel files exported from Airbnb, Booking, VRBO or other platforms. The file must contain columns with check-in and check-out dates. Accepted date formats: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
       title: "Booking history",
@@ -197,6 +199,7 @@ downloadCsvHelp: "Import this file in the Registry's N2 application"
       selectProvince: "Sélectionnez..."
     },
     step3: {
+      processing: "Extraction des données... (peut prendre 1-2 minutes)",
       formatHelp: "Quel format doit avoir mon fichier?",
 formatInfo: "Accepte les fichiers CSV ou Excel exportés d'Airbnb, Booking, VRBO ou autres. Le fichier doit contenir des colonnes avec dates d'arrivée et de départ. Formats de date acceptés: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
       title: "Historique des réservations",
@@ -277,6 +280,7 @@ downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
       selectProvince: "Auswählen..."
     },
     step3: {
+      processing: "Daten werden extrahiert... (kann 1-2 Minuten dauern)",
       formatHelp: "Welches Format sollte meine Datei haben?",
 formatInfo: "Akzeptiert CSV- oder Excel-Dateien von Airbnb, Booking, VRBO oder anderen. Die Datei muss Spalten mit Check-in und Check-out Daten enthalten. Akzeptierte Datumsformate: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
       title: "Buchungsverlauf",
@@ -923,7 +927,7 @@ const downloadN2Csv = () => {
     onClick={next}
     disabled={isProcessing}
   >
-    {isProcessing ? '⏳ Procesando...' : t.nav.next}
+   {isProcessing ? '⏳ Procesando... espera' : t.nav.next}
     {!isProcessing && <ArrowRight size={18} />}
   </button>
 )}
