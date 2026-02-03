@@ -76,7 +76,7 @@ function Exito() {
           </div>
 
           <p style={{ marginTop: '32px', fontSize: '14px', color: '#94a3b8' }}>
-            ¿Dudas? Escríbenos a <a href="mailto:info@dedosfacil.es" style={{ color: '#2563eb' }}>info@dedosfacil.es</a>
+            ¿Dudas? Escríbenos a <a href="mailto:support@dedosfacil.es" style={{ color: '#2563eb' }}>info@dedosfacil.es</a>
           </p>
         </div>
       </div>
