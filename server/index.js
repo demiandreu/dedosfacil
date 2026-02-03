@@ -111,6 +111,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
 });
 
 // Process CSV with Anthropic
+
+// Process CSV with Anthropic
 app.post('/api/process-csv', upload.fields([
   { name: 'airbnb', maxCount: 1 },
   { name: 'booking', maxCount: 1 }
@@ -128,36 +130,22 @@ app.post('/api/process-csv', upload.fields([
         max_tokens: 8192,
         messages: [{
           role: 'user',
-         content: `Analiza este CSV de Airbnb y extrae TODAS las estancias del año 2025.
-          
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin \`\`\`.
+          content: `Analiza este CSV de Airbnb y extrae TODAS las estancias del año 2025.
 
-Formato exacto:
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks.
+
+Formato exacto requerido:
 {"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","noches":0,"importe":0.00,"plataforma":"Airbnb"}],"total_ingresos":0.00,"total_noches":0}
+
+Si no hay estancias de 2025, devuelve: {"estancias":[],"total_ingresos":0,"total_noches":0}
 
 CSV:
 ${airbnbContent}`
-          {
-            "estancias": [
-              {
-                "fecha_entrada": "DD/MM/YYYY",
-                "fecha_salida": "DD/MM/YYYY",
-                "noches": 0,
-                "importe": 0.00,
-                "plataforma": "Airbnb"
-              }
-            ],
-            "total_ingresos": 0.00,
-            "total_noches": 0
-          }
-          
-          CSV:
-          ${airbnbContent}`
         }]
       });
-    try {
+      
+      try {
         let responseText = airbnbResponse.content[0].text;
-        // Extraer JSON aunque venga con texto extra
         const jsonMatch = responseText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           airbnbData = JSON.parse(jsonMatch[0]);
@@ -170,41 +158,27 @@ ${airbnbContent}`
     // Process Booking CSV
     if (files.booking && files.booking[0]) {
       const bookingContent = files.booking[0].buffer.toString('utf-8');
-     const airbnbResponse = await anthropic.messages.create({
+      const bookingResponse = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 8192,
         messages: [{
           role: 'user',
-        content: `Analiza este CSV de Booking.com y extrae TODAS las estancias del año 2025.
-          
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin \`\`\`.
+          content: `Analiza este CSV de Booking.com y extrae TODAS las estancias del año 2025.
 
-Formato exacto:
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks.
+
+Formato exacto requerido:
 {"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","noches":0,"importe":0.00,"plataforma":"Booking"}],"total_ingresos":0.00,"total_noches":0}
+
+Si no hay estancias de 2025, devuelve: {"estancias":[],"total_ingresos":0,"total_noches":0}
 
 CSV:
 ${bookingContent}`
-          {
-            "estancias": [
-              {
-                "fecha_entrada": "DD/MM/YYYY",
-                "fecha_salida": "DD/MM/YYYY", 
-                "noches": 0,
-                "importe": 0.00,
-                "plataforma": "Booking"
-              }
-            ],
-            "total_ingresos": 0.00,
-            "total_noches": 0
-          }
-          
-          CSV:
-          ${bookingContent}`
         }]
       });
-     try {
+      
+      try {
         let responseText = bookingResponse.content[0].text;
-        // Extraer JSON aunque venga con texto extra
         const jsonMatch = responseText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           bookingData = JSON.parse(jsonMatch[0]);
