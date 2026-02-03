@@ -113,7 +113,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
   console.log('Payment completed for session:', session.id);
 }
 
-RESEND_API_KEY=re_hSNQ7xC6_KTHPdn5yYdVBauxJXAqT54YZ
 
 // JSON middleware for other routes
 app.use(express.json());
@@ -180,9 +179,10 @@ const session = await stripe.checkout.sessions.create({
 // Process CSV with Anthropic
 
 // Process CSV with Anthropic
-app.post('/api/process-csv', upload.fields([
+upload.fields([
   { name: 'airbnb', maxCount: 1 },
-  { name: 'booking', maxCount: 1 }
+  { name: 'booking', maxCount: 1 },
+  { name: 'other', maxCount: 1 }
 ]), async (req, res) => {
   try {
     const files = req.files;
@@ -254,11 +254,44 @@ ${bookingContent}`
         console.error('Error parsing Booking response:', e.message);
       }
     }
+      // Process Other file
+    let otherData = null;
+    if (files.other && files.other[0]) {
+      const otherContent = files.other[0].buffer.toString('utf-8');
+      const otherResponse = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8192,
+        messages: [{
+          role: 'user',
+          content: `Analiza este archivo y extrae TODAS las estancias del año 2025.
 
-    res.json({
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks.
+
+Formato exacto requerido:
+{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","noches":0,"importe":0.00,"plataforma":"Otro"}],"total_ingresos":0.00,"total_noches":0}
+
+Si no hay estancias de 2025, devuelve: {"estancias":[],"total_ingresos":0,"total_noches":0}
+
+Archivo:
+${otherContent}`
+        }]
+      });
+      
+      try {
+        let responseText = otherResponse.content[0].text;
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          otherData = JSON.parse(jsonMatch[0]);
+        }
+      } catch (e) {
+        console.error('Error parsing Other response:', e.message);
+      }
+    }
+   res.json({
       success: true,
       airbnb: airbnbData,
-      booking: bookingData
+      booking: bookingData,
+      other: otherData
     });
   } catch (error) {
     console.error('Process CSV error:', error);
