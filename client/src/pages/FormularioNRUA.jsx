@@ -37,47 +37,44 @@ const translations = {
       selectProvince: "Selecciona..."
     },
     step3: {
+      title: "Historial de reservas",
+      subtitle: "Sube tus archivos de Airbnb, Booking u otras plataformas",
       airbnbFile: "Archivo Airbnb",
-  bookingFile: "Archivo Booking", 
-  otherFile: "Otro archivo (VRBO, PDF, etc.)",
-  dragOrClick: "Arrastra o haz clic",
-  duplicateWarning: "⚠️ Posible duplicado - misma fecha de entrada",
-  removeFile: "Quitar",
-  filesUploaded: "archivo(s) subido(s)",
+      bookingFile: "Archivo Booking", 
+      otherFile: "Otro archivo (VRBO, PDF, etc.)",
+      dragOrClick: "Arrastra o haz clic",
+      duplicateWarning: "⚠️ Posible duplicado - misma fecha de entrada",
+      removeFile: "Quitar",
+      filesUploaded: "archivo(s) subido(s)",
       processing: "Extrayendo datos... (puede tardar 1-2 minutos)",
       formatHelp: "¿Qué formato debe tener mi archivo?",
-formatInfo: "Acepta archivos CSV o Excel exportados de Airbnb, Booking, VRBO u otras plataformas. El archivo debe contener columnas con fechas de entrada y salida. Formatos de fecha aceptados: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
-      title: "Historial de reservas",
-      subtitle: "Sube tu archivo de Airbnb, Booking, VRBO u otra plataforma",
-      uploadTitle: "Arrastra tu archivo aquí",
-      uploadOr: "o haz clic para seleccionar",
-      uploadHelp: "Acepta CSV, PDF o Excel de Airbnb, Booking, VRBO u otras plataformas",
-      uploaded: "Archivo:",
+      formatInfo: "Acepta archivos CSV o Excel exportados de Airbnb, Booking, VRBO u otras plataformas. El archivo debe contener columnas con fechas de entrada y salida. Formatos de fecha aceptados: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
+      extractBtn: "🔍 Extraer estancias",
       reviewTitle: "Revisa tus estancias",
       reviewInstructions: "Verifica las fechas y añade el número de huéspedes para cada estancia:",
-      changeFile: "Cambiar archivo",
-      selectFile: "Seleccionar archivo",
+      changeFile: "Cambiar archivos",
       checkIn: "Entrada",
       checkOut: "Salida",
       guests: "Huéspedes",
       purpose: "Finalidad",
-purposes: {
-  vacation: "Vacacional/Turístico",
-  work: "Laboral",
-  study: "Estudios",
-  medical: "Tratamiento médico",
-  other: "Otros"
-},
+      source: "Fuente",
+      purposes: {
+        vacation: "Vacacional/Turístico",
+        work: "Laboral",
+        study: "Estudios",
+        medical: "Tratamiento médico",
+        other: "Otros"
+      },
       addStay: "Añadir estancia",
       staysFound: "estancia(s)",
       noFile: "¿No tienes el archivo?",
       manual: "Quiero introducir las estancias manualmente",
       noActivity: "No tuve ningún alquiler en 2025",
       applyToAll: "Aplicar a todos",
-defaultGuests: "Huéspedes por defecto:",
-defaultPurpose: "Finalidad por defecto:",
+      defaultGuests: "Huéspedes por defecto:",
+      defaultPurpose: "Finalidad por defecto:",
       downloadCsv: "Descargar CSV para N2",
-downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
+      downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
     },
     step4: {
       title: "Resumen y pago",
@@ -124,47 +121,44 @@ downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
       selectProvince: "Select..."
     },
     step3: {
-       airbnbFile: "Airbnb file",
-  bookingFile: "Booking file",
-  otherFile: "Other file (VRBO, PDF, etc.)",
-  dragOrClick: "Drag or click",
-  duplicateWarning: "⚠️ Possible duplicate - same check-in date",
-  removeFile: "Remove",
-  filesUploaded: "file(s) uploaded",
+      title: "Booking history",
+      subtitle: "Upload your files from Airbnb, Booking or other platforms",
+      airbnbFile: "Airbnb file",
+      bookingFile: "Booking file",
+      otherFile: "Other file (VRBO, PDF, etc.)",
+      dragOrClick: "Drag or click",
+      duplicateWarning: "⚠️ Possible duplicate - same check-in date",
+      removeFile: "Remove",
+      filesUploaded: "file(s) uploaded",
       processing: "Extracting data... (may take 1-2 minutes)",
       formatHelp: "What format should my file have?",
-formatInfo: "Accepts CSV or Excel files exported from Airbnb, Booking, VRBO or other platforms. The file must contain columns with check-in and check-out dates. Accepted date formats: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
-      title: "Booking history",
-      subtitle: "Upload your file from Airbnb, Booking, VRBO or other platform",
-      uploadTitle: "Drag your file here",
-      uploadOr: "or click to select",
-      uploadHelp: "Accepts CSV, PDF or Excel from Airbnb, Booking, VRBO or other platforms",
-      uploaded: "File:",
+      formatInfo: "Accepts CSV or Excel files exported from Airbnb, Booking, VRBO or other platforms. The file must contain columns with check-in and check-out dates. Accepted date formats: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
+      extractBtn: "🔍 Extract stays",
       reviewTitle: "Review your stays",
       reviewInstructions: "Verify dates and add the number of guests for each stay:",
-      changeFile: "Change file",
-      selectFile: "Select file",
+      changeFile: "Change files",
       checkIn: "Check-in",
       checkOut: "Check-out",
       guests: "Guests",
       purpose: "Purpose",
-purposes: {
-  vacation: "Vacation/Tourist",
-  work: "Work",
-  study: "Studies",
-  medical: "Medical treatment",
-  other: "Other"
-},
+      source: "Source",
+      purposes: {
+        vacation: "Vacation/Tourist",
+        work: "Work",
+        study: "Studies",
+        medical: "Medical treatment",
+        other: "Other"
+      },
       addStay: "Add stay",
       staysFound: "stay(s)",
       noFile: "Don't have the file?",
       manual: "I want to enter stays manually",
-     noActivity: "I had no rentals in 2025",
+      noActivity: "I had no rentals in 2025",
       applyToAll: "Apply to all",
-defaultGuests: "Default guests:",
-defaultPurpose: "Default purpose:",
-downloadCsv: "Download CSV for N2",
-downloadCsvHelp: "Import this file in the Registry's N2 application"
+      defaultGuests: "Default guests:",
+      defaultPurpose: "Default purpose:",
+      downloadCsv: "Download CSV for N2",
+      downloadCsvHelp: "Import this file in the Registry's N2 application"
     },
     step4: {
       title: "Summary and payment",
@@ -211,47 +205,44 @@ downloadCsvHelp: "Import this file in the Registry's N2 application"
       selectProvince: "Sélectionnez..."
     },
     step3: {
-        airbnbFile: "Fichier Airbnb",
-  bookingFile: "Fichier Booking",
-  otherFile: "Autre fichier (VRBO, PDF, etc.)",
-  dragOrClick: "Glisser ou cliquer",
-  duplicateWarning: "⚠️ Doublon possible - même date d'arrivée",
-  removeFile: "Supprimer",
-  filesUploaded: "fichier(s) téléchargé(s)",
+      title: "Historique des réservations",
+      subtitle: "Uploadez vos fichiers d'Airbnb, Booking ou autres",
+      airbnbFile: "Fichier Airbnb",
+      bookingFile: "Fichier Booking",
+      otherFile: "Autre fichier (VRBO, PDF, etc.)",
+      dragOrClick: "Glisser ou cliquer",
+      duplicateWarning: "⚠️ Doublon possible - même date d'arrivée",
+      removeFile: "Supprimer",
+      filesUploaded: "fichier(s) téléchargé(s)",
       processing: "Extraction des données... (peut prendre 1-2 minutes)",
       formatHelp: "Quel format doit avoir mon fichier?",
-formatInfo: "Accepte les fichiers CSV ou Excel exportés d'Airbnb, Booking, VRBO ou autres. Le fichier doit contenir des colonnes avec dates d'arrivée et de départ. Formats de date acceptés: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
-      title: "Historique des réservations",
-      subtitle: "Uploadez votre fichier d'Airbnb, Booking, VRBO ou autre",
-      uploadTitle: "Glissez votre fichier ici",
-      uploadOr: "ou cliquez pour sélectionner",
-      uploadHelp: "Accepte CSV, PDF ou Excel d'Airbnb, Booking, VRBO ou autres",
-      uploaded: "Fichier:",
+      formatInfo: "Accepte les fichiers CSV ou Excel exportés d'Airbnb, Booking, VRBO ou autres. Le fichier doit contenir des colonnes avec dates d'arrivée et de départ. Formats de date acceptés: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
+      extractBtn: "🔍 Extraire les séjours",
       reviewTitle: "Vérifiez vos séjours",
       reviewInstructions: "Vérifiez les dates et ajoutez le nombre de voyageurs:",
-      changeFile: "Changer de fichier",
-      selectFile: "Sélectionner fichier",
+      changeFile: "Changer de fichiers",
       checkIn: "Arrivée",
       checkOut: "Départ",
       guests: "Voyageurs",
       purpose: "Finalité",
-purposes: {
-  vacation: "Vacances/Tourisme",
-  work: "Travail",
-  study: "Études",
-  medical: "Traitement médical",
-  other: "Autre"
-},
+      source: "Source",
+      purposes: {
+        vacation: "Vacances/Tourisme",
+        work: "Travail",
+        study: "Études",
+        medical: "Traitement médical",
+        other: "Autre"
+      },
       addStay: "Ajouter un séjour",
       staysFound: "séjour(s)",
       noFile: "Pas de fichier?",
       manual: "Je veux entrer les séjours manuellement",
-    noActivity: "Je n'ai pas eu de locations en 2025",
+      noActivity: "Je n'ai pas eu de locations en 2025",
       applyToAll: "Appliquer à tous",
-defaultGuests: "Voyageurs par défaut:",
-defaultPurpose: "Finalité par défaut:",
-downloadCsv: "Télécharger CSV pour N2",
-downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
+      defaultGuests: "Voyageurs par défaut:",
+      defaultPurpose: "Finalité par défaut:",
+      downloadCsv: "Télécharger CSV pour N2",
+      downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
     },
     step4: {
       title: "Résumé et paiement",
@@ -298,47 +289,44 @@ downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
       selectProvince: "Auswählen..."
     },
     step3: {
-       airbnbFile: "Airbnb-Datei",
-  bookingFile: "Booking-Datei",
-  otherFile: "Andere Datei (VRBO, PDF, etc.)",
-  dragOrClick: "Ziehen oder klicken",
-  duplicateWarning: "⚠️ Mögliches Duplikat - gleiches Check-in-Datum",
-  removeFile: "Entfernen",
-  filesUploaded: "Datei(en) hochgeladen",
+      title: "Buchungsverlauf",
+      subtitle: "Laden Sie Ihre Dateien von Airbnb, Booking oder anderen hoch",
+      airbnbFile: "Airbnb-Datei",
+      bookingFile: "Booking-Datei",
+      otherFile: "Andere Datei (VRBO, PDF, etc.)",
+      dragOrClick: "Ziehen oder klicken",
+      duplicateWarning: "⚠️ Mögliches Duplikat - gleiches Check-in-Datum",
+      removeFile: "Entfernen",
+      filesUploaded: "Datei(en) hochgeladen",
       processing: "Daten werden extrahiert... (kann 1-2 Minuten dauern)",
       formatHelp: "Welches Format sollte meine Datei haben?",
-formatInfo: "Akzeptiert CSV- oder Excel-Dateien von Airbnb, Booking, VRBO oder anderen. Die Datei muss Spalten mit Check-in und Check-out Daten enthalten. Akzeptierte Datumsformate: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
-      title: "Buchungsverlauf",
-      subtitle: "Laden Sie Ihre Datei von Airbnb, Booking, VRBO oder anderen hoch",
-      uploadTitle: "Datei hierher ziehen",
-      uploadOr: "oder klicken zum Auswählen",
-      uploadHelp: "Akzeptiert CSV, PDF oder Excel von Airbnb, Booking, VRBO oder anderen",
-      uploaded: "Datei:",
+      formatInfo: "Akzeptiert CSV- oder Excel-Dateien von Airbnb, Booking, VRBO oder anderen. Die Datei muss Spalten mit Check-in und Check-out Daten enthalten. Akzeptierte Datumsformate: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
+      extractBtn: "🔍 Aufenthalte extrahieren",
       reviewTitle: "Überprüfen Sie Ihre Aufenthalte",
       reviewInstructions: "Überprüfen Sie die Daten und fügen Sie die Gästezahl hinzu:",
-      changeFile: "Datei ändern",
-      selectFile: "Datei auswählen",
+      changeFile: "Dateien ändern",
       checkIn: "Check-in",
       checkOut: "Check-out",
       guests: "Gäste",
       purpose: "Zweck",
-purposes: {
-  vacation: "Urlaub/Tourismus",
-  work: "Arbeit",
-  study: "Studium",
-  medical: "Medizinische Behandlung",
-  other: "Sonstiges"
-},
+      source: "Quelle",
+      purposes: {
+        vacation: "Urlaub/Tourismus",
+        work: "Arbeit",
+        study: "Studium",
+        medical: "Medizinische Behandlung",
+        other: "Sonstiges"
+      },
       addStay: "Aufenthalt hinzufügen",
       staysFound: "Aufenthalt(e)",
       noFile: "Keine Datei?",
       manual: "Ich möchte Aufenthalte manuell eingeben",
       noActivity: "Ich hatte 2025 keine Vermietungen",
       applyToAll: "Auf alle anwenden",
-defaultGuests: "Standard-Gäste:",
-defaultPurpose: "Standard-Zweck:",
-downloadCsv: "CSV für N2 herunterladen",
-downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers"
+      defaultGuests: "Standard-Gäste:",
+      defaultPurpose: "Standard-Zweck:",
+      downloadCsv: "CSV für N2 herunterladen",
+      downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers"
     },
     step4: {
       title: "Zusammenfassung und Zahlung",
@@ -380,12 +368,12 @@ function FormularioNRUA() {
   const [manualMode, setManualMode] = useState(false)
   const [noActivity, setNoActivity] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState({
-  airbnb: null,
-  booking: null,
-  other: null
-})
+    airbnb: null,
+    booking: null,
+    other: null
+  })
   const [fileProcessed, setFileProcessed] = useState(false)
-const [isProcessing, setIsProcessing] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [extractedStays, setExtractedStays] = useState([])
   const [errors, setErrors] = useState({})
   
@@ -422,15 +410,14 @@ const [isProcessing, setIsProcessing] = useState(false)
     }
     if (step === 3) {
       if (!noActivity) {
-      if (extractedStays.length === 0 && fileProcessed) {
-  e.file = t.errors.required
-        } else {
-          // Verificar que todas las estancias tengan huéspedes
-        const missingGuests = extractedStays.some(s => !s.guests || parseInt(s.guests) < 1)
-const missingPurpose = extractedStays.some(s => !s.purpose)
-if (missingGuests || missingPurpose) {
-  e.stays = 'Completa huéspedes y finalidad para todas las estancias'
-}
+        if (extractedStays.length === 0 && fileProcessed) {
+          e.file = t.errors.required
+        } else if (extractedStays.length > 0) {
+          const missingGuests = extractedStays.some(s => !s.guests || parseInt(s.guests) < 1)
+          const missingPurpose = extractedStays.some(s => !s.purpose)
+          if (missingGuests || missingPurpose) {
+            e.stays = 'Completa huéspedes y finalidad para todas las estancias'
+          }
         }
       }
     }
@@ -441,115 +428,167 @@ if (missingGuests || missingPurpose) {
   const next = () => { if (validate()) setStep(s => Math.min(s + 1, 4)) }
   const back = () => setStep(s => Math.max(s - 1, 1))
 
-const handleFileUpload = (type) => (e) => {
-  const file = e.target.files?.[0]
-  if (file) {
-    setUploadedFiles(prev => ({ ...prev, [type]: file }))
-    setManualMode(false)
-    setNoActivity(false)
+  // File handling functions
+  const handleFileUpload = (type) => (e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setUploadedFiles(prev => ({ ...prev, [type]: file }))
+      setManualMode(false)
+      setNoActivity(false)
+    }
   }
-}
 
-const handleFileDrop = (type) => (e) => {
-  e.preventDefault()
-  const file = e.dataTransfer.files?.[0]
-  if (file) {
-    setUploadedFiles(prev => ({ ...prev, [type]: file }))
-    setManualMode(false)
-    setNoActivity(false)
+  const handleFileDrop = (type) => (e) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    if (file) {
+      setUploadedFiles(prev => ({ ...prev, [type]: file }))
+      setManualMode(false)
+      setNoActivity(false)
+    }
   }
-}
 
-const removeFile = (type) => {
-  setUploadedFiles(prev => ({ ...prev, [type]: null }))
-}
+  const removeFile = (type) => {
+    setUploadedFiles(prev => ({ ...prev, [type]: null }))
+  }
 
-const processAllFiles = async () => {
-  const hasFiles = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.other
-  if (!hasFiles) return
-  
-  setIsProcessing(true)
-  setFileProcessed(false)
-  
-  try {
-    const formData = new FormData()
-    if (uploadedFiles.airbnb) formData.append('airbnb', uploadedFiles.airbnb)
-    if (uploadedFiles.booking) formData.append('booking', uploadedFiles.booking)
-    if (uploadedFiles.other) formData.append('other', uploadedFiles.other)
+  const processAllFiles = async () => {
+    const hasFiles = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.other
+    if (!hasFiles) return
     
-    const response = await fetch('/api/process-csv', {
-      method: 'POST',
-      body: formData
-    })
+    setIsProcessing(true)
+    setFileProcessed(false)
     
-    const data = await response.json()
-    
-    if (data.success) {
-      let allStays = []
+    try {
+      const formData = new FormData()
+      if (uploadedFiles.airbnb) formData.append('airbnb', uploadedFiles.airbnb)
+      if (uploadedFiles.booking) formData.append('booking', uploadedFiles.booking)
+      if (uploadedFiles.other) formData.append('other', uploadedFiles.other)
       
-      if (data.airbnb?.estancias) {
-        allStays = [...allStays, ...data.airbnb.estancias.map(s => ({
-          checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
-          checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
-          guests: '',
-          purpose: '',
-          source: 'Airbnb'
-        }))]
-      }
-      
-      if (data.booking?.estancias) {
-        allStays = [...allStays, ...data.booking.estancias.map(s => ({
-          checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
-          checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
-          guests: '',
-          purpose: '',
-          source: 'Booking'
-        }))]
-      }
-      
-      if (data.other?.estancias) {
-        allStays = [...allStays, ...data.other.estancias.map(s => ({
-          checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
-          checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
-          guests: '',
-          purpose: '',
-          source: 'Otro'
-        }))]
-      }
-      
-      allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
-      
-      // Detectar duplicados
-      allStays = allStays.map((stay, index) => {
-        const isDuplicate = allStays.some((other, otherIndex) => 
-          otherIndex !== index && 
-          other.checkIn === stay.checkIn &&
-          other.source !== stay.source
-        )
-        return { ...stay, isDuplicate }
+      const response = await fetch('/api/process-csv', {
+        method: 'POST',
+        body: formData
       })
       
-      setExtractedStays(allStays)
-    } else {
+      const data = await response.json()
+      
+      if (data.success) {
+        let allStays = []
+        
+        if (data.airbnb?.estancias) {
+          allStays = [...allStays, ...data.airbnb.estancias.map(s => ({
+            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+            guests: '',
+            purpose: '',
+            source: 'Airbnb'
+          }))]
+        }
+        
+        if (data.booking?.estancias) {
+          allStays = [...allStays, ...data.booking.estancias.map(s => ({
+            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+            guests: '',
+            purpose: '',
+            source: 'Booking'
+          }))]
+        }
+        
+        if (data.other?.estancias) {
+          allStays = [...allStays, ...data.other.estancias.map(s => ({
+            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+            guests: '',
+            purpose: '',
+            source: 'Otro'
+          }))]
+        }
+        
+        allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
+        
+        // Detectar duplicados
+        allStays = allStays.map((stay, index) => {
+          const isDuplicate = allStays.some((other, otherIndex) => 
+            otherIndex !== index && 
+            other.checkIn === stay.checkIn &&
+            other.source !== stay.source
+          )
+          return { ...stay, isDuplicate }
+        })
+        
+        setExtractedStays(allStays)
+      } else {
+        alert('Error al procesar los archivos. Intenta de nuevo.')
+      }
+    } catch (error) {
+      console.error('Error:', error)
       alert('Error al procesar los archivos. Intenta de nuevo.')
     }
-  } catch (error) {
-    console.error('Error:', error)
-    alert('Error al procesar los archivos. Intenta de nuevo.')
+    
+    setFileProcessed(true)
+    setIsProcessing(false)
   }
-  
-  setFileProcessed(true)
-  setIsProcessing(false)
-}
 
-const resetFiles = () => {
-  setUploadedFiles({ airbnb: null, booking: null, other: null })
-  setFileProcessed(false)
-  setExtractedStays([])
-}
+  const resetFiles = () => {
+    setUploadedFiles({ airbnb: null, booking: null, other: null })
+    setFileProcessed(false)
+    setExtractedStays([])
+  }
 
+  const updateStay = (index, field, value) => {
+    setExtractedStays(prev => {
+      const updated = [...prev]
+      updated[index] = { ...updated[index], [field]: value }
+      return updated
+    })
+    if (errors.stays) setErrors(prev => ({ ...prev, stays: null }))
+  }
 
- const handlePay = async () => {
+  const removeStay = (index) => {
+    setExtractedStays(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const addEmptyStay = () => {
+    setExtractedStays(prev => [...prev, { checkIn: '', checkOut: '', guests: '', purpose: '', source: 'Manual' }])
+    if (manualMode && extractedStays.length === 0) {
+      setManualMode(false)
+    }
+  }
+
+  const downloadN2Csv = () => {
+    if (!form.nrua || extractedStays.length === 0) {
+      alert('Necesitas el código NRUA y al menos una estancia')
+      return
+    }
+    
+    const incomplete = extractedStays.some(s => !s.checkIn || !s.checkOut || !s.guests || !s.purpose)
+    if (incomplete) {
+      alert('Completa todos los campos de cada estancia')
+      return
+    }
+    
+    const formatDate = (dateStr) => {
+      if (!dateStr) return ''
+      const [year, month, day] = dateStr.split('-')
+      return `${day}/${month}/${year}`
+    }
+    
+    const lines = extractedStays.map(stay => 
+      `${form.nrua};${formatDate(stay.checkIn)};${formatDate(stay.checkOut)};${stay.guests};${stay.purpose}`
+    )
+    
+    const csvContent = lines.join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `nrua_${form.nrua.replace(/[^a-zA-Z0-9]/g, '_')}_2025.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handlePay = async () => {
     if (!acceptTerms) return
     
     try {
@@ -565,14 +604,12 @@ const resetFiles = () => {
       const data = await response.json()
       
       if (data.url) {
-        // Guardar datos en localStorage para después del pago
         localStorage.setItem('dedosfacil_form', JSON.stringify({
           ...form,
           stays: extractedStays,
           noActivity,
           plan: selectedPlan
         }))
-        // Redirigir a Stripe
         window.location.href = data.url
       } else {
         alert('Error al crear sesión de pago')
@@ -584,6 +621,7 @@ const resetFiles = () => {
   }
 
   const currentPlan = t.step4.plans.find(p => p.id === selectedPlan)
+  const hasAnyFile = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.other
 
   return (
     <div className="form-page">
@@ -686,36 +724,91 @@ const resetFiles = () => {
                 <p>{t.step3.subtitle}</p>
               </div>
 
-              {/* Upload Zone - solo si no hay estancias extraídas */}
+              {/* Multi Upload Section */}
               {!manualMode && !noActivity && extractedStays.length === 0 && (
-                <div 
-                  className={`upload-zone ${uploadedFile ? 'has-file' : ''} ${errors.file ? 'error' : ''}`}
-                  onDrop={handleDrop}
-                  onDragOver={e => e.preventDefault()}
-                  onClick={() => document.getElementById('fileInput').click()}
-                >
-                  <input type="file" id="fileInput" accept=".csv,.pdf,.xlsx,.xls" onChange={handleFile} hidden />
-                  {uploadedFile && !fileProcessed ? (
-                    <div className="uploaded-file">
-                      <FileText size={32} />
-                      <p>{t.step3.uploaded} <strong>{uploadedFile.name}</strong></p>
-                     <p className="processing">⏳ {t.step3.processing}</p>
+                <div className="multi-upload-section">
+                  
+                  {/* Airbnb Upload */}
+                  <div 
+                    className={`upload-zone-mini ${uploadedFiles.airbnb ? 'has-file' : ''}`}
+                    onDrop={handleFileDrop('airbnb')}
+                    onDragOver={e => e.preventDefault()}
+                    onClick={() => document.getElementById('airbnbInput').click()}
+                  >
+                    <input type="file" id="airbnbInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('airbnb')} hidden />
+                    <div className="upload-zone-content">
+                      <span className="upload-icon">🏠</span>
+                      <strong>{t.step3.airbnbFile}</strong>
+                      {uploadedFiles.airbnb ? (
+                        <div className="file-info">
+                          <span className="file-name">{uploadedFiles.airbnb.name}</span>
+                          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('airbnb'); }}>×</button>
+                        </div>
+                      ) : (
+                        <span className="upload-hint">{t.step3.dragOrClick}</span>
+                      )}
                     </div>
-              ) : (
-                    <>
-                      <Upload size={48} />
-                      <p><strong>{t.step3.uploadTitle}</strong></p>
-                      <p>{t.step3.uploadOr}</p>
-                      <button type="button" className="btn btn-primary upload-btn">
-                        📁 {t.step3.selectFile}
-                      </button>
-                      <span className="help-text">{t.step3.uploadHelp}</span>
-<details className="format-help">
-  <summary>{t.step3.formatHelp}</summary>
-  <p>{t.step3.formatInfo}</p>
-</details>
-                    </>
+                  </div>
+
+                  {/* Booking Upload */}
+                  <div 
+                    className={`upload-zone-mini ${uploadedFiles.booking ? 'has-file' : ''}`}
+                    onDrop={handleFileDrop('booking')}
+                    onDragOver={e => e.preventDefault()}
+                    onClick={() => document.getElementById('bookingInput').click()}
+                  >
+                    <input type="file" id="bookingInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('booking')} hidden />
+                    <div className="upload-zone-content">
+                      <span className="upload-icon">🅱️</span>
+                      <strong>{t.step3.bookingFile}</strong>
+                      {uploadedFiles.booking ? (
+                        <div className="file-info">
+                          <span className="file-name">{uploadedFiles.booking.name}</span>
+                          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('booking'); }}>×</button>
+                        </div>
+                      ) : (
+                        <span className="upload-hint">{t.step3.dragOrClick}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Other Upload */}
+                  <div 
+                    className={`upload-zone-mini ${uploadedFiles.other ? 'has-file' : ''}`}
+                    onDrop={handleFileDrop('other')}
+                    onDragOver={e => e.preventDefault()}
+                    onClick={() => document.getElementById('otherInput').click()}
+                  >
+                    <input type="file" id="otherInput" accept=".csv,.xlsx,.xls,.pdf" onChange={handleFileUpload('other')} hidden />
+                    <div className="upload-zone-content">
+                      <span className="upload-icon">📄</span>
+                      <strong>{t.step3.otherFile}</strong>
+                      {uploadedFiles.other ? (
+                        <div className="file-info">
+                          <span className="file-name">{uploadedFiles.other.name}</span>
+                          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('other'); }}>×</button>
+                        </div>
+                      ) : (
+                        <span className="upload-hint">{t.step3.dragOrClick}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Process Button */}
+                  {hasAnyFile && (
+                    <button 
+                      className="btn btn-primary btn-process"
+                      onClick={processAllFiles}
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
+                    </button>
                   )}
+
+                  <details className="format-help">
+                    <summary>{t.step3.formatHelp}</summary>
+                    <p>{t.step3.formatInfo}</p>
+                  </details>
                 </div>
               )}
 
@@ -724,98 +817,95 @@ const resetFiles = () => {
                 <div className="stays-editor">
                   <div className="stays-header">
                     <h4>{t.step3.reviewTitle}</h4>
-                    <button className="btn btn-secondary btn-small" onClick={resetFile}>
+                    <button className="btn btn-secondary btn-small" onClick={resetFiles}>
                       {t.step3.changeFile}
                     </button>
                   </div>
-                <p className="stays-instructions">{t.step3.reviewInstructions}</p>
+                  <p className="stays-instructions">{t.step3.reviewInstructions}</p>
 
-{/* Aplicar a todos */}
-<div className="apply-to-all">
-  <div className="apply-group">
-    <label>{t.step3.defaultGuests}</label>
-    <input 
-      type="number" 
-      min="1" 
-      max="20" 
-      id="defaultGuests"
-      placeholder="2"
-    />
-    <button 
-      className="btn btn-small"
-      onClick={() => {
-        const val = document.getElementById('defaultGuests').value
-        if (val) setExtractedStays(prev => prev.map(s => ({ ...s, guests: val })))
-      }}
-    >
-      {t.step3.applyToAll}
-    </button>
-  </div>
-  <div className="apply-group">
-    <label>{t.step3.defaultPurpose}</label>
-    <select id="defaultPurpose">
-      <option value="">--</option>
-      <option value="1">{t.step3.purposes.vacation}</option>
-      <option value="2">{t.step3.purposes.work}</option>
-      <option value="3">{t.step3.purposes.study}</option>
-      <option value="4">{t.step3.purposes.medical}</option>
-      <option value="5">{t.step3.purposes.other}</option>
-    </select>
-    <button 
-      className="btn btn-small"
-      onClick={() => {
-        const val = document.getElementById('defaultPurpose').value
-        if (val) setExtractedStays(prev => prev.map(s => ({ ...s, purpose: val })))
-      }}
-    >
-      {t.step3.applyToAll}
-    </button>
-  </div>
-</div>
+                  {/* Aplicar a todos */}
+                  <div className="apply-to-all">
+                    <div className="apply-group">
+                      <label>{t.step3.defaultGuests}</label>
+                      <input type="number" min="1" max="20" id="defaultGuests" placeholder="2" />
+                      <button 
+                        className="btn btn-small"
+                        onClick={() => {
+                          const val = document.getElementById('defaultGuests').value
+                          if (val) setExtractedStays(prev => prev.map(s => ({ ...s, guests: val })))
+                        }}
+                      >
+                        {t.step3.applyToAll}
+                      </button>
+                    </div>
+                    <div className="apply-group">
+                      <label>{t.step3.defaultPurpose}</label>
+                      <select id="defaultPurpose">
+                        <option value="">--</option>
+                        <option value="1">{t.step3.purposes.vacation}</option>
+                        <option value="2">{t.step3.purposes.work}</option>
+                        <option value="3">{t.step3.purposes.study}</option>
+                        <option value="4">{t.step3.purposes.medical}</option>
+                        <option value="5">{t.step3.purposes.other}</option>
+                      </select>
+                      <button 
+                        className="btn btn-small"
+                        onClick={() => {
+                          const val = document.getElementById('defaultPurpose').value
+                          if (val) setExtractedStays(prev => prev.map(s => ({ ...s, purpose: val })))
+                        }}
+                      >
+                        {t.step3.applyToAll}
+                      </button>
+                    </div>
+                  </div>
                   
                   <div className="stays-table">
-                 <div className="stays-table-header">
-  <span>{t.step3.checkIn}</span>
-  <span>{t.step3.checkOut}</span>
-  <span>{t.step3.guests} *</span>
-  <span>{t.step3.purpose} *</span>
-  <span></span>
-</div>
-                 {extractedStays.map((stay, i) => (
-  <div key={i} className="stays-table-row">
-    <input 
-      type="date" 
-      value={stay.checkIn} 
-      onChange={e => updateStay(i, 'checkIn', e.target.value)}
-    />
-    <input 
-      type="date" 
-      value={stay.checkOut} 
-      onChange={e => updateStay(i, 'checkOut', e.target.value)}
-    />
-    <input 
-      type="number" 
-      min="1" 
-      max="20"
-      value={stay.guests} 
-      onChange={e => updateStay(i, 'guests', e.target.value)}
-      className={!stay.guests || stay.guests < 1 ? 'needs-input' : ''}
-    />
-    <select
-      value={stay.purpose || ''}
-      onChange={e => updateStay(i, 'purpose', e.target.value)}
-      className={!stay.purpose ? 'needs-input' : ''}
-    >
-      <option value="">--</option>
-      <option value="1">{t.step3.purposes.vacation}</option>
-      <option value="2">{t.step3.purposes.work}</option>
-      <option value="3">{t.step3.purposes.study}</option>
-      <option value="4">{t.step3.purposes.medical}</option>
-      <option value="5">{t.step3.purposes.other}</option>
-    </select>
-    <button className="btn-icon-small" onClick={() => removeStay(i)}>×</button>
-  </div>
-))}
+                    <div className="stays-table-header">
+                      <span>{t.step3.checkIn}</span>
+                      <span>{t.step3.checkOut}</span>
+                      <span>{t.step3.guests} *</span>
+                      <span>{t.step3.purpose} *</span>
+                      <span>{t.step3.source}</span>
+                      <span></span>
+                    </div>
+                    {extractedStays.map((stay, i) => (
+                      <div key={i} className={`stays-table-row ${stay.isDuplicate ? 'duplicate-warning' : ''}`}>
+                        <input 
+                          type="date" 
+                          value={stay.checkIn} 
+                          onChange={e => updateStay(i, 'checkIn', e.target.value)}
+                        />
+                        <input 
+                          type="date" 
+                          value={stay.checkOut} 
+                          onChange={e => updateStay(i, 'checkOut', e.target.value)}
+                        />
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="20"
+                          value={stay.guests} 
+                          onChange={e => updateStay(i, 'guests', e.target.value)}
+                          className={!stay.guests || stay.guests < 1 ? 'needs-input' : ''}
+                        />
+                        <select
+                          value={stay.purpose || ''}
+                          onChange={e => updateStay(i, 'purpose', e.target.value)}
+                          className={!stay.purpose ? 'needs-input' : ''}
+                        >
+                          <option value="">--</option>
+                          <option value="1">{t.step3.purposes.vacation}</option>
+                          <option value="2">{t.step3.purposes.work}</option>
+                          <option value="3">{t.step3.purposes.study}</option>
+                          <option value="4">{t.step3.purposes.medical}</option>
+                          <option value="5">{t.step3.purposes.other}</option>
+                        </select>
+                        <span className="source-badge">{stay.source || '-'}</span>
+                        <button className="btn-icon-small" onClick={() => removeStay(i)}>×</button>
+                        {stay.isDuplicate && <span className="duplicate-badge" title={t.step3.duplicateWarning}>⚠️</span>}
+                      </div>
+                    ))}
                   </div>
                   
                   <button className="btn btn-secondary btn-small add-stay-btn" onClick={addEmptyStay}>
@@ -824,21 +914,21 @@ const resetFiles = () => {
                   
                   <p className="stays-count">{extractedStays.length} {t.step3.staysFound}</p>
 
-<div className="download-n2-section">
-  <button 
-    className="btn btn-secondary" 
-    onClick={downloadN2Csv}
-    disabled={extractedStays.some(s => !s.guests || !s.purpose)}
-  >
-    📥 {t.step3.downloadCsv}
-  </button>
-  <span className="help-text">{t.step3.downloadCsvHelp}</span>
-</div>
+                  <div className="download-n2-section">
+                    <button 
+                      className="btn btn-secondary" 
+                      onClick={downloadN2Csv}
+                      disabled={extractedStays.some(s => !s.guests || !s.purpose)}
+                    >
+                      📥 {t.step3.downloadCsv}
+                    </button>
+                    <span className="help-text">{t.step3.downloadCsvHelp}</span>
+                  </div>
                 </div>
               )}
 
               {/* Opciones manuales */}
-              {extractedStays.length === 0 && (
+              {extractedStays.length === 0 && !isProcessing && (
                 <div className="manual-options">
                   <p className="manual-title">{t.step3.noFile}</p>
                   
@@ -920,16 +1010,16 @@ const resetFiles = () => {
         {/* Navigation */}
         <div className="form-nav">
           {step > 1 && <button className="btn btn-secondary" onClick={back}><ArrowLeft size={18} />{t.nav.back}</button>}
-         {step < 4 && (
-  <button 
-    className="btn btn-primary" 
-    onClick={next}
-    disabled={isProcessing}
-  >
-   {isProcessing ? '⏳ Procesando... espera' : t.nav.next}
-    {!isProcessing && <ArrowRight size={18} />}
-  </button>
-)}
+          {step < 4 && (
+            <button 
+              className="btn btn-primary" 
+              onClick={next}
+              disabled={isProcessing}
+            >
+              {isProcessing ? '⏳ Procesando... espera' : t.nav.next}
+              {!isProcessing && <ArrowRight size={18} />}
+            </button>
+          )}
         </div>
       </div>
     </div>
