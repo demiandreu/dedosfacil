@@ -363,6 +363,33 @@ app.get('/api/orders/:id', async (req, res) => {
   }
 });
 
+// Get authorization data for PDF
+app.get('/api/admin/authorization/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    const result = await pool.query(
+      `SELECT 
+        s.name, s.nrua, s.address, s.province, s.phone,
+        s.authorization_timestamp, s.authorization_ip,
+        o.email
+       FROM submissions s 
+       JOIN orders o ON o.id = s.order_id 
+       WHERE s.order_id = $1`,
+      [orderId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Authorization data error:', error);
+    res.status(500).json({ error: 'Error al obtener datos' });
+  }
+});
+
 // ============================================
 // ADMIN ENDPOINTS - Añade esto a server/index.js
 // ============================================
