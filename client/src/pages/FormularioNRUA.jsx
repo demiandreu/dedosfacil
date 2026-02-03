@@ -325,10 +325,30 @@ const translations = {
       applyToAll: "Auf alle anwenden",
       defaultGuests: "Standard-Gäste:",
       defaultPurpose: "Standard-Zweck:",
-      downloadCsv: "CSV für N2 herunterladen",
+   downloadCsv: "CSV für N2 herunterladen",
       downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers"
     },
-
+    step4: {
+      title: "Zusammenfassung und Zahlung",
+      summary: "Ihre Bestellübersicht",
+      plan: "Ausgewählter Plan",
+      plans: [
+        { id: 1, name: "1 Immobilie", price: 79, priceStr: "79€" },
+        { id: 3, name: "3 Immobilien", price: 199, priceStr: "199€", popular: true },
+        { id: 10, name: "10 Immobilien", price: 449, priceStr: "449€" }
+      ],
+      termsLabel: "Ich akzeptiere die",
+      terms: "Nutzungsbedingungen",
+      termsAnd: "und die",
+      privacy: "Datenschutzrichtlinie",
+      payBtn: "Bezahlen",
+      secure: "🔒 Sichere Zahlung mit Stripe",
+      delivery: "Sie erhalten die Bestätigung in 24-48h"
+    },
+    nav: { back: "Zurück", next: "Weiter" },
+    errors: { required: "Erforderlich", invalidEmail: "Ungültige E-Mail", missingGuests: "Gästezahl für alle Aufenthalte hinzufügen" }
+  }
+}
 
 const provinces = [
   "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Barcelona",
