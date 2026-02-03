@@ -1988,5 +1988,65 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.85rem;
   color: #64748b;
 }
+  /* Aplicar a todos */
+.apply-to-all {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.apply-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.apply-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.apply-group input,
+.apply-group select {
+  width: 80px;
+  padding: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+/* Tabla de estancias más compacta */
+.stays-table-header,
+.stays-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 70px 140px 30px;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.stays-table-header {
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.stays-table-row input,
+.stays-table-row select {
+  padding: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.stays-table-row input[type="number"] {
+  width: 60px;
+}
 }
 }
