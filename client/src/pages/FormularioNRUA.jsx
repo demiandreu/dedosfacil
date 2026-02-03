@@ -81,9 +81,9 @@ const translations = {
       summary: "Resumen de tu pedido",
       plan: "Plan seleccionado",
       plans: [
-        { id: 1, name: "1 Propiedad", price: 79, priceStr: "79€" },
-        { id: 3, name: "3 Propiedades", price: 199, priceStr: "199€", popular: true },
-        { id: 10, name: "10 Propiedades", price: 449, priceStr: "449€" }
+         { id: 1, name: "1 Propiedad", price: 79, priceStr: "79€" },
+  { id: 3, name: "3 Propiedades", price: 199, priceStr: "199€", popular: true },
+  { id: 10, name: "10 Propiedades", price: 449, priceStr: "449€" }
       ],
       termsLabel: "Acepto los",
       terms: "términos y condiciones",
@@ -165,9 +165,9 @@ const translations = {
       summary: "Order summary",
       plan: "Selected plan",
       plans: [
-        { id: 1, name: "1 Property", price: 79, priceStr: "€79" },
-        { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
-        { id: 10, name: "10 Properties", price: 449, priceStr: "€449" }
+  { id: 1, name: "1 Property", price: 69, priceStr: "€69" },
+  { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
+  { id: 10, name: "10 Properties", price: 399, priceStr: "€399" }
       ],
       termsLabel: "I accept the",
       terms: "terms and conditions",
@@ -249,9 +249,9 @@ const translations = {
       summary: "Résumé de votre commande",
       plan: "Plan sélectionné",
       plans: [
-        { id: 1, name: "1 Propriété", price: 79, priceStr: "79€" },
-        { id: 3, name: "3 Propriétés", price: 199, priceStr: "199€", popular: true },
-        { id: 10, name: "10 Propriétés", price: 449, priceStr: "449€" }
+    { id: 1, name: "1 Property", price: 69, priceStr: "€69" },
+  { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
+  { id: 10, name: "10 Properties", price: 399, priceStr: "€399" }
       ],
       termsLabel: "J'accepte les",
       terms: "conditions générales",
@@ -333,9 +333,9 @@ const translations = {
       summary: "Bestellübersicht",
       plan: "Ausgewählter Plan",
       plans: [
-        { id: 1, name: "1 Immobilie", price: 79, priceStr: "79€" },
-        { id: 3, name: "3 Immobilien", price: 199, priceStr: "199€", popular: true },
-        { id: 10, name: "10 Immobilien", price: 449, priceStr: "449€" }
+     { id: 1, name: "1 Property", price: 69, priceStr: "€69" },
+  { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
+  { id: 10, name: "10 Properties", price: 399, priceStr: "€399" }
       ],
       termsLabel: "Ich akzeptiere die",
       terms: "AGB",
