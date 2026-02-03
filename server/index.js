@@ -361,11 +361,6 @@ app.get('/api/orders/:id', async (req, res) => {
   }
 });
 
-// Catch-all: serve React app
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
-
 // ============================================
 // ADMIN ENDPOINTS - Añade esto a server/index.js
 // ============================================
@@ -562,6 +557,13 @@ app.post('/api/admin/update-status/:orderId', async (req, res) => {
 // ============================================
 // FIN ADMIN ENDPOINTS
 // ============================================
+
+
+// Catch-all: serve React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
