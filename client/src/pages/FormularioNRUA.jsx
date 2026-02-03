@@ -646,7 +646,7 @@ function FormularioNRUA() {
   }
 
 const handlePay = async () => {
-  if (!acceptTerms) return
+if (!acceptTerms || !acceptAuthorization) return
   
   try {
     // Convertir archivos a base64
@@ -691,6 +691,28 @@ const handlePay = async () => {
         noActivity: noActivity
       })
     })
+    body: JSON.stringify({
+  plan: selectedPlan.toString(),
+  email: form.email,
+  formData: {
+    name: form.name,
+    phone: form.phone,
+    nrua: form.nrua,
+    address: form.address,
+    province: form.province
+  },
+  files: {
+    airbnb: airbnbBase64,
+    airbnbName: uploadedFiles.airbnb?.name || null,
+    booking: bookingBase64,
+    bookingName: uploadedFiles.booking?.name || null,
+    other: otherBase64,
+    otherName: uploadedFiles.other?.name || null
+  },
+  stays: extractedStays,
+  noActivity: noActivity,
+  acceptAuthorization: true  // <-- AÑADIR ESTO
+})
     
     const data = await response.json()
     
