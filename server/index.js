@@ -125,11 +125,18 @@ app.post('/api/process-csv', upload.fields([
       const airbnbContent = files.airbnb[0].buffer.toString('utf-8');
       const airbnbResponse = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
+        max_tokens: 8192,
         messages: [{
           role: 'user',
-          content: `Analiza este CSV de Airbnb y extrae los datos de estancias. 
-          Devuelve SOLO un JSON válido con este formato:
+         content: `Analiza este CSV de Airbnb y extrae TODAS las estancias del año 2025.
+          
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin \`\`\`.
+
+Formato exacto:
+{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","noches":0,"importe":0.00,"plataforma":"Airbnb"}],"total_ingresos":0.00,"total_noches":0}
+
+CSV:
+${airbnbContent}`
           {
             "estancias": [
               {
@@ -163,13 +170,20 @@ app.post('/api/process-csv', upload.fields([
     // Process Booking CSV
     if (files.booking && files.booking[0]) {
       const bookingContent = files.booking[0].buffer.toString('utf-8');
-      const bookingResponse = await anthropic.messages.create({
+     const airbnbResponse = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
+        max_tokens: 8192,
         messages: [{
           role: 'user',
-          content: `Analiza este CSV de Booking.com y extrae los datos de estancias.
-          Devuelve SOLO un JSON válido con este formato:
+        content: `Analiza este CSV de Booking.com y extrae TODAS las estancias del año 2025.
+          
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin \`\`\`.
+
+Formato exacto:
+{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","noches":0,"importe":0.00,"plataforma":"Booking"}],"total_ingresos":0.00,"total_noches":0}
+
+CSV:
+${bookingContent}`
           {
             "estancias": [
               {
