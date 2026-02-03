@@ -1,313 +1,256 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   ArrowRight, 
   ArrowLeft, 
-  Plus, 
-  Trash2, 
+  Upload, 
   User, 
   Home, 
-  Calendar, 
   CreditCard,
   Check,
-  AlertTriangle,
-  Upload
+  FileText,
+  AlertCircle
 } from 'lucide-react'
 
-// ============================================
-// TRANSLATIONS
-// ============================================
 const translations = {
   es: {
-    title: "Presenta tu Depósito de Arrendamientos",
-    subtitle: "Completa el formulario y nosotros nos encargamos del resto",
-    steps: ["Tus datos", "Propiedad", "Estancias", "Pago"],
+    title: "Presenta tu NRUA",
+    steps: ["Tus datos", "Propiedad", "Reservas", "Pago"],
     step1: {
       title: "Datos de contacto",
-      subtitle: "Necesitamos tus datos para enviarte el justificante",
+      subtitle: "Para enviarte el justificante",
       name: "Nombre completo",
       email: "Email",
-      phone: "Teléfono",
-      namePlaceholder: "Ej: Juan García López",
-      emailPlaceholder: "tu@email.com",
-      phonePlaceholder: "+34 600 000 000"
+      phone: "Teléfono (WhatsApp)",
+      namePh: "Ej: Juan García",
+      emailPh: "tu@email.com",
+      phonePh: "+34 600 000 000"
     },
     step2: {
       title: "Datos de la propiedad",
-      subtitle: "Introduce el código NRUA de tu vivienda turística",
+      subtitle: "Información de tu vivienda turística",
       nrua: "Código NRUA",
-      nruaPlaceholder: "Ej: NRUA-2024-000123",
-      nruaHelp: "Lo encontrarás en tu licencia de vivienda turística",
-      address: "Dirección de la propiedad",
-      addressPlaceholder: "Calle, número, piso, ciudad",
+      nruaPh: "NRUA-2024-000123",
+      nruaHelp: "Está en tu licencia de vivienda turística",
+      address: "Dirección completa",
+      addressPh: "Calle, número, piso, ciudad",
       province: "Provincia",
-      selectProvince: "Selecciona provincia"
+      selectProvince: "Selecciona..."
     },
     step3: {
-      title: "Estancias de 2025",
-      subtitle: "Añade todas las estancias que has tenido este año",
-      noStays: "No has añadido ninguna estancia todavía",
-      noStaysHelp: "Si no has tenido ningún alquiler en 2025, marca la casilla de abajo",
-      noActivity: "No he tenido ninguna actividad en 2025",
-      addStay: "Añadir estancia",
-      checkIn: "Entrada",
-      checkOut: "Salida",
-      guests: "Huéspedes",
-      purpose: "Finalidad",
-      purposes: {
-        vacation: "Vacacional",
-        work: "Laboral",
-        other: "Otro"
-      },
-      stayCount: "estancia(s) añadida(s)",
-      importTitle: "¿Tienes muchas reservas?",
-      importText: "Puedes descargar el historial de Airbnb o Booking y enviárnoslo por email a",
-      deleteConfirm: "¿Eliminar esta estancia?"
+      title: "Historial de reservas",
+      subtitle: "Sube tu archivo de reservas de 2025",
+      uploadTitle: "Arrastra tu archivo aquí",
+      uploadOr: "o haz clic para seleccionar",
+      uploadHelp: "Acepta CSV, PDF o Excel de Airbnb, Booking, VRBO u otras plataformas",
+      uploaded: "Archivo subido:",
+      change: "Cambiar archivo",
+      noFile: "¿No tienes el archivo?",
+      noFileDesc: "Marca esta casilla y rellena manualmente:",
+      manual: "Quiero introducir las estancias manualmente",
+      noActivity: "No tuve ningún alquiler en 2025",
+      manualTitle: "Estancias (una por línea):",
+      manualPh: "01/01/2025 - 05/01/2025 - 2 huéspedes\n15/02/2025 - 20/02/2025 - 4 huéspedes",
+      manualHelp: "Formato: Fecha entrada - Fecha salida - Nº huéspedes"
     },
     step4: {
-      title: "Selecciona tu plan",
-      subtitle: "Elige el plan que mejor se adapte a ti",
+      title: "Resumen y pago",
+      summary: "Resumen de tu pedido",
+      plan: "Plan seleccionado",
       plans: [
-        { name: "1 Propiedad", price: "79€", features: ["1 NRUA", "Presentación oficial", "Justificante", "Soporte email", "48h entrega"] },
-        { name: "Pack 3", price: "199€", features: ["Hasta 3 propiedades", "Presentación oficial", "Justificante", "Soporte prioritario", "24h entrega"], popular: true },
-        { name: "Pack 10", price: "449€", features: ["Hasta 10 propiedades", "Gestión completa", "Soporte telefónico", "Entrega prioritaria"] }
+        { id: 1, name: "1 Propiedad", price: 79, priceStr: "79€" },
+        { id: 3, name: "3 Propiedades", price: 199, priceStr: "199€", popular: true },
+        { id: 10, name: "10 Propiedades", price: 449, priceStr: "449€" }
       ],
       termsLabel: "Acepto los",
       terms: "términos y condiciones",
       termsAnd: "y la",
       privacy: "política de privacidad",
-      payButton: "Pagar y enviar",
-      secure: "Pago 100% seguro con Stripe"
+      payBtn: "Pagar",
+      secure: "🔒 Pago seguro con Stripe",
+      delivery: "Recibirás el justificante en 24-48h"
     },
-    nav: {
-      back: "Atrás",
-      next: "Siguiente",
-      submit: "Enviar"
-    },
-    validation: {
-      required: "Este campo es obligatorio",
-      invalidEmail: "Email no válido",
-      invalidPhone: "Teléfono no válido",
-      minStays: "Añade al menos una estancia o marca 'sin actividad'"
-    }
+    nav: { back: "Atrás", next: "Siguiente" },
+    errors: { required: "Obligatorio", invalidEmail: "Email no válido" }
   },
   en: {
-    title: "Submit your Rental Declaration",
-    subtitle: "Complete the form and we'll take care of the rest",
-    steps: ["Your info", "Property", "Stays", "Payment"],
+    title: "Submit your NRUA",
+    steps: ["Your info", "Property", "Bookings", "Payment"],
     step1: {
-      title: "Contact information",
-      subtitle: "We need your details to send you the certificate",
+      title: "Contact details",
+      subtitle: "To send you the certificate",
       name: "Full name",
       email: "Email",
-      phone: "Phone",
-      namePlaceholder: "E.g: John Smith",
-      emailPlaceholder: "your@email.com",
-      phonePlaceholder: "+34 600 000 000"
+      phone: "Phone (WhatsApp)",
+      namePh: "E.g: John Smith",
+      emailPh: "your@email.com",
+      phonePh: "+34 600 000 000"
     },
     step2: {
       title: "Property details",
-      subtitle: "Enter your tourist rental NRUA code",
+      subtitle: "Your tourist rental information",
       nrua: "NRUA Code",
-      nruaPlaceholder: "E.g: NRUA-2024-000123",
-      nruaHelp: "You'll find it on your tourist rental license",
-      address: "Property address",
-      addressPlaceholder: "Street, number, floor, city",
+      nruaPh: "NRUA-2024-000123",
+      nruaHelp: "Found on your tourist rental license",
+      address: "Full address",
+      addressPh: "Street, number, floor, city",
       province: "Province",
-      selectProvince: "Select province"
+      selectProvince: "Select..."
     },
     step3: {
-      title: "2025 Stays",
-      subtitle: "Add all the stays you've had this year",
-      noStays: "You haven't added any stays yet",
-      noStaysHelp: "If you had no rentals in 2025, check the box below",
-      noActivity: "I had no activity in 2025",
-      addStay: "Add stay",
-      checkIn: "Check-in",
-      checkOut: "Check-out",
-      guests: "Guests",
-      purpose: "Purpose",
-      purposes: {
-        vacation: "Vacation",
-        work: "Work",
-        other: "Other"
-      },
-      stayCount: "stay(s) added",
-      importTitle: "Have many bookings?",
-      importText: "You can download your Airbnb or Booking history and email it to",
-      deleteConfirm: "Delete this stay?"
+      title: "Booking history",
+      subtitle: "Upload your 2025 reservations file",
+      uploadTitle: "Drag your file here",
+      uploadOr: "or click to select",
+      uploadHelp: "Accepts CSV, PDF or Excel from Airbnb, Booking, VRBO or other platforms",
+      uploaded: "File uploaded:",
+      change: "Change file",
+      noFile: "Don't have the file?",
+      noFileDesc: "Check this box and fill manually:",
+      manual: "I want to enter stays manually",
+      noActivity: "I had no rentals in 2025",
+      manualTitle: "Stays (one per line):",
+      manualPh: "01/01/2025 - 05/01/2025 - 2 guests\n15/02/2025 - 20/02/2025 - 4 guests",
+      manualHelp: "Format: Check-in - Check-out - No. guests"
     },
     step4: {
-      title: "Select your plan",
-      subtitle: "Choose the plan that suits you best",
+      title: "Summary and payment",
+      summary: "Order summary",
+      plan: "Selected plan",
       plans: [
-        { name: "1 Property", price: "€79", features: ["1 NRUA", "Official submission", "Certificate", "Email support", "48h delivery"] },
-        { name: "Pack 3", price: "€199", features: ["Up to 3 properties", "Official submission", "Certificate", "Priority support", "24h delivery"], popular: true },
-        { name: "Pack 10", price: "€449", features: ["Up to 10 properties", "Full management", "Phone support", "Priority delivery"] }
+        { id: 1, name: "1 Property", price: 79, priceStr: "€79" },
+        { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
+        { id: 10, name: "10 Properties", price: 449, priceStr: "€449" }
       ],
       termsLabel: "I accept the",
       terms: "terms and conditions",
       termsAnd: "and the",
       privacy: "privacy policy",
-      payButton: "Pay and submit",
-      secure: "100% secure payment with Stripe"
+      payBtn: "Pay",
+      secure: "🔒 Secure payment with Stripe",
+      delivery: "You'll receive the certificate in 24-48h"
     },
-    nav: {
-      back: "Back",
-      next: "Next",
-      submit: "Submit"
-    },
-    validation: {
-      required: "This field is required",
-      invalidEmail: "Invalid email",
-      invalidPhone: "Invalid phone",
-      minStays: "Add at least one stay or check 'no activity'"
-    }
+    nav: { back: "Back", next: "Next" },
+    errors: { required: "Required", invalidEmail: "Invalid email" }
   },
   fr: {
-    title: "Déposez votre Déclaration de Location",
-    subtitle: "Remplissez le formulaire et nous nous occupons du reste",
-    steps: ["Vos infos", "Propriété", "Séjours", "Paiement"],
+    title: "Déposez votre NRUA",
+    steps: ["Vos infos", "Propriété", "Réservations", "Paiement"],
     step1: {
       title: "Coordonnées",
-      subtitle: "Nous avons besoin de vos données pour vous envoyer le certificat",
+      subtitle: "Pour vous envoyer le certificat",
       name: "Nom complet",
       email: "Email",
-      phone: "Téléphone",
-      namePlaceholder: "Ex: Jean Dupont",
-      emailPlaceholder: "votre@email.com",
-      phonePlaceholder: "+34 600 000 000"
+      phone: "Téléphone (WhatsApp)",
+      namePh: "Ex: Jean Dupont",
+      emailPh: "votre@email.com",
+      phonePh: "+34 600 000 000"
     },
     step2: {
       title: "Détails de la propriété",
-      subtitle: "Entrez le code NRUA de votre location touristique",
+      subtitle: "Informations sur votre location",
       nrua: "Code NRUA",
-      nruaPlaceholder: "Ex: NRUA-2024-000123",
-      nruaHelp: "Vous le trouverez sur votre licence de location touristique",
-      address: "Adresse de la propriété",
-      addressPlaceholder: "Rue, numéro, étage, ville",
+      nruaPh: "NRUA-2024-000123",
+      nruaHelp: "Sur votre licence de location touristique",
+      address: "Adresse complète",
+      addressPh: "Rue, numéro, étage, ville",
       province: "Province",
-      selectProvince: "Sélectionnez la province"
+      selectProvince: "Sélectionnez..."
     },
     step3: {
-      title: "Séjours 2025",
-      subtitle: "Ajoutez tous les séjours que vous avez eus cette année",
-      noStays: "Vous n'avez pas encore ajouté de séjour",
-      noStaysHelp: "Si vous n'avez pas eu de locations en 2025, cochez la case ci-dessous",
-      noActivity: "Je n'ai eu aucune activité en 2025",
-      addStay: "Ajouter un séjour",
-      checkIn: "Arrivée",
-      checkOut: "Départ",
-      guests: "Voyageurs",
-      purpose: "Motif",
-      purposes: {
-        vacation: "Vacances",
-        work: "Travail",
-        other: "Autre"
-      },
-      stayCount: "séjour(s) ajouté(s)",
-      importTitle: "Beaucoup de réservations ?",
-      importText: "Vous pouvez télécharger votre historique Airbnb ou Booking et nous l'envoyer à",
-      deleteConfirm: "Supprimer ce séjour ?"
+      title: "Historique des réservations",
+      subtitle: "Uploadez votre fichier de réservations 2025",
+      uploadTitle: "Glissez votre fichier ici",
+      uploadOr: "ou cliquez pour sélectionner",
+      uploadHelp: "Accepte CSV, PDF ou Excel d'Airbnb, Booking, VRBO ou autres",
+      uploaded: "Fichier uploadé:",
+      change: "Changer de fichier",
+      noFile: "Pas de fichier?",
+      noFileDesc: "Cochez cette case et remplissez manuellement:",
+      manual: "Je veux entrer les séjours manuellement",
+      noActivity: "Je n'ai pas eu de locations en 2025",
+      manualTitle: "Séjours (un par ligne):",
+      manualPh: "01/01/2025 - 05/01/2025 - 2 voyageurs\n15/02/2025 - 20/02/2025 - 4 voyageurs",
+      manualHelp: "Format: Arrivée - Départ - Nb voyageurs"
     },
     step4: {
-      title: "Choisissez votre plan",
-      subtitle: "Sélectionnez le plan qui vous convient",
+      title: "Résumé et paiement",
+      summary: "Résumé de votre commande",
+      plan: "Plan sélectionné",
       plans: [
-        { name: "1 Propriété", price: "79€", features: ["1 NRUA", "Dépôt officiel", "Certificat", "Support email", "Livraison 48h"] },
-        { name: "Pack 3", price: "199€", features: ["Jusqu'à 3 propriétés", "Dépôt officiel", "Certificat", "Support prioritaire", "Livraison 24h"], popular: true },
-        { name: "Pack 10", price: "449€", features: ["Jusqu'à 10 propriétés", "Gestion complète", "Support téléphonique", "Livraison prioritaire"] }
+        { id: 1, name: "1 Propriété", price: 79, priceStr: "79€" },
+        { id: 3, name: "3 Propriétés", price: 199, priceStr: "199€", popular: true },
+        { id: 10, name: "10 Propriétés", price: 449, priceStr: "449€" }
       ],
       termsLabel: "J'accepte les",
       terms: "conditions générales",
       termsAnd: "et la",
       privacy: "politique de confidentialité",
-      payButton: "Payer et envoyer",
-      secure: "Paiement 100% sécurisé avec Stripe"
+      payBtn: "Payer",
+      secure: "🔒 Paiement sécurisé avec Stripe",
+      delivery: "Vous recevrez le certificat en 24-48h"
     },
-    nav: {
-      back: "Retour",
-      next: "Suivant",
-      submit: "Envoyer"
-    },
-    validation: {
-      required: "Ce champ est obligatoire",
-      invalidEmail: "Email invalide",
-      invalidPhone: "Téléphone invalide",
-      minStays: "Ajoutez au moins un séjour ou cochez 'sans activité'"
-    }
+    nav: { back: "Retour", next: "Suivant" },
+    errors: { required: "Obligatoire", invalidEmail: "Email invalide" }
   },
   de: {
-    title: "Reichen Sie Ihre Vermietungserklärung ein",
-    subtitle: "Füllen Sie das Formular aus und wir kümmern uns um den Rest",
-    steps: ["Ihre Daten", "Immobilie", "Aufenthalte", "Zahlung"],
+    title: "NRUA einreichen",
+    steps: ["Ihre Daten", "Immobilie", "Buchungen", "Zahlung"],
     step1: {
       title: "Kontaktdaten",
-      subtitle: "Wir benötigen Ihre Daten, um Ihnen die Bescheinigung zu senden",
+      subtitle: "Um Ihnen die Bescheinigung zu senden",
       name: "Vollständiger Name",
       email: "E-Mail",
-      phone: "Telefon",
-      namePlaceholder: "Z.B: Max Mustermann",
-      emailPlaceholder: "ihre@email.com",
-      phonePlaceholder: "+34 600 000 000"
+      phone: "Telefon (WhatsApp)",
+      namePh: "Z.B: Max Mustermann",
+      emailPh: "ihre@email.com",
+      phonePh: "+34 600 000 000"
     },
     step2: {
       title: "Immobiliendetails",
-      subtitle: "Geben Sie den NRUA-Code Ihrer Ferienunterkunft ein",
+      subtitle: "Informationen zu Ihrer Ferienunterkunft",
       nrua: "NRUA-Code",
-      nruaPlaceholder: "Z.B: NRUA-2024-000123",
-      nruaHelp: "Sie finden ihn auf Ihrer Ferienvermietungslizenz",
-      address: "Adresse der Immobilie",
-      addressPlaceholder: "Straße, Nummer, Etage, Stadt",
+      nruaPh: "NRUA-2024-000123",
+      nruaHelp: "Auf Ihrer Ferienvermietungslizenz",
+      address: "Vollständige Adresse",
+      addressPh: "Straße, Nummer, Etage, Stadt",
       province: "Provinz",
-      selectProvince: "Provinz auswählen"
+      selectProvince: "Auswählen..."
     },
     step3: {
-      title: "Aufenthalte 2025",
-      subtitle: "Fügen Sie alle Aufenthalte hinzu, die Sie dieses Jahr hatten",
-      noStays: "Sie haben noch keine Aufenthalte hinzugefügt",
-      noStaysHelp: "Wenn Sie 2025 keine Vermietungen hatten, aktivieren Sie das Kästchen unten",
-      noActivity: "Ich hatte 2025 keine Aktivität",
-      addStay: "Aufenthalt hinzufügen",
-      checkIn: "Check-in",
-      checkOut: "Check-out",
-      guests: "Gäste",
-      purpose: "Zweck",
-      purposes: {
-        vacation: "Urlaub",
-        work: "Arbeit",
-        other: "Andere"
-      },
-      stayCount: "Aufenthalt(e) hinzugefügt",
-      importTitle: "Viele Buchungen?",
-      importText: "Sie können Ihren Airbnb- oder Booking-Verlauf herunterladen und uns per E-Mail senden an",
-      deleteConfirm: "Diesen Aufenthalt löschen?"
+      title: "Buchungsverlauf",
+      subtitle: "Laden Sie Ihre 2025 Reservierungsdatei hoch",
+      uploadTitle: "Datei hierher ziehen",
+      uploadOr: "oder klicken zum Auswählen",
+      uploadHelp: "Akzeptiert CSV, PDF oder Excel von Airbnb, Booking, VRBO oder anderen",
+      uploaded: "Datei hochgeladen:",
+      change: "Datei ändern",
+      noFile: "Keine Datei?",
+      noFileDesc: "Aktivieren Sie dieses Kästchen und füllen Sie manuell aus:",
+      manual: "Ich möchte Aufenthalte manuell eingeben",
+      noActivity: "Ich hatte 2025 keine Vermietungen",
+      manualTitle: "Aufenthalte (einer pro Zeile):",
+      manualPh: "01.01.2025 - 05.01.2025 - 2 Gäste\n15.02.2025 - 20.02.2025 - 4 Gäste",
+      manualHelp: "Format: Check-in - Check-out - Anzahl Gäste"
     },
     step4: {
-      title: "Wählen Sie Ihren Plan",
-      subtitle: "Wählen Sie den Plan, der am besten zu Ihnen passt",
+      title: "Zusammenfassung und Zahlung",
+      summary: "Bestellübersicht",
+      plan: "Ausgewählter Plan",
       plans: [
-        { name: "1 Immobilie", price: "79€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "48h Lieferung"] },
-        { name: "3er-Paket", price: "199€", features: ["Bis zu 3 Immobilien", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "24h Lieferung"], popular: true },
-        { name: "10er-Paket", price: "449€", features: ["Bis zu 10 Immobilien", "Vollständige Verwaltung", "Telefon-Support", "Prioritäts-Lieferung"] }
+        { id: 1, name: "1 Immobilie", price: 79, priceStr: "79€" },
+        { id: 3, name: "3 Immobilien", price: 199, priceStr: "199€", popular: true },
+        { id: 10, name: "10 Immobilien", price: 449, priceStr: "449€" }
       ],
       termsLabel: "Ich akzeptiere die",
       terms: "AGB",
       termsAnd: "und die",
       privacy: "Datenschutzrichtlinie",
-      payButton: "Bezahlen und absenden",
-      secure: "100% sichere Zahlung mit Stripe"
+      payBtn: "Bezahlen",
+      secure: "🔒 Sichere Zahlung mit Stripe",
+      delivery: "Sie erhalten die Bescheinigung in 24-48h"
     },
-    nav: {
-      back: "Zurück",
-      next: "Weiter",
-      submit: "Absenden"
-    },
-    validation: {
-      required: "Dieses Feld ist erforderlich",
-      invalidEmail: "Ungültige E-Mail",
-      invalidPhone: "Ungültige Telefonnummer",
-      minStays: "Fügen Sie mindestens einen Aufenthalt hinzu oder markieren Sie 'keine Aktivität'"
-    }
+    nav: { back: "Zurück", next: "Weiter" },
+    errors: { required: "Erforderlich", invalidEmail: "Ungültige E-Mail" }
   }
 }
 
@@ -326,116 +269,94 @@ function FormularioNRUA() {
   const [step, setStep] = useState(1)
   const [selectedPlan, setSelectedPlan] = useState(1)
   const [acceptTerms, setAcceptTerms] = useState(false)
+  const [manualMode, setManualMode] = useState(false)
   const [noActivity, setNoActivity] = useState(false)
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    nrua: '',
-    address: '',
-    province: '',
-    stays: []
-  })
-  
-  const [newStay, setNewStay] = useState({
-    checkIn: '',
-    checkOut: '',
-    guests: 1,
-    purpose: 'vacation'
-  })
-  
+  const [uploadedFile, setUploadedFile] = useState(null)
   const [errors, setErrors] = useState({})
+  
+  const [form, setForm] = useState({
+    name: '', email: '', phone: '',
+    nrua: '', address: '', province: '',
+    manualStays: ''
+  })
   
   const t = translations[lang]
 
-  // Detect browser language on mount
-  React.useEffect(() => {
+  useEffect(() => {
     const browserLang = navigator.language.slice(0, 2)
-    if (['es', 'en', 'fr', 'de'].includes(browserLang)) {
-      setLang(browserLang)
-    }
+    if (['es', 'en', 'fr', 'de'].includes(browserLang)) setLang(browserLang)
   }, [])
 
-  const updateField = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: null }))
+  const updateForm = (field, value) => {
+    setForm(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }))
+  }
+
+  const validate = () => {
+    const e = {}
+    if (step === 1) {
+      if (!form.name.trim()) e.name = t.errors.required
+      if (!form.email.trim()) e.email = t.errors.required
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t.errors.invalidEmail
+      if (!form.phone.trim()) e.phone = t.errors.required
+    }
+    if (step === 2) {
+      if (!form.nrua.trim()) e.nrua = t.errors.required
+      if (!form.address.trim()) e.address = t.errors.required
+      if (!form.province) e.province = t.errors.required
+    }
+    if (step === 3) {
+      if (!uploadedFile && !manualMode && !noActivity) e.file = t.errors.required
+      if (manualMode && !noActivity && !form.manualStays.trim()) e.manualStays = t.errors.required
+    }
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  const next = () => { if (validate()) setStep(s => Math.min(s + 1, 4)) }
+  const back = () => setStep(s => Math.max(s - 1, 1))
+
+  const handleFile = (e) => {
+    const file = e.target.files?.[0]
+    const validExtensions = ['.csv', '.pdf', '.xlsx', '.xls']
+    if (file && validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))) {
+      setUploadedFile(file)
+      setManualMode(false)
+      setNoActivity(false)
     }
   }
 
-  const validateStep = (stepNum) => {
-    const newErrors = {}
-    
-    if (stepNum === 1) {
-      if (!formData.name.trim()) newErrors.name = t.validation.required
-      if (!formData.email.trim()) newErrors.email = t.validation.required
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = t.validation.invalidEmail
-      if (!formData.phone.trim()) newErrors.phone = t.validation.required
-    }
-    
-    if (stepNum === 2) {
-      if (!formData.nrua.trim()) newErrors.nrua = t.validation.required
-      if (!formData.address.trim()) newErrors.address = t.validation.required
-      if (!formData.province) newErrors.province = t.validation.required
-    }
-    
-    if (stepNum === 3) {
-      if (formData.stays.length === 0 && !noActivity) {
-        newErrors.stays = t.validation.minStays
-      }
-    }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const nextStep = () => {
-    if (validateStep(step)) {
-      setStep(prev => Math.min(prev + 1, 4))
+  const handleDrop = (e) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    const validExtensions = ['.csv', '.pdf', '.xlsx', '.xls']
+    if (file && validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))) {
+      setUploadedFile(file)
+      setManualMode(false)
+      setNoActivity(false)
     }
   }
 
-  const prevStep = () => {
-    setStep(prev => Math.max(prev - 1, 1))
-  }
-
-  const addStay = () => {
-    if (newStay.checkIn && newStay.checkOut) {
-      setFormData(prev => ({
-        ...prev,
-        stays: [...prev.stays, { ...newStay, id: Date.now() }]
-      }))
-      setNewStay({ checkIn: '', checkOut: '', guests: 1, purpose: 'vacation' })
-      if (errors.stays) setErrors(prev => ({ ...prev, stays: null }))
-    }
-  }
-
-  const removeStay = (id) => {
-    setFormData(prev => ({
-      ...prev,
-      stays: prev.stays.filter(s => s.id !== id)
-    }))
-  }
-
-  const handleSubmit = async () => {
+  const handlePay = async () => {
     if (!acceptTerms) return
     
-    // TODO: Integrate with Stripe and backend
-    const payload = {
-      ...formData,
+    const data = {
+      ...form,
+      file: uploadedFile?.name,
       noActivity,
-      selectedPlan,
+      plan: selectedPlan,
       lang
     }
-    
-    console.log('Submitting:', payload)
-    alert('¡Formulario enviado! Integrar con Stripe.')
+    console.log('Paying:', data)
+    // TODO: Stripe integration
+    alert('Redirigiendo a Stripe...')
   }
+
+  const currentPlan = t.step4.plans.find(p => p.id === selectedPlan)
 
   return (
     <div className="form-page">
-      {/* Language Selector */}
+      {/* Lang Selector */}
       <div className="lang-selector">
         {['es', 'en', 'fr', 'de'].map(l => (
           <button key={l} className={`lang-btn ${lang === l ? 'active' : ''}`} onClick={() => setLang(l)}>
@@ -455,19 +376,17 @@ function FormularioNRUA() {
       <div className="form-container">
         {/* Progress */}
         <div className="progress-bar">
-          {t.steps.map((stepName, i) => (
+          {t.steps.map((s, i) => (
             <div key={i} className={`progress-step ${step > i + 1 ? 'completed' : ''} ${step === i + 1 ? 'active' : ''}`}>
-              <div className="step-circle">
-                {step > i + 1 ? <Check size={16} /> : i + 1}
-              </div>
-              <span className="step-label">{stepName}</span>
+              <div className="step-circle">{step > i + 1 ? <Check size={16} /> : i + 1}</div>
+              <span className="step-label">{s}</span>
             </div>
           ))}
         </div>
 
-        {/* Form Content */}
+        {/* Content */}
         <div className="form-content">
-          {/* Step 1: Contact Info */}
+          {/* Step 1 */}
           {step === 1 && (
             <div className="form-step">
               <div className="step-header">
@@ -475,45 +394,27 @@ function FormularioNRUA() {
                 <h2>{t.step1.title}</h2>
                 <p>{t.step1.subtitle}</p>
               </div>
-              
               <div className="form-fields">
                 <div className={`form-group ${errors.name ? 'error' : ''}`}>
-                  <label>{t.step1.name}</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => updateField('name', e.target.value)}
-                    placeholder={t.step1.namePlaceholder}
-                  />
+                  <label>{t.step1.name} *</label>
+                  <input value={form.name} onChange={e => updateForm('name', e.target.value)} placeholder={t.step1.namePh} />
                   {errors.name && <span className="error-msg">{errors.name}</span>}
                 </div>
-                
                 <div className={`form-group ${errors.email ? 'error' : ''}`}>
-                  <label>{t.step1.email}</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => updateField('email', e.target.value)}
-                    placeholder={t.step1.emailPlaceholder}
-                  />
+                  <label>{t.step1.email} *</label>
+                  <input type="email" value={form.email} onChange={e => updateForm('email', e.target.value)} placeholder={t.step1.emailPh} />
                   {errors.email && <span className="error-msg">{errors.email}</span>}
                 </div>
-                
                 <div className={`form-group ${errors.phone ? 'error' : ''}`}>
-                  <label>{t.step1.phone}</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => updateField('phone', e.target.value)}
-                    placeholder={t.step1.phonePlaceholder}
-                  />
+                  <label>{t.step1.phone} *</label>
+                  <input type="tel" value={form.phone} onChange={e => updateForm('phone', e.target.value)} placeholder={t.step1.phonePh} />
                   {errors.phone && <span className="error-msg">{errors.phone}</span>}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 2: Property */}
+          {/* Step 2 */}
           {step === 2 && (
             <div className="form-step">
               <div className="step-header">
@@ -521,41 +422,23 @@ function FormularioNRUA() {
                 <h2>{t.step2.title}</h2>
                 <p>{t.step2.subtitle}</p>
               </div>
-              
               <div className="form-fields">
                 <div className={`form-group ${errors.nrua ? 'error' : ''}`}>
-                  <label>{t.step2.nrua}</label>
-                  <input
-                    type="text"
-                    value={formData.nrua}
-                    onChange={(e) => updateField('nrua', e.target.value)}
-                    placeholder={t.step2.nruaPlaceholder}
-                  />
+                  <label>{t.step2.nrua} *</label>
+                  <input value={form.nrua} onChange={e => updateForm('nrua', e.target.value)} placeholder={t.step2.nruaPh} />
                   <span className="help-text">{t.step2.nruaHelp}</span>
                   {errors.nrua && <span className="error-msg">{errors.nrua}</span>}
                 </div>
-                
                 <div className={`form-group ${errors.address ? 'error' : ''}`}>
-                  <label>{t.step2.address}</label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => updateField('address', e.target.value)}
-                    placeholder={t.step2.addressPlaceholder}
-                  />
+                  <label>{t.step2.address} *</label>
+                  <input value={form.address} onChange={e => updateForm('address', e.target.value)} placeholder={t.step2.addressPh} />
                   {errors.address && <span className="error-msg">{errors.address}</span>}
                 </div>
-                
                 <div className={`form-group ${errors.province ? 'error' : ''}`}>
-                  <label>{t.step2.province}</label>
-                  <select
-                    value={formData.province}
-                    onChange={(e) => updateField('province', e.target.value)}
-                  >
+                  <label>{t.step2.province} *</label>
+                  <select value={form.province} onChange={e => updateForm('province', e.target.value)}>
                     <option value="">{t.step2.selectProvince}</option>
-                    {provinces.map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
+                    {provinces.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                   {errors.province && <span className="error-msg">{errors.province}</span>}
                 </div>
@@ -563,184 +446,126 @@ function FormularioNRUA() {
             </div>
           )}
 
-          {/* Step 3: Stays */}
+          {/* Step 3 */}
           {step === 3 && (
             <div className="form-step">
               <div className="step-header">
-                <Calendar size={32} className="step-icon" />
+                <Upload size={32} className="step-icon" />
                 <h2>{t.step3.title}</h2>
                 <p>{t.step3.subtitle}</p>
               </div>
-              
-              {/* Stays List */}
-              <div className="stays-list">
-                {formData.stays.length === 0 && !noActivity ? (
-                  <div className="no-stays">
-                    <p>{t.step3.noStays}</p>
-                    <span>{t.step3.noStaysHelp}</span>
-                  </div>
-                ) : (
-                  formData.stays.map((stay, i) => (
-                    <div key={stay.id} className="stay-item">
-                      <div className="stay-info">
-                        <span className="stay-number">#{i + 1}</span>
-                        <span>{stay.checkIn} → {stay.checkOut}</span>
-                        <span>{stay.guests} 👤</span>
-                        <span>{t.step3.purposes[stay.purpose]}</span>
-                      </div>
-                      <button className="btn-icon" onClick={() => removeStay(stay.id)}>
-                        <Trash2 size={18} />
-                      </button>
+
+              {!manualMode && !noActivity && (
+                <div 
+                  className={`upload-zone ${uploadedFile ? 'has-file' : ''} ${errors.file ? 'error' : ''}`}
+                  onDrop={handleDrop}
+                  onDragOver={e => e.preventDefault()}
+                  onClick={() => document.getElementById('fileInput').click()}
+                >
+                  <input type="file" id="fileInput" accept=".csv,.pdf,.xlsx,.xls" onChange={handleFile} hidden />
+                  {uploadedFile ? (
+                    <div className="uploaded-file">
+                      <FileText size={32} />
+                      <p>{t.step3.uploaded} <strong>{uploadedFile.name}</strong></p>
+                      <button className="btn btn-secondary btn-small">{t.step3.change}</button>
                     </div>
-                  ))
+                  ) : (
+                    <>
+                      <Upload size={48} />
+                      <p><strong>{t.step3.uploadTitle}</strong></p>
+                      <p>{t.step3.uploadOr}</p>
+                      <span className="help-text">{t.step3.uploadHelp}</span>
+                    </>
+                  )}
+                </div>
+              )}
+
+              <div className="manual-options">
+                <p className="manual-title">{t.step3.noFile}</p>
+                
+                <label className="checkbox-label">
+                  <input type="checkbox" checked={noActivity} onChange={e => { setNoActivity(e.target.checked); setManualMode(false); setUploadedFile(null) }} />
+                  <span>{t.step3.noActivity}</span>
+                </label>
+                
+                <label className="checkbox-label">
+                  <input type="checkbox" checked={manualMode} onChange={e => { setManualMode(e.target.checked); setNoActivity(false); setUploadedFile(null) }} />
+                  <span>{t.step3.manual}</span>
+                </label>
+
+                {manualMode && (
+                  <div className="form-group">
+                    <label>{t.step3.manualTitle}</label>
+                    <textarea 
+                      value={form.manualStays} 
+                      onChange={e => updateForm('manualStays', e.target.value)}
+                      placeholder={t.step3.manualPh}
+                      rows={6}
+                    />
+                    <span className="help-text">{t.step3.manualHelp}</span>
+                    {errors.manualStays && <span className="error-msg">{errors.manualStays}</span>}
+                  </div>
                 )}
               </div>
-              
-              {/* No Activity Checkbox */}
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={noActivity}
-                  onChange={(e) => setNoActivity(e.target.checked)}
-                />
-                <span>{t.step3.noActivity}</span>
-              </label>
-              
-              {/* Add Stay Form */}
-              {!noActivity && (
-                <div className="add-stay-form">
-                  <div className="stay-fields">
-                    <div className="form-group">
-                      <label>{t.step3.checkIn}</label>
-                      <input
-                        type="date"
-                        value={newStay.checkIn}
-                        onChange={(e) => setNewStay(prev => ({ ...prev, checkIn: e.target.value }))}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>{t.step3.checkOut}</label>
-                      <input
-                        type="date"
-                        value={newStay.checkOut}
-                        onChange={(e) => setNewStay(prev => ({ ...prev, checkOut: e.target.value }))}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>{t.step3.guests}</label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={newStay.guests}
-                        onChange={(e) => setNewStay(prev => ({ ...prev, guests: parseInt(e.target.value) || 1 }))}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>{t.step3.purpose}</label>
-                      <select
-                        value={newStay.purpose}
-                        onChange={(e) => setNewStay(prev => ({ ...prev, purpose: e.target.value }))}
-                      >
-                        <option value="vacation">{t.step3.purposes.vacation}</option>
-                        <option value="work">{t.step3.purposes.work}</option>
-                        <option value="other">{t.step3.purposes.other}</option>
-                      </select>
-                    </div>
-                  </div>
-                  <button className="btn btn-secondary" onClick={addStay}>
-                    <Plus size={18} />
-                    {t.step3.addStay}
-                  </button>
-                </div>
-              )}
-              
-              {errors.stays && <span className="error-msg">{errors.stays}</span>}
-              
-              {/* Import Tip */}
-              <div className="import-tip">
-                <Upload size={20} />
-                <div>
-                  <strong>{t.step3.importTitle}</strong>
-                  <p>{t.step3.importText} <a href="mailto:info@dedosfacil.es">info@dedosfacil.es</a></p>
-                </div>
-              </div>
-              
-              {formData.stays.length > 0 && (
-                <p className="stays-count">{formData.stays.length} {t.step3.stayCount}</p>
-              )}
+
+              {errors.file && <span className="error-msg">{errors.file}</span>}
             </div>
           )}
 
-          {/* Step 4: Payment */}
+          {/* Step 4 */}
           {step === 4 && (
             <div className="form-step">
               <div className="step-header">
                 <CreditCard size={32} className="step-icon" />
                 <h2>{t.step4.title}</h2>
-                <p>{t.step4.subtitle}</p>
               </div>
-              
-              {/* Plans */}
-              <div className="plans-grid">
-                {t.step4.plans.map((plan, i) => (
-                  <div
-                    key={i}
-                    className={`plan-card ${selectedPlan === i ? 'selected' : ''} ${plan.popular ? 'popular' : ''}`}
-                    onClick={() => setSelectedPlan(i)}
+
+              {/* Plan Selection */}
+              <div className="plans-grid compact">
+                {t.step4.plans.map(plan => (
+                  <div 
+                    key={plan.id} 
+                    className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''} ${plan.popular ? 'popular' : ''}`}
+                    onClick={() => setSelectedPlan(plan.id)}
                   >
                     {plan.popular && <div className="popular-badge">⭐</div>}
                     <h3>{plan.name}</h3>
-                    <div className="plan-price">{plan.price}</div>
-                    <ul>
-                      {plan.features.map((f, j) => (
-                        <li key={j}><Check size={16} />{f}</li>
-                      ))}
-                    </ul>
+                    <div className="plan-price">{plan.priceStr}</div>
                   </div>
                 ))}
               </div>
-              
+
+              {/* Summary */}
+              <div className="order-summary">
+                <h4>{t.step4.summary}</h4>
+                <div className="summary-row"><span>{t.step4.plan}:</span><strong>{currentPlan?.name}</strong></div>
+                <div className="summary-row"><span>NRUA:</span><strong>{form.nrua}</strong></div>
+                <div className="summary-row"><span>{t.step2.address}:</span><strong>{form.address}</strong></div>
+                <div className="summary-row total"><span>Total:</span><strong>{currentPlan?.priceStr}</strong></div>
+              </div>
+
               {/* Terms */}
               <label className="checkbox-label terms">
-                <input
-                  type="checkbox"
-                  checked={acceptTerms}
-                  onChange={(e) => setAcceptTerms(e.target.checked)}
-                />
-                <span>
-                  {t.step4.termsLabel} <a href="/terminos">{t.step4.terms}</a> {t.step4.termsAnd} <a href="/privacidad">{t.step4.privacy}</a>
-                </span>
+                <input type="checkbox" checked={acceptTerms} onChange={e => setAcceptTerms(e.target.checked)} />
+                <span>{t.step4.termsLabel} <a href="/terminos">{t.step4.terms}</a> {t.step4.termsAnd} <a href="/privacidad">{t.step4.privacy}</a></span>
               </label>
-              
+
               {/* Pay Button */}
-              <button
-                className="btn btn-primary btn-large btn-pay"
-                onClick={handleSubmit}
-                disabled={!acceptTerms}
-              >
-                {t.step4.payButton}
+              <button className="btn btn-primary btn-large btn-pay" onClick={handlePay} disabled={!acceptTerms}>
+                {t.step4.payBtn} {currentPlan?.priceStr}
                 <ArrowRight size={20} />
               </button>
-              
-              <p className="secure-text">🔒 {t.step4.secure}</p>
+
+              <p className="secure-text">{t.step4.secure}</p>
+              <p className="delivery-text">{t.step4.delivery}</p>
             </div>
           )}
         </div>
 
         {/* Navigation */}
         <div className="form-nav">
-          {step > 1 && (
-            <button className="btn btn-secondary" onClick={prevStep}>
-              <ArrowLeft size={18} />
-              {t.nav.back}
-            </button>
-          )}
-          {step < 4 && (
-            <button className="btn btn-primary" onClick={nextStep}>
-              {t.nav.next}
-              <ArrowRight size={18} />
-            </button>
-          )}
+          {step > 1 && <button className="btn btn-secondary" onClick={back}><ArrowLeft size={18} />{t.nav.back}</button>}
+          {step < 4 && <button className="btn btn-primary" onClick={next}>{t.nav.next}<ArrowRight size={18} /></button>}
         </div>
       </div>
     </div>
