@@ -6,6 +6,7 @@ import Stripe from 'stripe';
 import Anthropic from '@anthropic-ai/sdk';
 import pg from 'pg';
 import multer from 'multer';
+import { Resend } from 'resend';  
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 3001;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const upload = multer({ storage: multer.memoryStorage() });
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Database connection
 const pool = new pg.Pool({
@@ -29,6 +31,46 @@ const PRICES = {
   '3': { amount: 19900, properties: 3, name: 'DedosFácil - 3 Propiedades' },
   '10': { amount: 44900, properties: 10, name: 'DedosFácil - 10 Propiedades' }
 };
+
+// Enviar email de confirmación
+async function sendConfirmationEmail(email, orderData) {
+  try {
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: email,
+      subject: '✅ Pago confirmado - DedosFácil',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #10b981;">✅ ¡Pago completado!</h2>
+            <p>Gracias por confiar en DedosFácil. Hemos recibido tu pedido.</p>
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0;">Resumen:</h3>
+              <p><strong>Plan:</strong> ${orderData.plan} Propiedad(es)</p>
+              <p><strong>Importe:</strong> ${orderData.amount}€</p>
+            </div>
+            <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+              <h3 style="margin-top: 0; color: #166534;">¿Qué pasa ahora?</h3>
+              <ol style="color: #166534;">
+                <li>Procesaremos tu declaración NRUA</li>
+                <li>En 24-48h recibirás el justificante</li>
+              </ol>
+            </div>
+            <p style="margin-top: 30px; color: #64748b; font-size: 14px;">
+              ¿Dudas? Escríbenos a info@dedosfacil.es
+            </p>
+          </div>
+        </div>
+      `
+    });
+    console.log('Email sent to:', email);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
 
 // Middleware
 app.use(cors());
@@ -46,17 +88,39 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    await pool.query(
-      'UPDATE orders SET status = $1, stripe_payment_id = $2, completed_at = NOW() WHERE stripe_session_id = $3',
-      ['completed', session.payment_intent, session.id]
-    );
-    console.log('Payment completed for session:', session.id);
+ if (event.type === 'checkout.session.completed') {
+  const session = event.data.object;
+  
+  await pool.query(
+    'UPDATE orders SET status = $1, stripe_payment_id = $2, completed_at = NOW() WHERE stripe_session_id = $3',
+    ['completed', session.payment_intent, session.id]
+  );
+  
+  // Obtener datos y enviar email
+  const orderResult = await pool.query(
+    'SELECT * FROM orders WHERE stripe_session_id = $1',
+    [session.id]
+  );
+  
+  if (orderResult.rows.length > 0) {
+    const order = orderResult.rows[0];
+    await sendConfirmationEmail(session.customer_email, {
+      plan: order.properties_count,
+      amount: order.amount / 100
+    });
   }
+  
+  console.log('Payment completed for session:', session.id);
+}
+```
 
-  res.json({ received: true });
-});
+---
+
+## **PASO 2: Añadir variable en Render**
+
+Ve a Render → Environment → Add:
+```
+RESEND_API_KEY=re_hSNQ7xC6_KTHPdn5yYdVBauxJXAqT54YZ
 
 // JSON middleware for other routes
 app.use(express.json());
