@@ -687,17 +687,16 @@ const downloadN2Csv = () => {
                       <p>{t.step3.uploaded} <strong>{uploadedFile.name}</strong></p>
                       <p className="processing">{t.step3.processing}</p>
                     </div>
-                  ) : (
+              ) : (
                     <>
-                     <>
-  <Upload size={48} />
-  <p><strong>{t.step3.uploadTitle}</strong></p>
-  <p>{t.step3.uploadOr}</p>
-  <button type="button" className="btn btn-primary upload-btn">
-    📁 {t.step3.selectFile}
-  </button>
-  <span className="help-text">{t.step3.uploadHelp}</span>
-</>
+                      <Upload size={48} />
+                      <p><strong>{t.step3.uploadTitle}</strong></p>
+                      <p>{t.step3.uploadOr}</p>
+                      <button type="button" className="btn btn-primary upload-btn">
+                        📁 {t.step3.selectFile}
+                      </button>
+                      <span className="help-text">{t.step3.uploadHelp}</span>
+                    </>
                   )}
                 </div>
               )}
