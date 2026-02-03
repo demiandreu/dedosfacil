@@ -808,16 +808,15 @@ function FormularioNRUA() {
                   </div>
 
                   {/* Process Button */}
-                  {hasAnyFile && (
-                    <button 
-                      className="btn btn-primary btn-process"
-                      onClick={processAllFiles}
-                      disabled={isProcessing}
-                    >
-                      {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
-                    </button>
-                  )}
-
+               {hasAnyFile && !fileProcessed && (
+  <button 
+    className="btn btn-extract btn-process"
+    onClick={processAllFiles}
+    disabled={isProcessing}
+  >
+    {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
+  </button>
+)}
                   <details className="format-help">
                     <summary>{t.step3.formatHelp}</summary>
                     <p>{t.step3.formatInfo}</p>
@@ -1023,16 +1022,16 @@ function FormularioNRUA() {
         {/* Navigation */}
         <div className="form-nav">
           {step > 1 && <button className="btn btn-secondary" onClick={back}><ArrowLeft size={18} />{t.nav.back}</button>}
-          {step < 4 && (
-            <button 
-              className="btn btn-primary" 
-              onClick={next}
-              disabled={isProcessing}
-            >
-              {isProcessing ? '⏳ Procesando... espera' : t.nav.next}
-              {!isProcessing && <ArrowRight size={18} />}
-            </button>
-          )}
+         {step < 4 && (
+  <button 
+    className="btn btn-primary" 
+    onClick={next}
+    disabled={isProcessing || (step === 3 && hasAnyFile && !fileProcessed && extractedStays.length === 0)}
+  >
+    {isProcessing ? '⏳ Procesando... espera' : t.nav.next}
+    {!isProcessing && <ArrowRight size={18} />}
+  </button>
+)}
         </div>
       </div>
     </div>
