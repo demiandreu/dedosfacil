@@ -91,6 +91,105 @@ const Admin = () => {
     }
   }
 
+  const downloadAuthorizationPdf = async (orderId) => {
+  try {
+    const response = await fetch(`/api/admin/authorization/${orderId}`)
+    const data = await response.json()
+    
+    if (data.error) {
+      alert(data.error)
+      return
+    }
+
+    const timestamp = data.authorization_timestamp 
+      ? new Date(data.authorization_timestamp).toLocaleString('es-ES', {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        })
+      : 'No registrado'
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Autorización NRUA - ${data.name}</title>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+          h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; }
+          .section { margin: 20px 0; }
+          .section-title { font-weight: bold; color: #1e3a5f; margin-bottom: 10px; }
+          .data-row { margin: 8px 0; }
+          .label { color: #666; }
+          .value { font-weight: 500; }
+          .highlight { background: #f0fdf4; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin: 20px 0; }
+          .legal { font-size: 12px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
+          .footer { text-align: center; margin-top: 40px; font-size: 11px; color: #999; }
+          .timestamp { background: #fef3c7; padding: 10px; border-radius: 4px; font-family: monospace; }
+        </style>
+      </head>
+      <body>
+        <h1>AUTORIZACIÓN PARA PRESENTACIÓN DEL MODELO N2</h1>
+        
+        <div class="section">
+          <div class="section-title">DATOS DEL AUTORIZANTE</div>
+          <div class="data-row"><span class="label">Nombre:</span> <span class="value">${data.name || '-'}</span></div>
+          <div class="data-row"><span class="label">Email:</span> <span class="value">${data.email || '-'}</span></div>
+          <div class="data-row"><span class="label">Teléfono:</span> <span class="value">${data.phone || '-'}</span></div>
+          <div class="data-row"><span class="label">NRUA:</span> <span class="value">${data.nrua || '-'}</span></div>
+          <div class="data-row"><span class="label">Dirección inmueble:</span> <span class="value">${data.address || '-'}, ${data.province || '-'}</span></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">DATOS DEL AUTORIZADO</div>
+          <div class="data-row"><span class="label">Empresa:</span> <span class="value">Rental Connect Solutions Tmi</span></div>
+          <div class="data-row"><span class="label">Y-tunnus:</span> <span class="value">3502814-5</span></div>
+          <div class="data-row"><span class="label">Domicilio:</span> <span class="value">Telttakuja 3D 39, 00770 Helsinki, Finlandia</span></div>
+        </div>
+
+        <div class="highlight">
+          <strong>OBJETO DE LA AUTORIZACIÓN</strong><br><br>
+          El autorizante AUTORIZA expresamente a Rental Connect Solutions Tmi para cumplimentar y presentar 
+          en su nombre el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) correspondiente 
+          al ejercicio 2025 ante el Registro de la Propiedad competente, conforme al artículo 10.4 del 
+          Real Decreto 1312/2024.
+        </div>
+
+        <div class="section">
+          <div class="section-title">REGISTRO DE ACEPTACIÓN ELECTRÓNICA</div>
+          <div class="timestamp">
+            <div class="data-row"><span class="label">Fecha y hora:</span> <span class="value">${timestamp}</span></div>
+            <div class="data-row"><span class="label">Dirección IP:</span> <span class="value">${data.authorization_ip || 'No registrada'}</span></div>
+          </div>
+        </div>
+
+        <div class="legal">
+          <strong>DECLARACIONES:</strong><br>
+          • El autorizante declara ser el titular registral del inmueble o tener poderes suficientes para otorgar esta autorización.<br>
+          • El autorizante declara que los datos facilitados son veraces y se compromete a conservar la documentación acreditativa.<br>
+          • Esta autorización tiene validez exclusivamente para el ejercicio fiscal 2025.<br>
+          • Los datos serán tratados conforme al RGPD. Más información en dedosfacil.es/privacidad
+        </div>
+
+        <div class="footer">
+          Documento generado automáticamente por DedosFácil.es<br>
+          Rental Connect Solutions Tmi - Y-tunnus: 3502814-5
+        </div>
+      </body>
+      </html>
+    `
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const win = window.open(url, '_blank')
+    win.onload = () => {
+      win.print()
+    }
+  } catch (err) {
+    alert('Error al generar autorización: ' + err.message)
+  }
+}
+  
   const updateStatus = async (orderId, newStatus) => {
     setUpdatingStatus(orderId)
     try {
@@ -652,11 +751,16 @@ const Admin = () => {
                       {/* Actions */}
                       <div style={styles.actionsBar}>
                         <div>
-                          {order.stays_count > 0 && (
-                            <button onClick={() => downloadN2Csv(order.id)} style={styles.btnPrimary}>
-                              📄 Descargar CSV para N2
-                            </button>
-                          )}
+                         <div style={{ display: 'flex', gap: '8px' }}>
+  {order.stays_count > 0 && (
+    <button onClick={() => downloadN2Csv(order.id)} style={styles.btnPrimary}>
+      📄 CSV para N2
+    </button>
+  )}
+  <button onClick={() => downloadAuthorizationPdf(order.id)} style={styles.btnSecondary}>
+    📋 Autorización PDF
+  </button>
+</div>
                         </div>
                         
                         <div style={{ display: 'flex', gap: '8px' }}>
