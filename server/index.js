@@ -60,7 +60,7 @@ async function sendConfirmationEmail(email, orderData) {
               </ol>
             </div>
             <p style="margin-top: 30px; color: #64748b; font-size: 14px;">
-              ¿Dudas? Escríbenos a info@dedosfacil.es
+              ¿Dudas? Escríbenos a support@dedosfacil.es
             </p>
           </div>
         </div>
