@@ -875,20 +875,23 @@ if (!acceptTerms || !acceptAuthorization) return
     {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
   </button>
 )}
-                <div className="download-links">
-  <p>📥 Descarga tus reservas:</p>
-  <a href="https://es-l.airbnb.com/hosting/reservations/completed" target="_blank" rel="noopener noreferrer">
-    → Desde Airbnb
-  </a>
-  <a href="https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html" target="_blank" rel="noopener noreferrer">
-    → Desde Booking
-  </a>
-</div>
-<details className="format-help">
-  <summary>{t.step3.formatHelp}</summary>
-  <p>{t.step3.formatInfo}</p>
-</details>
+             <div className="download-links">
+                    <p>📥 Descarga tus reservas:</p>
+                    <a href="https://es-l.airbnb.com/hosting/reservations/completed" target="_blank" rel="noopener noreferrer">
+                      → Desde Airbnb
+                    </a>
+                    <a href="https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html" target="_blank" rel="noopener noreferrer">
+                      → Desde Booking
+                    </a>
+                  </div>
+                  <details className="format-help">
+                    <summary>{t.step3.formatHelp}</summary>
+                    <p>{t.step3.formatInfo}</p>
+                  </details>
+                </div>
+              )}
 
+            
               {/* Lista editable de estancias */}
               {extractedStays.length > 0 && (
                 <div className="stays-editor">
