@@ -148,10 +148,15 @@ app.post('/api/process-csv', upload.fields([
           ${airbnbContent}`
         }]
       });
-      try {
-        airbnbData = JSON.parse(airbnbResponse.content[0].text);
+    try {
+        let responseText = airbnbResponse.content[0].text;
+        // Extraer JSON aunque venga con texto extra
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          airbnbData = JSON.parse(jsonMatch[0]);
+        }
       } catch (e) {
-        console.error('Error parsing Airbnb response');
+        console.error('Error parsing Airbnb response:', e.message);
       }
     }
 
@@ -183,10 +188,15 @@ app.post('/api/process-csv', upload.fields([
           ${bookingContent}`
         }]
       });
-      try {
-        bookingData = JSON.parse(bookingResponse.content[0].text);
+     try {
+        let responseText = bookingResponse.content[0].text;
+        // Extraer JSON aunque venga con texto extra
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          bookingData = JSON.parse(jsonMatch[0]);
+        }
       } catch (e) {
-        console.error('Error parsing Booking response');
+        console.error('Error parsing Booking response:', e.message);
       }
     }
 
