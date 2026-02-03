@@ -1104,3 +1104,106 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 8px;
   border: 1px solid var(--gray-200);
 }
+/* ============================================
+   MULTI-UPLOAD ZONES - Step 3
+   ============================================ */
+.multi-upload-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.upload-zone-mini {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.upload-zone-mini:hover {
+  border-color: #3b82f6;
+  background: #f0f7ff;
+}
+
+.upload-zone-mini.has-file {
+  border-color: #10b981;
+  background: #f0fdf4;
+  border-style: solid;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.upload-hint {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.file-name {
+  font-size: 0.75rem;
+  color: #10b981;
+  word-break: break-all;
+  font-weight: 500;
+}
+
+.btn-remove {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.btn-remove:hover {
+  background: #dc2626;
+}
+
+.btn-process {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+}
+
+.source-badge {
+  background: #e2e8f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.duplicate-warning {
+  background: #fef3c7 !important;
+}
+
+.duplicate-badge {
+  color: #f59e0b;
+  font-weight: bold;
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+  .multi-upload-section {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
