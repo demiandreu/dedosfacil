@@ -4,6 +4,9 @@ import Landing from './pages/Landing'
 import FormularioNRUA from './pages/FormularioNRUA'
 import Exito from './pages/Exito'
 import Admin from './pages/Admin'
+import AvisoLegal from './pages/AvisoLegal'
+import Privacidad from './pages/Privacidad'
+import Cookies from './pages/Cookies'
 
 function App() {
   return (
@@ -14,6 +17,9 @@ function App() {
         <Route path="/formulario-nrua" element={<FormularioNRUA />} />
         <Route path="/exito" element={<Exito />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/aviso-legal" element={<AvisoLegal />} />
+<Route path="/privacidad" element={<Privacidad />} />
+<Route path="/cookies" element={<Cookies />} />
       </Routes>
     </BrowserRouter>
   )
