@@ -88,31 +88,33 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
- if (event.type === 'checkout.session.completed') {
-  const session = event.data.object;
-  
-  await pool.query(
-    'UPDATE orders SET status = $1, stripe_payment_id = $2, completed_at = NOW() WHERE stripe_session_id = $3',
-    ['completed', session.payment_intent, session.id]
-  );
-  
-  // Obtener datos y enviar email
-  const orderResult = await pool.query(
-    'SELECT * FROM orders WHERE stripe_session_id = $1',
-    [session.id]
-  );
-  
-  if (orderResult.rows.length > 0) {
-    const order = orderResult.rows[0];
-    await sendConfirmationEmail(session.customer_email, {
-      plan: order.properties_count,
-      amount: order.amount / 100
-    });
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    
+    await pool.query(
+      'UPDATE orders SET status = $1, stripe_payment_id = $2, completed_at = NOW() WHERE stripe_session_id = $3',
+      ['completed', session.payment_intent, session.id]
+    );
+    
+    // Obtener datos y enviar email
+    const orderResult = await pool.query(
+      'SELECT * FROM orders WHERE stripe_session_id = $1',
+      [session.id]
+    );
+    
+    if (orderResult.rows.length > 0) {
+      const order = orderResult.rows[0];
+      await sendConfirmationEmail(session.customer_email, {
+        plan: order.properties_count,
+        amount: order.amount / 100
+      });
+    }
+    
+    console.log('Payment completed for session:', session.id);
   }
-  
-  console.log('Payment completed for session:', session.id);
-}
 
+  res.json({ received: true });
+});
 
 // JSON middleware for other routes
 app.use(express.json());
@@ -140,22 +142,19 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const orderId = orderResult.rows[0].id;
 
     // Create Stripe session
-  // Create Stripe session
-const session = await stripe.checkout.sessions.create({
-  payment_method_types: ['card'],
-  line_items: [{
-    price_data: {
-      currency: 'eur',
-      product_data: {
-        name: plan === '1' ? 'DedosFácil - 1 Propiedad' : 
-              plan === '3' ? 'DedosFácil - 3 Propiedades' : 
-              'DedosFácil - 10 Propiedades',
-        description: 'Presentación NRUA ante el Registro de la Propiedad',
-      },
-      unit_amount: priceData.amount, // ya está en céntimos
-    },
-    quantity: 1,
-  }],
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: priceData.name,
+            description: 'Presentación NRUA ante el Registro de la Propiedad',
+          },
+          unit_amount: priceData.amount,
+        },
+        quantity: 1,
+      }],
       mode: 'payment',
       success_url: `${req.headers.origin}/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
       cancel_url: `${req.headers.origin}/formulario`,
@@ -177,9 +176,7 @@ const session = await stripe.checkout.sessions.create({
 });
 
 // Process CSV with Anthropic
-
-// Process CSV with Anthropic
-upload.fields([
+app.post('/api/process-csv', upload.fields([
   { name: 'airbnb', maxCount: 1 },
   { name: 'booking', maxCount: 1 },
   { name: 'other', maxCount: 1 }
@@ -188,6 +185,7 @@ upload.fields([
     const files = req.files;
     let airbnbData = null;
     let bookingData = null;
+    let otherData = null;
 
     // Process Airbnb CSV
     if (files.airbnb && files.airbnb[0]) {
@@ -254,8 +252,8 @@ ${bookingContent}`
         console.error('Error parsing Booking response:', e.message);
       }
     }
-      // Process Other file
-    let otherData = null;
+
+    // Process Other file
     if (files.other && files.other[0]) {
       const otherContent = files.other[0].buffer.toString('utf-8');
       const otherResponse = await anthropic.messages.create({
@@ -287,7 +285,8 @@ ${otherContent}`
         console.error('Error parsing Other response:', e.message);
       }
     }
-   res.json({
+
+    res.json({
       success: true,
       airbnb: airbnbData,
       booking: bookingData,
