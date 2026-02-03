@@ -25,9 +25,9 @@ const pool = new pg.Pool({
 
 // Price mapping
 const PRICES = {
-  '1': { priceId: process.env.STRIPE_PRICE_1_PROP, amount: 7900, properties: 1 },
-  '3': { priceId: process.env.STRIPE_PRICE_3_PROP, amount: 19900, properties: 3 },
-  '10': { priceId: process.env.STRIPE_PRICE_10_PROP, amount: 44900, properties: 10 }
+  '1': { amount: 7900, properties: 1, name: 'DedosFácil - 1 Propiedad' },
+  '3': { amount: 19900, properties: 3, name: 'DedosFácil - 3 Propiedades' },
+  '10': { amount: 44900, properties: 10, name: 'DedosFácil - 10 Propiedades' }
 };
 
 // Middleware
@@ -84,12 +84,22 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const orderId = orderResult.rows[0].id;
 
     // Create Stripe session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{
-        price: priceData.priceId,
-        quantity: 1
-      }],
+  // Create Stripe session
+const session = await stripe.checkout.sessions.create({
+  payment_method_types: ['card'],
+  line_items: [{
+    price_data: {
+      currency: 'eur',
+      product_data: {
+        name: plan === '1' ? 'DedosFácil - 1 Propiedad' : 
+              plan === '3' ? 'DedosFácil - 3 Propiedades' : 
+              'DedosFácil - 10 Propiedades',
+        description: 'Presentación NRUA ante el Registro de la Propiedad',
+      },
+      unit_amount: priceData.amount, // ya está en céntimos
+    },
+    quantity: 1,
+  }],
       mode: 'payment',
       success_url: `${req.headers.origin}/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
       cancel_url: `${req.headers.origin}/formulario`,
