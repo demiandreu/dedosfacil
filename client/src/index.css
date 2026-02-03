@@ -1974,5 +1974,19 @@ h1, h2, h3, h4, h5, h6 {
     bottom: 8px;
     right: 16px;
   }
+  .download-n2-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.download-n2-section .help-text {
+  font-size: 0.85rem;
+  color: #64748b;
+}
 }
 }
