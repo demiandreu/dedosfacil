@@ -1485,4 +1485,29 @@ h1, h2, h3, h4, h5, h6 {
   color: #6b7280;
   margin-top: 4px;
 }
+   .download-links {
+  margin: 16px 0;
+  padding: 12px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.download-links p {
+  margin: 0 0 8px 0;
+  font-weight: 500;
+  color: #1e3a5f;
+}
+
+.download-links a {
+  display: inline-block;
+  margin: 0 12px;
+  color: #2563eb;
+  text-decoration: underline;
+  font-size: 14px;
+}
+
+.download-links a:hover {
+  color: #1d4ed8;
+}
 }
