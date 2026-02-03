@@ -37,6 +37,8 @@ const translations = {
       selectProvince: "Selecciona..."
     },
     step3: {
+      formatHelp: "¿Qué formato debe tener mi archivo?",
+formatInfo: "Acepta archivos CSV o Excel exportados de Airbnb, Booking, VRBO u otras plataformas. El archivo debe contener columnas con fechas de entrada y salida. Formatos de fecha aceptados: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
       title: "Historial de reservas",
       subtitle: "Sube tu archivo de Airbnb, Booking, VRBO u otra plataforma",
       uploadTitle: "Arrastra tu archivo aquí",
@@ -115,6 +117,8 @@ downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
       selectProvince: "Select..."
     },
     step3: {
+      formatHelp: "What format should my file have?",
+formatInfo: "Accepts CSV or Excel files exported from Airbnb, Booking, VRBO or other platforms. The file must contain columns with check-in and check-out dates. Accepted date formats: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
       title: "Booking history",
       subtitle: "Upload your file from Airbnb, Booking, VRBO or other platform",
       uploadTitle: "Drag your file here",
@@ -193,6 +197,8 @@ downloadCsvHelp: "Import this file in the Registry's N2 application"
       selectProvince: "Sélectionnez..."
     },
     step3: {
+      formatHelp: "Quel format doit avoir mon fichier?",
+formatInfo: "Accepte les fichiers CSV ou Excel exportés d'Airbnb, Booking, VRBO ou autres. Le fichier doit contenir des colonnes avec dates d'arrivée et de départ. Formats de date acceptés: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
       title: "Historique des réservations",
       subtitle: "Uploadez votre fichier d'Airbnb, Booking, VRBO ou autre",
       uploadTitle: "Glissez votre fichier ici",
@@ -271,6 +277,8 @@ downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
       selectProvince: "Auswählen..."
     },
     step3: {
+      formatHelp: "Welches Format sollte meine Datei haben?",
+formatInfo: "Akzeptiert CSV- oder Excel-Dateien von Airbnb, Booking, VRBO oder anderen. Die Datei muss Spalten mit Check-in und Check-out Daten enthalten. Akzeptierte Datumsformate: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
       title: "Buchungsverlauf",
       subtitle: "Laden Sie Ihre Datei von Airbnb, Booking, VRBO oder anderen hoch",
       uploadTitle: "Datei hierher ziehen",
@@ -698,6 +706,10 @@ const downloadN2Csv = () => {
                         📁 {t.step3.selectFile}
                       </button>
                       <span className="help-text">{t.step3.uploadHelp}</span>
+<details className="format-help">
+  <summary>{t.step3.formatHelp}</summary>
+  <p>{t.step3.formatInfo}</p>
+</details>
                     </>
                   )}
                 </div>
