@@ -62,7 +62,9 @@ purposes: {
       staysFound: "estancia(s)",
       noFile: "¿No tienes el archivo?",
       manual: "Quiero introducir las estancias manualmente",
-      noActivity: "No tuve ningún alquiler en 2025"
+      noActivity: "No tuve ningún alquiler en 2025",
+      downloadCsv: "Descargar CSV para N2",
+downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
     },
     step4: {
       title: "Resumen y pago",
@@ -134,7 +136,9 @@ purposes: {
       staysFound: "stay(s)",
       noFile: "Don't have the file?",
       manual: "I want to enter stays manually",
-      noActivity: "I had no rentals in 2025"
+     noActivity: "I had no rentals in 2025",
+downloadCsv: "Download CSV for N2",
+downloadCsvHelp: "Import this file in the Registry's N2 application"
     },
     step4: {
       title: "Summary and payment",
@@ -206,7 +210,9 @@ purposes: {
       staysFound: "séjour(s)",
       noFile: "Pas de fichier?",
       manual: "Je veux entrer les séjours manuellement",
-      noActivity: "Je n'ai pas eu de locations en 2025"
+    noActivity: "Je n'ai pas eu de locations en 2025",
+downloadCsv: "Télécharger CSV pour N2",
+downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
     },
     step4: {
       title: "Résumé et paiement",
@@ -278,7 +284,9 @@ purposes: {
       staysFound: "Aufenthalt(e)",
       noFile: "Keine Datei?",
       manual: "Ich möchte Aufenthalte manuell eingeben",
-      noActivity: "Ich hatte 2025 keine Vermietungen"
+      noActivity: "Ich hatte 2025 keine Vermietungen",
+downloadCsv: "CSV für N2 herunterladen",
+downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers"
     },
     step4: {
       title: "Zusammenfassung und Zahlung",
@@ -469,6 +477,41 @@ if (missingGuests || missingPurpose) {
       setManualMode(false)
     }
   }
+  // Generar CSV compatible con aplicación N2
+const downloadN2Csv = () => {
+  if (!form.nrua || extractedStays.length === 0) {
+    alert('Necesitas el código NRUA y al menos una estancia')
+    return
+  }
+  
+  // Verificar que todas las estancias estén completas
+  const incomplete = extractedStays.some(s => !s.checkIn || !s.checkOut || !s.guests || !s.purpose)
+  if (incomplete) {
+    alert('Completa todos los campos de cada estancia')
+    return
+  }
+  
+  // Formato N2: NRUA;checkin;checkout;huéspedes;código_finalidad
+  // Fechas en formato dd/MM/yyyy
+  const formatDate = (dateStr) => {
+    if (!dateStr) return ''
+    const [year, month, day] = dateStr.split('-')
+    return `${day}/${month}/${year}`
+  }
+  
+  const lines = extractedStays.map(stay => 
+    `${form.nrua};${formatDate(stay.checkIn)};${formatDate(stay.checkOut)};${stay.guests};${stay.purpose}`
+  )
+  
+  const csvContent = lines.join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `nrua_${form.nrua.replace(/[^a-zA-Z0-9]/g, '_')}_2025.csv`
+  link.click()
+  URL.revokeObjectURL(url)
+}
 
   const resetFile = () => {
     setUploadedFile(null)
@@ -700,6 +743,17 @@ if (missingGuests || missingPurpose) {
                   </button>
                   
                   <p className="stays-count">{extractedStays.length} {t.step3.staysFound}</p>
+
+<div className="download-n2-section">
+  <button 
+    className="btn btn-secondary" 
+    onClick={downloadN2Csv}
+    disabled={extractedStays.some(s => !s.guests || !s.purpose)}
+  >
+    📥 {t.step3.downloadCsv}
+  </button>
+  <span className="help-text">{t.step3.downloadCsvHelp}</span>
+</div>
                 </div>
               )}
 
