@@ -229,14 +229,21 @@ app.post('/api/process-csv', upload.fields([
         max_tokens: 8192,
         messages: [{
           role: 'user',
-          content: `Analiza este CSV de Airbnb y extrae TODAS las estancias del año 2025.
+          content: `Analiza este CSV de Airbnb y extrae TODAS las estancias.
 
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks.
+FORMATO AIRBNB - Columnas conocidas:
+- "Fecha de inicio" = fecha de entrada (check-in)
+- "Hasta" = fecha de salida (check-out)  
+- "Número de adultos" + "Número de niños" + "Número de bebés" = SUMA para total huéspedes
 
-Formato exacto requerido:
-{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","noches":0,"importe":0.00,"plataforma":"Airbnb"}],"total_ingresos":0.00,"total_noches":0}
+REGLAS:
+- Incluye TODAS las estancias del archivo
+- Ignora reservas con estado "Cancelada" o "Cancelled"
+- Calcula huéspedes = adultos + niños + bebés
+- Convierte todas las fechas a formato DD/MM/YYYY
 
-Si no hay estancias de 2025, devuelve: {"estancias":[],"total_ingresos":0,"total_noches":0}
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
+{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"Airbnb"}],"total_estancias":0}
 
 CSV:
 ${airbnbContent}`
@@ -254,7 +261,7 @@ ${airbnbContent}`
       }
     }
 
-    // Process Booking CSV
+    // Process Booking CSV/XLS
     if (files.booking && files.booking[0]) {
       const bookingContent = files.booking[0].buffer.toString('utf-8');
       const bookingResponse = await anthropic.messages.create({
@@ -262,16 +269,23 @@ ${airbnbContent}`
         max_tokens: 8192,
         messages: [{
           role: 'user',
-          content: `Analiza este CSV de Booking.com y extrae TODAS las estancias del año 2025.
+          content: `Analiza este archivo de Booking.com y extrae TODAS las estancias.
 
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks.
+FORMATO BOOKING - Columnas conocidas:
+- "Entrada" o "Check-in" = fecha de entrada
+- "Salida" o "Checkout" = fecha de salida
+- "Personas" o "Guests" = número de huéspedes
+- Si no hay columna de personas, usa "Adultos" o pon 2 por defecto
 
-Formato exacto requerido:
-{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","noches":0,"importe":0.00,"plataforma":"Booking"}],"total_ingresos":0.00,"total_noches":0}
+REGLAS:
+- Incluye TODAS las estancias del archivo
+- Ignora reservas con estado "cancelled", "cancelada", "no_show"
+- Las fechas pueden venir en formato "24 May 2025" o "24/05/2025", convierte a DD/MM/YYYY
 
-Si no hay estancias de 2025, devuelve: {"estancias":[],"total_ingresos":0,"total_noches":0}
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
+{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"Booking"}],"total_estancias":0}
 
-CSV:
+Archivo:
 ${bookingContent}`
         }]
       });
@@ -287,7 +301,7 @@ ${bookingContent}`
       }
     }
 
-    // Process Other file
+    // Process Other file (VRBO, Channel Managers, etc.)
     if (files.other && files.other[0]) {
       const otherContent = files.other[0].buffer.toString('utf-8');
       const otherResponse = await anthropic.messages.create({
@@ -295,14 +309,22 @@ ${bookingContent}`
         max_tokens: 8192,
         messages: [{
           role: 'user',
-          content: `Analiza este archivo y extrae TODAS las estancias del año 2025.
+          content: `Analiza este archivo de reservas y extrae TODAS las estancias.
 
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks.
+DETECTA AUTOMÁTICAMENTE las columnas buscando:
+- Fecha de entrada: "check-in", "entrada", "llegada", "arrival", "start", "from", "first night", "inicio"
+- Fecha de salida: "check-out", "salida", "departure", "end", "to", "last night", "hasta", "fin"
+- Número de huéspedes: "guests", "huéspedes", "personas", "people", "pax", "adultos", "adults", "occupancy"
 
-Formato exacto requerido:
-{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","noches":0,"importe":0.00,"plataforma":"Otro"}],"total_ingresos":0.00,"total_noches":0}
+REGLAS:
+- Si hay columnas separadas de adultos/niños/bebés, SUMA todos para el total
+- Si no encuentras número de huéspedes, pon 2 por defecto
+- Ignora reservas canceladas (cualquier variación de "cancel")
+- Incluye TODAS las estancias del archivo
+- Detecta el formato de fecha y conviértelo a DD/MM/YYYY
 
-Si no hay estancias de 2025, devuelve: {"estancias":[],"total_ingresos":0,"total_noches":0}
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
+{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"Otro"}],"total_estancias":0}
 
 Archivo:
 ${otherContent}`
@@ -535,7 +557,7 @@ app.get('/api/admin/generate-n2-csv/:orderId', async (req, res) => {
     
     // Generate CSV
     // Format: NRUA;checkin;checkout;huéspedes;código_finalidad
-    const csvLines = ['NRUA;checkin;checkout;huespedes;finalidad'];
+    const csvLines = [];
     
     stays.forEach(stay => {
       const checkIn = formatDate(stay.fecha_entrada || stay.checkIn);
