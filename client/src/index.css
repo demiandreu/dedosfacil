@@ -1273,3 +1273,200 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.5;
   color: #92400e;
 }
+/* ========================================
+   ESTILOS PARA PÁGINAS LEGALES
+   Añadir al final de index.css
+   ======================================== */
+
+.legal-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+}
+
+.legal-header {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0d9488 100%);
+  padding: 20px 40px;
+}
+
+.legal-header .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.legal-header .logo-icon {
+  background: white;
+  color: #1e3a5f;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.legal-header .logo-text {
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.legal-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  flex: 1;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #0d9488;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 30px;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #1e3a5f;
+}
+
+.legal-container h1 {
+  font-size: 36px;
+  color: #1e3a5f;
+  margin-bottom: 10px;
+}
+
+.legal-updated {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 40px;
+}
+
+.legal-container section {
+  margin-bottom: 40px;
+}
+
+.legal-container h2 {
+  font-size: 22px;
+  color: #1e3a5f;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.legal-container h3 {
+  font-size: 18px;
+  color: #334155;
+  margin: 20px 0 12px;
+}
+
+.legal-container p {
+  color: #475569;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.legal-container ul,
+.legal-container ol {
+  color: #475569;
+  line-height: 1.7;
+  margin-bottom: 16px;
+  padding-left: 24px;
+}
+
+.legal-container li {
+  margin-bottom: 8px;
+}
+
+.legal-container li ul {
+  margin-top: 8px;
+}
+
+.legal-container strong {
+  color: #1e3a5f;
+}
+
+.legal-container a {
+  color: #0d9488;
+  text-decoration: none;
+}
+
+.legal-container a:hover {
+  text-decoration: underline;
+}
+
+/* Tabla de cookies */
+.cookies-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0 24px;
+  font-size: 14px;
+}
+
+.cookies-table th,
+.cookies-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #e2e8f0;
+}
+
+.cookies-table th {
+  background: #f1f5f9;
+  color: #1e3a5f;
+  font-weight: 600;
+}
+
+.cookies-table td {
+  color: #475569;
+}
+
+.cookies-table tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+/* Footer legal */
+.legal-footer {
+  background: #1e3a5f;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: auto;
+}
+
+.legal-footer p {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .legal-header {
+    padding: 15px 20px;
+  }
+
+  .legal-container {
+    padding: 30px 20px;
+  }
+
+  .legal-container h1 {
+    font-size: 28px;
+  }
+
+  .legal-container h2 {
+    font-size: 20px;
+  }
+
+  .cookies-table {
+    font-size: 12px;
+  }
+
+  .cookies-table th,
+  .cookies-table td {
+    padding: 8px;
+  }
+}
