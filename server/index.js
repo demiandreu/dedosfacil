@@ -366,6 +366,203 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
+// ============================================
+// ADMIN ENDPOINTS - Añade esto a server/index.js
+// ============================================
+
+// Get all orders with submissions
+app.get('/api/admin/orders', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        o.id,
+        o.email,
+        o.plan,
+        o.properties_count,
+        o.amount,
+        o.status,
+        o.created_at,
+        o.completed_at,
+        s.name,
+        s.nrua,
+        s.address,
+        s.province,
+        s.phone,
+        s.airbnb_file IS NOT NULL as has_airbnb,
+        s.booking_file IS NOT NULL as has_booking,
+        s.other_file IS NOT NULL as has_other,
+        s.extracted_stays,
+        COALESCE(jsonb_array_length(s.extracted_stays), 0) as stays_count
+      FROM orders o
+      LEFT JOIN submissions s ON s.order_id = o.id
+      ORDER BY o.id DESC
+    `);
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Admin orders error:', error);
+    res.status(500).json({ error: 'Error al obtener pedidos' });
+  }
+});
+
+// Download file (airbnb, booking, or other)
+app.get('/api/admin/download/:orderId/:fileType', async (req, res) => {
+  try {
+    const { orderId, fileType } = req.params;
+    
+    const columnMap = {
+      airbnb: 'airbnb_file',
+      booking: 'booking_file',
+      other: 'other_file'
+    };
+    
+    const column = columnMap[fileType];
+    if (!column) {
+      return res.status(400).json({ error: 'Tipo de archivo no válido' });
+    }
+    
+    const result = await pool.query(
+      `SELECT ${column} as file_data FROM submissions WHERE order_id = $1`,
+      [orderId]
+    );
+    
+    if (result.rows.length === 0 || !result.rows[0].file_data) {
+      return res.status(404).json({ error: 'Archivo no encontrado' });
+    }
+    
+    const fileData = result.rows[0].file_data;
+    
+    // Parse JSON if stored as JSON with name and data
+    let data, filename;
+    try {
+      const parsed = typeof fileData === 'string' ? JSON.parse(fileData) : fileData;
+      data = parsed.data;
+      filename = parsed.name || `${fileType}_order_${orderId}.csv`;
+    } catch {
+      // If not JSON, assume it's the raw base64
+      data = fileData;
+      filename = `${fileType}_order_${orderId}.csv`;
+    }
+    
+    res.json({ data, filename });
+  } catch (error) {
+    console.error('Download error:', error);
+    res.status(500).json({ error: 'Error al descargar archivo' });
+  }
+});
+
+// Generate N2 CSV from extracted stays
+app.get('/api/admin/generate-n2-csv/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    const result = await pool.query(
+      `SELECT s.nrua, s.extracted_stays, o.email 
+       FROM submissions s 
+       JOIN orders o ON o.id = s.order_id 
+       WHERE s.order_id = $1`,
+      [orderId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+    
+    const { nrua, extracted_stays } = result.rows[0];
+    const stays = extracted_stays || [];
+    
+    if (stays.length === 0) {
+      return res.status(400).json({ error: 'No hay estancias para exportar' });
+    }
+    
+    // Purpose codes for N2
+    const purposeMap = {
+      'Vacacional/Turístico': '1',
+      'vacation': '1',
+      'Laboral': '2',
+      'work': '2',
+      'Estudios': '3',
+      'study': '3',
+      'Tratamiento médico': '4',
+      'medical': '4',
+      'Otros': '5',
+      'other': '5'
+    };
+    
+    // Format date to dd/MM/yyyy
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '';
+      // Try different formats
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        // Try DD/MM/YYYY format
+        const parts = dateStr.split(/[\/\-\.]/);
+        if (parts.length === 3) {
+          // Assume DD/MM/YYYY
+          return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
+        }
+        return dateStr;
+      }
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+    
+    // Generate CSV
+    // Format: NRUA;checkin;checkout;huéspedes;código_finalidad
+    const csvLines = ['NRUA;checkin;checkout;huespedes;finalidad'];
+    
+    stays.forEach(stay => {
+      const checkIn = formatDate(stay.fecha_entrada || stay.checkIn);
+      const checkOut = formatDate(stay.fecha_salida || stay.checkOut);
+      const guests = stay.huespedes || stay.guests || '2';
+      const purpose = purposeMap[stay.finalidad || stay.purpose] || '1';
+      
+      csvLines.push(`${nrua || 'NRUA_PENDIENTE'};${checkIn};${checkOut};${guests};${purpose}`);
+    });
+    
+    const csv = csvLines.join('\n');
+    const filename = `N2_order_${orderId}_${nrua || 'pendiente'}.csv`;
+    
+    res.json({ csv, filename });
+  } catch (error) {
+    console.error('Generate N2 CSV error:', error);
+    res.status(500).json({ error: 'Error al generar CSV' });
+  }
+});
+
+// Update order status
+app.post('/api/admin/update-status/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    
+    if (!['pending', 'completed', 'enviado'].includes(status)) {
+      return res.status(400).json({ error: 'Estado no válido' });
+    }
+    
+    await pool.query(
+      'UPDATE orders SET status = $1 WHERE id = $2',
+      [status, orderId]
+    );
+    
+    await pool.query(
+      'UPDATE submissions SET status = $1 WHERE order_id = $2',
+      [status, orderId]
+    );
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Update status error:', error);
+    res.status(500).json({ error: 'Error al actualizar estado' });
+  }
+});
+
+// ============================================
+// FIN ADMIN ENDPOINTS
+// ============================================
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
