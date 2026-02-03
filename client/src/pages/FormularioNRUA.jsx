@@ -545,9 +545,22 @@ function FormularioNRUA() {
     if (errors.stays) setErrors(prev => ({ ...prev, stays: null }))
   }
 
-  const removeStay = (index) => {
-    setExtractedStays(prev => prev.filter((_, i) => i !== index))
-  }
+ const removeStay = (index) => {
+  setExtractedStays(prev => {
+    // Primero eliminar la estancia
+    const filtered = prev.filter((_, i) => i !== index)
+    
+    // Luego recalcular duplicados
+    return filtered.map((stay, idx) => {
+      const isDuplicate = filtered.some((other, otherIdx) => 
+        otherIdx !== idx && 
+        other.checkIn === stay.checkIn &&
+        other.source !== stay.source
+      )
+      return { ...stay, isDuplicate }
+    })
+  })
+}
 
   const addEmptyStay = () => {
     setExtractedStays(prev => [...prev, { checkIn: '', checkOut: '', guests: '', purpose: '', source: 'Manual' }])
