@@ -39,9 +39,14 @@ nruaHelp: "Es el número largo que empieza por 'ES' de la Ventanilla Única Digi
     step3: {
       title: "Historial de reservas",
       subtitle: "Sube tus archivos de Airbnb, Booking u otras plataformas",
-      airbnbFile: "Archivo Airbnb",
-      bookingFile: "Archivo Booking", 
-      otherFile: "Otro archivo (VRBO, PDF, etc.)",
+     airbnbFile: "Archivo Airbnb",
+airbnbHelp: "Descárgalo desde Reservas completadas → Exportar",
+airbnbUrl: "https://es-l.airbnb.com/hosting/reservations/completed",
+bookingFile: "Archivo Booking",
+bookingHelp: "Descárgalo desde Reservas → Exportar a Excel",
+bookingUrl: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html",
+otherFile: "Otro (VRBO, Channel Manager...)",
+otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
       dragOrClick: "Arrastra o haz clic",
       duplicateWarning: "⚠️ Posible duplicado - misma fecha de entrada",
       removeFile: "Quitar",
@@ -123,9 +128,14 @@ nruaHelp: "The long number starting with 'ES' from the Digital Single Window. If
     step3: {
       title: "Booking history",
       subtitle: "Upload your files from Airbnb, Booking or other platforms",
-      airbnbFile: "Airbnb file",
-      bookingFile: "Booking file",
-      otherFile: "Other file (VRBO, PDF, etc.)",
+     airbnbFile: "Airbnb file",
+airbnbHelp: "Download from Completed reservations → Export",
+airbnbUrl: "https://es-l.airbnb.com/hosting/reservations/completed",
+bookingFile: "Booking file",
+bookingHelp: "Download from Reservations → Export to Excel",
+bookingUrl: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html",
+otherFile: "Other (VRBO, Channel Manager...)",
+otherHelp: "CSV or Excel with check-in/check-out dates and guests",
       dragOrClick: "Drag or click",
       duplicateWarning: "⚠️ Possible duplicate - same check-in date",
       removeFile: "Remove",
@@ -207,9 +217,14 @@ nruaHelp: "Le numéro long commençant par 'ES' du Guichet Unique Numérique. Si
     step3: {
       title: "Historique des réservations",
       subtitle: "Uploadez vos fichiers d'Airbnb, Booking ou autres",
-      airbnbFile: "Fichier Airbnb",
-      bookingFile: "Fichier Booking",
-      otherFile: "Autre fichier (VRBO, PDF, etc.)",
+     airbnbFile: "Fichier Airbnb",
+airbnbHelp: "Téléchargez depuis Réservations terminées → Exporter",
+airbnbUrl: "https://es-l.airbnb.com/hosting/reservations/completed",
+bookingFile: "Fichier Booking",
+bookingHelp: "Téléchargez depuis Réservations → Exporter en Excel",
+bookingUrl: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html",
+otherFile: "Autre (VRBO, Channel Manager...)",
+otherHelp: "CSV ou Excel avec dates d'arrivée/départ et voyageurs",
       dragOrClick: "Glisser ou cliquer",
       duplicateWarning: "⚠️ Doublon possible - même date d'arrivée",
       removeFile: "Supprimer",
@@ -291,9 +306,14 @@ nruaHelp: "Die lange Nummer, die mit 'ES' beginnt, vom Digitalen Einheitlichen F
     step3: {
       title: "Buchungsverlauf",
       subtitle: "Laden Sie Ihre Dateien von Airbnb, Booking oder anderen hoch",
-      airbnbFile: "Airbnb-Datei",
-      bookingFile: "Booking-Datei",
-      otherFile: "Andere Datei (VRBO, PDF, etc.)",
+     airbnbFile: "Airbnb-Datei",
+airbnbHelp: "Von Abgeschlossene Buchungen → Exportieren herunterladen",
+airbnbUrl: "https://es-l.airbnb.com/hosting/reservations/completed",
+bookingFile: "Booking-Datei",
+bookingHelp: "Von Reservierungen → Als Excel exportieren herunterladen",
+bookingUrl: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html",
+otherFile: "Andere (VRBO, Channel Manager...)",
+otherHelp: "CSV oder Excel mit Check-in/Check-out und Gästen",
       dragOrClick: "Ziehen oder klicken",
       duplicateWarning: "⚠️ Mögliches Duplikat - gleiches Check-in-Datum",
       removeFile: "Entfernen",
@@ -476,35 +496,35 @@ function FormularioNRUA() {
       if (data.success) {
         let allStays = []
         
-        if (data.airbnb?.estancias) {
-          allStays = [...allStays, ...data.airbnb.estancias.map(s => ({
-            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
-            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
-            guests: '',
-            purpose: '',
-            source: 'Airbnb'
-          }))]
-        }
-        
-        if (data.booking?.estancias) {
-          allStays = [...allStays, ...data.booking.estancias.map(s => ({
-            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
-            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
-            guests: '',
-            purpose: '',
-            source: 'Booking'
-          }))]
-        }
-        
-        if (data.other?.estancias) {
-          allStays = [...allStays, ...data.other.estancias.map(s => ({
-            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
-            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
-            guests: '',
-            purpose: '',
-            source: 'Otro'
-          }))]
-        }
+      if (data.airbnb?.estancias) {
+  allStays = [...allStays, ...data.airbnb.estancias.map(s => ({
+    checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+    checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+    guests: s.huespedes?.toString() || '',
+    purpose: '1',
+    source: 'Airbnb'
+  }))]
+}
+
+if (data.booking?.estancias) {
+  allStays = [...allStays, ...data.booking.estancias.map(s => ({
+    checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+    checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+    guests: s.huespedes?.toString() || '',
+    purpose: '1',
+    source: 'Booking'
+  }))]
+}
+
+if (data.other?.estancias) {
+  allStays = [...allStays, ...data.other.estancias.map(s => ({
+    checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+    checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+    guests: s.huespedes?.toString() || '',
+    purpose: '1',
+    source: 'Otro'
+  }))]
+}
         
         allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
         
@@ -781,14 +801,17 @@ if (!acceptTerms || !acceptAuthorization) return
                     <div className="upload-zone-content">
                       <span className="upload-icon">🏠</span>
                       <strong>{t.step3.airbnbFile}</strong>
-                      {uploadedFiles.airbnb ? (
-                        <div className="file-info">
-                          <span className="file-name">{uploadedFiles.airbnb.name}</span>
-                          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('airbnb'); }}>×</button>
-                        </div>
-                      ) : (
-                        <span className="upload-hint">{t.step3.dragOrClick}</span>
-                      )}
+                     {uploadedFiles.airbnb ? (
+  <div className="file-info">
+    <span className="file-name">{uploadedFiles.airbnb.name}</span>
+    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('airbnb'); }}>×</button>
+  </div>
+) : (
+  <>
+    <span className="upload-hint">{t.step3.dragOrClick}</span>
+    <a href={t.step3.airbnbUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>{t.step3.airbnbHelp}</a>
+  </>
+)}
                     </div>
                   </div>
 
@@ -803,14 +826,17 @@ if (!acceptTerms || !acceptAuthorization) return
                     <div className="upload-zone-content">
                       <span className="upload-icon">🅱️</span>
                       <strong>{t.step3.bookingFile}</strong>
-                      {uploadedFiles.booking ? (
-                        <div className="file-info">
-                          <span className="file-name">{uploadedFiles.booking.name}</span>
-                          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('booking'); }}>×</button>
-                        </div>
-                      ) : (
-                        <span className="upload-hint">{t.step3.dragOrClick}</span>
-                      )}
+                   {uploadedFiles.booking ? (
+  <div className="file-info">
+    <span className="file-name">{uploadedFiles.booking.name}</span>
+    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('booking'); }}>×</button>
+  </div>
+) : (
+  <>
+    <span className="upload-hint">{t.step3.dragOrClick}</span>
+    <a href={t.step3.bookingUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>{t.step3.bookingHelp}</a>
+  </>
+)}
                     </div>
                   </div>
 
@@ -825,14 +851,17 @@ if (!acceptTerms || !acceptAuthorization) return
                     <div className="upload-zone-content">
                       <span className="upload-icon">📄</span>
                       <strong>{t.step3.otherFile}</strong>
-                      {uploadedFiles.other ? (
-                        <div className="file-info">
-                          <span className="file-name">{uploadedFiles.other.name}</span>
-                          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('other'); }}>×</button>
-                        </div>
-                      ) : (
-                        <span className="upload-hint">{t.step3.dragOrClick}</span>
-                      )}
+                  {uploadedFiles.other ? (
+  <div className="file-info">
+    <span className="file-name">{uploadedFiles.other.name}</span>
+    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('other'); }}>×</button>
+  </div>
+) : (
+  <>
+    <span className="upload-hint">{t.step3.dragOrClick}</span>
+    <span className="upload-help-text">{t.step3.otherHelp}</span>
+  </>
+)}
                     </div>
                   </div>
 
