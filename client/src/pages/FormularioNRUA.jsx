@@ -63,6 +63,9 @@ purposes: {
       noFile: "¿No tienes el archivo?",
       manual: "Quiero introducir las estancias manualmente",
       noActivity: "No tuve ningún alquiler en 2025",
+      applyToAll: "Aplicar a todos",
+defaultGuests: "Huéspedes por defecto:",
+defaultPurpose: "Finalidad por defecto:",
       downloadCsv: "Descargar CSV para N2",
 downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
     },
@@ -137,6 +140,9 @@ purposes: {
       noFile: "Don't have the file?",
       manual: "I want to enter stays manually",
      noActivity: "I had no rentals in 2025",
+      applyToAll: "Apply to all",
+defaultGuests: "Default guests:",
+defaultPurpose: "Default purpose:",
 downloadCsv: "Download CSV for N2",
 downloadCsvHelp: "Import this file in the Registry's N2 application"
     },
@@ -211,6 +217,9 @@ purposes: {
       noFile: "Pas de fichier?",
       manual: "Je veux entrer les séjours manuellement",
     noActivity: "Je n'ai pas eu de locations en 2025",
+      applyToAll: "Appliquer à tous",
+defaultGuests: "Voyageurs par défaut:",
+defaultPurpose: "Finalité par défaut:",
 downloadCsv: "Télécharger CSV pour N2",
 downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
     },
@@ -285,6 +294,9 @@ purposes: {
       noFile: "Keine Datei?",
       manual: "Ich möchte Aufenthalte manuell eingeben",
       noActivity: "Ich hatte 2025 keine Vermietungen",
+      applyToAll: "Auf alle anwenden",
+defaultGuests: "Standard-Gäste:",
+defaultPurpose: "Standard-Zweck:",
 downloadCsv: "CSV für N2 herunterladen",
 downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers"
     },
@@ -365,8 +377,8 @@ function FormularioNRUA() {
     }
     if (step === 3) {
       if (!noActivity) {
-        if (extractedStays.length === 0) {
-          e.file = t.errors.required
+      if (extractedStays.length === 0 && fileProcessed) {
+  e.file = t.errors.required
         } else {
           // Verificar que todas las estancias tengan huéspedes
         const missingGuests = extractedStays.some(s => !s.guests || parseInt(s.guests) < 1)
@@ -691,7 +703,50 @@ const downloadN2Csv = () => {
                       {t.step3.changeFile}
                     </button>
                   </div>
-                  <p className="stays-instructions">{t.step3.reviewInstructions}</p>
+                <p className="stays-instructions">{t.step3.reviewInstructions}</p>
+
+{/* Aplicar a todos */}
+<div className="apply-to-all">
+  <div className="apply-group">
+    <label>{t.step3.defaultGuests}</label>
+    <input 
+      type="number" 
+      min="1" 
+      max="20" 
+      id="defaultGuests"
+      placeholder="2"
+    />
+    <button 
+      className="btn btn-small"
+      onClick={() => {
+        const val = document.getElementById('defaultGuests').value
+        if (val) setExtractedStays(prev => prev.map(s => ({ ...s, guests: val })))
+      }}
+    >
+      {t.step3.applyToAll}
+    </button>
+  </div>
+  <div className="apply-group">
+    <label>{t.step3.defaultPurpose}</label>
+    <select id="defaultPurpose">
+      <option value="">--</option>
+      <option value="1">{t.step3.purposes.vacation}</option>
+      <option value="2">{t.step3.purposes.work}</option>
+      <option value="3">{t.step3.purposes.study}</option>
+      <option value="4">{t.step3.purposes.medical}</option>
+      <option value="5">{t.step3.purposes.other}</option>
+    </select>
+    <button 
+      className="btn btn-small"
+      onClick={() => {
+        const val = document.getElementById('defaultPurpose').value
+        if (val) setExtractedStays(prev => prev.map(s => ({ ...s, purpose: val })))
+      }}
+    >
+      {t.step3.applyToAll}
+    </button>
+  </div>
+</div>
                   
                   <div className="stays-table">
                  <div className="stays-table-header">
