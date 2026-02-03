@@ -37,6 +37,13 @@ const translations = {
       selectProvince: "Selecciona..."
     },
     step3: {
+      airbnbFile: "Archivo Airbnb",
+  bookingFile: "Archivo Booking", 
+  otherFile: "Otro archivo (VRBO, PDF, etc.)",
+  dragOrClick: "Arrastra o haz clic",
+  duplicateWarning: "⚠️ Posible duplicado - misma fecha de entrada",
+  removeFile: "Quitar",
+  filesUploaded: "archivo(s) subido(s)",
       processing: "Extrayendo datos... (puede tardar 1-2 minutos)",
       formatHelp: "¿Qué formato debe tener mi archivo?",
 formatInfo: "Acepta archivos CSV o Excel exportados de Airbnb, Booking, VRBO u otras plataformas. El archivo debe contener columnas con fechas de entrada y salida. Formatos de fecha aceptados: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
@@ -118,6 +125,13 @@ downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
       selectProvince: "Select..."
     },
     step3: {
+       airbnbFile: "Airbnb file",
+  bookingFile: "Booking file",
+  otherFile: "Other file (VRBO, PDF, etc.)",
+  dragOrClick: "Drag or click",
+  duplicateWarning: "⚠️ Possible duplicate - same check-in date",
+  removeFile: "Remove",
+  filesUploaded: "file(s) uploaded",
       processing: "Extracting data... (may take 1-2 minutes)",
       formatHelp: "What format should my file have?",
 formatInfo: "Accepts CSV or Excel files exported from Airbnb, Booking, VRBO or other platforms. The file must contain columns with check-in and check-out dates. Accepted date formats: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
@@ -199,6 +213,13 @@ downloadCsvHelp: "Import this file in the Registry's N2 application"
       selectProvince: "Sélectionnez..."
     },
     step3: {
+        airbnbFile: "Fichier Airbnb",
+  bookingFile: "Fichier Booking",
+  otherFile: "Autre fichier (VRBO, PDF, etc.)",
+  dragOrClick: "Glisser ou cliquer",
+  duplicateWarning: "⚠️ Doublon possible - même date d'arrivée",
+  removeFile: "Supprimer",
+  filesUploaded: "fichier(s) téléchargé(s)",
       processing: "Extraction des données... (peut prendre 1-2 minutes)",
       formatHelp: "Quel format doit avoir mon fichier?",
 formatInfo: "Accepte les fichiers CSV ou Excel exportés d'Airbnb, Booking, VRBO ou autres. Le fichier doit contenir des colonnes avec dates d'arrivée et de départ. Formats de date acceptés: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
@@ -280,6 +301,13 @@ downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
       selectProvince: "Auswählen..."
     },
     step3: {
+       airbnbFile: "Airbnb-Datei",
+  bookingFile: "Booking-Datei",
+  otherFile: "Andere Datei (VRBO, PDF, etc.)",
+  dragOrClick: "Ziehen oder klicken",
+  duplicateWarning: "⚠️ Mögliches Duplikat - gleiches Check-in-Datum",
+  removeFile: "Entfernen",
+  filesUploaded: "Datei(en) hochgeladen",
       processing: "Daten werden extrahiert... (kann 1-2 Minuten dauern)",
       formatHelp: "Welches Format sollte meine Datei haben?",
 formatInfo: "Akzeptiert CSV- oder Excel-Dateien von Airbnb, Booking, VRBO oder anderen. Die Datei muss Spalten mit Check-in und Check-out Daten enthalten. Akzeptierte Datumsformate: DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY.",
@@ -355,7 +383,11 @@ function FormularioNRUA() {
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [manualMode, setManualMode] = useState(false)
   const [noActivity, setNoActivity] = useState(false)
-  const [uploadedFile, setUploadedFile] = useState(null)
+  const [uploadedFiles, setUploadedFiles] = useState({
+  airbnb: null,
+  booking: null,
+  other: null
+})
   const [fileProcessed, setFileProcessed] = useState(false)
 const [isProcessing, setIsProcessing] = useState(false)
   const [extractedStays, setExtractedStays] = useState([])
@@ -413,38 +445,41 @@ if (missingGuests || missingPurpose) {
   const next = () => { if (validate()) setStep(s => Math.min(s + 1, 4)) }
   const back = () => setStep(s => Math.max(s - 1, 1))
 
-  const handleFile = (e) => {
-    const file = e.target.files?.[0]
-    const validExtensions = ['.csv', '.pdf', '.xlsx', '.xls']
-    if (file && validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))) {
-      setUploadedFile(file)
-      setManualMode(false)
-      setNoActivity(false)
-      // Simular extracción de datos (en producción usaría Claude API)
-      simulateExtraction(file)
-    }
+const handleFileUpload = (type) => (e) => {
+  const file = e.target.files?.[0]
+  if (file) {
+    setUploadedFiles(prev => ({ ...prev, [type]: file }))
+    setManualMode(false)
+    setNoActivity(false)
   }
+}
 
-  const handleDrop = (e) => {
-    e.preventDefault()
-    const file = e.dataTransfer.files?.[0]
-    const validExtensions = ['.csv', '.pdf', '.xlsx', '.xls']
-    if (file && validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))) {
-      setUploadedFile(file)
-      setManualMode(false)
-      setNoActivity(false)
-      simulateExtraction(file)
-    }
+const handleFileDrop = (type) => (e) => {
+  e.preventDefault()
+  const file = e.dataTransfer.files?.[0]
+  if (file) {
+    setUploadedFiles(prev => ({ ...prev, [type]: file }))
+    setManualMode(false)
+    setNoActivity(false)
   }
+}
 
-// Extraer datos del archivo usando Claude API
-const simulateExtraction = async (file) => {
+const removeFile = (type) => {
+  setUploadedFiles(prev => ({ ...prev, [type]: null }))
+}
+
+const processAllFiles = async () => {
+  const hasFiles = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.other
+  if (!hasFiles) return
+  
+  setIsProcessing(true)
   setFileProcessed(false)
-  setIsProcessing(true)  // ← AÑADIR
   
   try {
     const formData = new FormData()
-    formData.append('airbnb', file)
+    if (uploadedFiles.airbnb) formData.append('airbnb', uploadedFiles.airbnb)
+    if (uploadedFiles.booking) formData.append('booking', uploadedFiles.booking)
+    if (uploadedFiles.other) formData.append('other', uploadedFiles.other)
     
     const response = await fetch('/api/process-csv', {
       method: 'POST',
@@ -461,7 +496,8 @@ const simulateExtraction = async (file) => {
           checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
           checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
           guests: '',
-          purpose: ''
+          purpose: '',
+          source: 'Airbnb'
         }))]
       }
       
@@ -470,85 +506,52 @@ const simulateExtraction = async (file) => {
           checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
           checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
           guests: '',
-          purpose: ''
+          purpose: '',
+          source: 'Booking'
+        }))]
+      }
+      
+      if (data.other?.estancias) {
+        allStays = [...allStays, ...data.other.estancias.map(s => ({
+          checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+          checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+          guests: '',
+          purpose: '',
+          source: 'Otro'
         }))]
       }
       
       allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
+      
+      // Detectar duplicados
+      allStays = allStays.map((stay, index) => {
+        const isDuplicate = allStays.some((other, otherIndex) => 
+          otherIndex !== index && 
+          other.checkIn === stay.checkIn &&
+          other.source !== stay.source
+        )
+        return { ...stay, isDuplicate }
+      })
+      
       setExtractedStays(allStays)
     } else {
-      console.error('Error processing file:', data.error)
-      alert('Error al procesar el archivo. Intenta de nuevo.')
+      alert('Error al procesar los archivos. Intenta de nuevo.')
     }
   } catch (error) {
     console.error('Error:', error)
-    alert('Error al procesar el archivo. Intenta de nuevo.')
+    alert('Error al procesar los archivos. Intenta de nuevo.')
   }
   
   setFileProcessed(true)
-  setIsProcessing(false)  // ← AÑADIR
+  setIsProcessing(false)
 }
 
-  const updateStay = (index, field, value) => {
-    setExtractedStays(prev => {
-      const updated = [...prev]
-      updated[index] = { ...updated[index], [field]: value }
-      return updated
-    })
-    if (errors.stays) setErrors(prev => ({ ...prev, stays: null }))
-  }
-
-  const removeStay = (index) => {
-    setExtractedStays(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const addEmptyStay = () => {
-    setExtractedStays(prev => [...prev, { checkIn: '', checkOut: '', guests: '' }])
-    if (manualMode && extractedStays.length === 0) {
-      setManualMode(false)
-    }
-  }
-  // Generar CSV compatible con aplicación N2
-const downloadN2Csv = () => {
-  if (!form.nrua || extractedStays.length === 0) {
-    alert('Necesitas el código NRUA y al menos una estancia')
-    return
-  }
-  
-  // Verificar que todas las estancias estén completas
-  const incomplete = extractedStays.some(s => !s.checkIn || !s.checkOut || !s.guests || !s.purpose)
-  if (incomplete) {
-    alert('Completa todos los campos de cada estancia')
-    return
-  }
-  
-  // Formato N2: NRUA;checkin;checkout;huéspedes;código_finalidad
-  // Fechas en formato dd/MM/yyyy
-  const formatDate = (dateStr) => {
-    if (!dateStr) return ''
-    const [year, month, day] = dateStr.split('-')
-    return `${day}/${month}/${year}`
-  }
-  
-  const lines = extractedStays.map(stay => 
-    `${form.nrua};${formatDate(stay.checkIn)};${formatDate(stay.checkOut)};${stay.guests};${stay.purpose}`
-  )
-  
-  const csvContent = lines.join('\n')
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `nrua_${form.nrua.replace(/[^a-zA-Z0-9]/g, '_')}_2025.csv`
-  link.click()
-  URL.revokeObjectURL(url)
+const resetFiles = () => {
+  setUploadedFiles({ airbnb: null, booking: null, other: null })
+  setFileProcessed(false)
+  setExtractedStays([])
 }
 
-  const resetFile = () => {
-    setUploadedFile(null)
-    setFileProcessed(false)
-    setExtractedStays([])
-  }
 
  const handlePay = async () => {
     if (!acceptTerms) return
@@ -844,12 +847,12 @@ const downloadN2Csv = () => {
                   <p className="manual-title">{t.step3.noFile}</p>
                   
                   <label className="checkbox-label">
-                    <input type="checkbox" checked={noActivity} onChange={e => { setNoActivity(e.target.checked); setManualMode(false); setUploadedFile(null); setExtractedStays([]) }} />
+                    <input type="checkbox" checked={noActivity} onChange={e => { setNoActivity(e.target.checked); setManualMode(false); resetFiles() }} />
                     <span>{t.step3.noActivity}</span>
                   </label>
                   
                   <label className="checkbox-label">
-                    <input type="checkbox" checked={manualMode} onChange={e => { setManualMode(e.target.checked); setNoActivity(false); setUploadedFile(null); setExtractedStays([]) }} />
+                    <input type="checkbox" checked={manualMode} onChange={e => { setManualMode(e.target.checked); setNoActivity(false); resetFiles() }} />
                     <span>{t.step3.manual}</span>
                   </label>
 
