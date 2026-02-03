@@ -344,7 +344,7 @@ function FormularioNRUA() {
   const [manualMode, setManualMode] = useState(false)
   const [noActivity, setNoActivity] = useState(false)
   const [uploadedFile, setUploadedFile] = useState(null)
-  const [fileProcessed, setFileProcessed] = useState(false)
+ const [isProcessing, setIsProcessing] = useState(false)
   const [extractedStays, setExtractedStays] = useState([])
   const [errors, setErrors] = useState({})
   
@@ -425,54 +425,56 @@ if (missingGuests || missingPurpose) {
   }
 
 // Extraer datos del archivo usando Claude API
-  const simulateExtraction = async (file) => {
-    setFileProcessed(false)
+const simulateExtraction = async (file) => {
+  setFileProcessed(false)
+  setIsProcessing(true)  // ← AÑADIR
+  
+  try {
+    const formData = new FormData()
+    formData.append('airbnb', file)
     
-    try {
-      const formData = new FormData()
-      formData.append('airbnb', file) // o 'booking' según el archivo
+    const response = await fetch('/api/process-csv', {
+      method: 'POST',
+      body: formData
+    })
+    
+    const data = await response.json()
+    
+    if (data.success) {
+      let allStays = []
       
-      const response = await fetch('/api/process-csv', {
-        method: 'POST',
-        body: formData
-      })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        // Combinar estancias de Airbnb y Booking
-        let allStays = []
-        
-        if (data.airbnb?.estancias) {
-          allStays = [...allStays, ...data.airbnb.estancias.map(s => ({
-            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
-            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
-            guests: ''
-          }))]
-        }
-        
-        if (data.booking?.estancias) {
-          allStays = [...allStays, ...data.booking.estancias.map(s => ({
-            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
-            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
-            guests: ''
-          }))]
-        }
-        
-       // Ordenar por fecha de entrada (enero → diciembre)
-        allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
-        setExtractedStays(allStays)
-      } else {
-        console.error('Error processing file:', data.error)
-        alert('Error al procesar el archivo. Intenta de nuevo.')
+      if (data.airbnb?.estancias) {
+        allStays = [...allStays, ...data.airbnb.estancias.map(s => ({
+          checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+          checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+          guests: '',
+          purpose: ''
+        }))]
       }
-    } catch (error) {
-      console.error('Error:', error)
+      
+      if (data.booking?.estancias) {
+        allStays = [...allStays, ...data.booking.estancias.map(s => ({
+          checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+          checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+          guests: '',
+          purpose: ''
+        }))]
+      }
+      
+      allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
+      setExtractedStays(allStays)
+    } else {
+      console.error('Error processing file:', data.error)
       alert('Error al procesar el archivo. Intenta de nuevo.')
     }
-    
-    setFileProcessed(true)
+  } catch (error) {
+    console.error('Error:', error)
+    alert('Error al procesar el archivo. Intenta de nuevo.')
   }
+  
+  setFileProcessed(true)
+  setIsProcessing(false)  // ← AÑADIR
+}
 
   const updateStay = (index, field, value) => {
     setExtractedStays(prev => {
@@ -685,7 +687,7 @@ const downloadN2Csv = () => {
                     <div className="uploaded-file">
                       <FileText size={32} />
                       <p>{t.step3.uploaded} <strong>{uploadedFile.name}</strong></p>
-                      <p className="processing">{t.step3.processing}</p>
+                     <p className="processing">⏳ {t.step3.processing}</p>
                     </div>
               ) : (
                     <>
@@ -902,7 +904,16 @@ const downloadN2Csv = () => {
         {/* Navigation */}
         <div className="form-nav">
           {step > 1 && <button className="btn btn-secondary" onClick={back}><ArrowLeft size={18} />{t.nav.back}</button>}
-          {step < 4 && <button className="btn btn-primary" onClick={next}>{t.nav.next}<ArrowRight size={18} /></button>}
+         {step < 4 && (
+  <button 
+    className="btn btn-primary" 
+    onClick={next}
+    disabled={isProcessing}
+  >
+    {isProcessing ? '⏳ Procesando...' : t.nav.next}
+    {!isProcessing && <ArrowRight size={18} />}
+  </button>
+)}
         </div>
       </div>
     </div>
