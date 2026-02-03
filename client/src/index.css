@@ -1469,4 +1469,20 @@ h1, h2, h3, h4, h5, h6 {
   .cookies-table td {
     padding: 8px;
   }
+   .upload-help-link {
+  font-size: 11px;
+  color: #2563eb;
+  text-decoration: underline;
+  margin-top: 4px;
+}
+
+.upload-help-link:hover {
+  color: #1d4ed8;
+}
+
+.upload-help-text {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+}
 }
