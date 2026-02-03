@@ -88,30 +88,33 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
+ if (event.type === 'checkout.session.completed') {
+  const session = event.data.object;
+  
+  // Update order status
+  const updateResult = await pool.query(
+    'UPDATE orders SET status = $1, stripe_payment_id = $2, completed_at = NOW() WHERE stripe_session_id = $3 RETURNING *',
+    ['completed', session.payment_intent, session.id]
+  );
+  
+  // También actualizar submission status
+  if (updateResult.rows.length > 0) {
+    const order = updateResult.rows[0];
     
     await pool.query(
-      'UPDATE orders SET status = $1, stripe_payment_id = $2, completed_at = NOW() WHERE stripe_session_id = $3',
-      ['completed', session.payment_intent, session.id]
+      'UPDATE submissions SET status = $1 WHERE order_id = $2',
+      ['completed', order.id]
     );
     
-    // Obtener datos y enviar email
-    const orderResult = await pool.query(
-      'SELECT * FROM orders WHERE stripe_session_id = $1',
-      [session.id]
-    );
-    
-    if (orderResult.rows.length > 0) {
-      const order = orderResult.rows[0];
-      await sendConfirmationEmail(session.customer_email, {
-        plan: order.properties_count,
-        amount: order.amount / 100
-      });
-    }
-    
-    console.log('Payment completed for session:', session.id);
+    // Enviar email...
+    await sendConfirmationEmail(session.customer_email, {
+      plan: order.properties_count,
+      amount: order.amount / 100
+    });
   }
+  
+  console.log('Payment completed for session:', session.id);
+}
 
   res.json({ received: true });
 });
@@ -125,9 +128,11 @@ app.get('/api/health', (req, res) => {
 });
 
 // Create Stripe checkout session
+
+// Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
-    const { plan, email } = req.body;
+    const { plan, email, formData, files, stays, noActivity } = req.body;
     const priceData = PRICES[plan];
 
     if (!priceData) {
@@ -140,6 +145,27 @@ app.post('/api/create-checkout-session', async (req, res) => {
       [email, plan, priceData.properties, priceData.amount, 'pending']
     );
     const orderId = orderResult.rows[0].id;
+
+    // Create submission with all data (pending until payment completes)
+    await pool.query(
+      `INSERT INTO submissions 
+        (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, extracted_stays, status) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+      [
+        orderId,
+        formData?.name || null,
+        null, // NIF se puede añadir después si lo necesitas
+        formData?.nrua || null,
+        formData?.address || null,
+        formData?.province || null,
+        formData?.phone || null,
+        files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
+        files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
+        files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
+        JSON.stringify(stays || []),
+        'pending'
+      ]
+    );
 
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
