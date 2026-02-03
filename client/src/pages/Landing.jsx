@@ -74,27 +74,30 @@ es: {
       step3: "Recibe tu justificante",
       step3desc: "En 24-48h te enviamos el comprobante oficial por email."
     },
-   download: {
+  download: {
   title: "📥 ¿Cómo descargo mis reservas?",
   airbnb: {
     title: "Desde Airbnb:",
     steps: [
-      "Entra en airbnb.com → Menú → Cobros recibidos",
-      "Haz clic en 'Mostrar todos los cobros recibidos'",
-      "Filtra por año: 2025",
-      "Haz clic en 'Obtén el informe en CSV' (abajo a la derecha)"
-    ]
+      "1. Entra en airbnb.com → Menú → Anuncios",
+      "2. Haz clic en 'Reservas completadas'",
+      "3. Filtra por año 2025",
+      "4. Haz clic en 'Exportar'"
+    ],
+    url: "https://es-l.airbnb.com/hosting/reservations/completed"
   },
   booking: {
     title: "Desde Booking:",
     steps: [
-      "Entra en Extranet de Booking → Administración → Información de pagos",
-      "En 'Período de pago' selecciona 'Año anterior (2025)'",
-      "Haz clic en 'Descargar todos los informes'"
-    ]
+      "1. Entra en Extranet de Booking",
+      "2. Ve a 'Reservas' → busca reservas",
+      "3. Filtra por fechas 2025",
+      "4. Haz clic en 'Exportar'"
+    ],
+    url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
   },
-  other: "¿Usas VRBO u otra plataforma? Descarga el PDF o informe de reservas y súbelo igualmente.",
-  noFile: "¿No tienes archivo? No te preocupes, también puedes rellenar las estancias manualmente en el formulario."
+  other: "¿Usas VRBO u otra plataforma? Descarga el CSV o Excel de reservas y súbelo igualmente.",
+  noFile: "¿No tienes archivo? No te preocupes, puedes rellenar las estancias manualmente en el formulario."
 },
     pricing: {
       title: "Precios claros",
@@ -191,27 +194,30 @@ es: {
       step3: "Receive your certificate",
       step3desc: "In 24-48h we send you the official receipt by email."
     },
-   download: {
+  download: {
   title: "📥 How do I download my reservations?",
   airbnb: {
     title: "From Airbnb:",
     steps: [
-      "Go to airbnb.com → Menu → Gross earnings",
-      "Click 'Show all gross earnings'",
-      "Filter by year: 2025",
-      "Click 'Get CSV report' (bottom right)"
-    ]
+      "1. Go to airbnb.com → Menu → Listings",
+      "2. Click 'Completed reservations'",
+      "3. Filter by year 2025",
+      "4. Click 'Export'"
+    ],
+    url: "https://es-l.airbnb.com/hosting/reservations/completed"
   },
   booking: {
     title: "From Booking:",
     steps: [
-      "Go to Booking Extranet → Admin → Payment info",
-      "In 'Payment period' select 'Previous year (2025)'",
-      "Click 'Download all reports'"
-    ]
+      "1. Go to Booking Extranet",
+      "2. Go to 'Reservations' → search",
+      "3. Filter by 2025 dates",
+      "4. Click 'Export'"
+    ],
+    url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
   },
-  other: "Using VRBO or another platform? Download the PDF or reservation report and upload it anyway.",
-  noFile: "No file? Don't worry, you can also fill in the stays manually in the form."
+  other: "Using VRBO or another platform? Download the CSV or Excel with your reservations and upload it.",
+  noFile: "No file? No worries, you can fill in stays manually in the form."
 },
     pricing: {
       title: "Clear pricing",
@@ -308,27 +314,30 @@ es: {
       step3: "Recevez votre certificat",
       step3desc: "En 24-48h nous vous envoyons le reçu officiel par email."
     },
-   download: {
+ download: {
   title: "📥 Comment télécharger mes réservations?",
   airbnb: {
     title: "Depuis Airbnb:",
     steps: [
-      "Allez sur airbnb.com → Menu → Revenus perçus",
-      "Cliquez sur 'Afficher tous les revenus perçus'",
-      "Filtrez par année: 2025",
-      "Cliquez sur 'Obtenir le rapport CSV' (en bas à droite)"
-    ]
+      "1. Allez sur airbnb.com → Menu → Annonces",
+      "2. Cliquez sur 'Réservations terminées'",
+      "3. Filtrez par année 2025",
+      "4. Cliquez sur 'Exporter'"
+    ],
+    url: "https://es-l.airbnb.com/hosting/reservations/completed"
   },
   booking: {
     title: "Depuis Booking:",
     steps: [
-      "Allez sur Extranet Booking → Administration → Infos de paiement",
-      "Dans 'Période de paiement' sélectionnez 'Année précédente (2025)'",
-      "Cliquez sur 'Télécharger tous les rapports'"
-    ]
+      "1. Allez sur Extranet Booking",
+      "2. Allez à 'Réservations' → rechercher",
+      "3. Filtrez par dates 2025",
+      "4. Cliquez sur 'Exporter'"
+    ],
+    url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
   },
-  other: "Vous utilisez VRBO ou une autre plateforme? Téléchargez le PDF ou le rapport de réservations.",
-  noFile: "Pas de fichier? Pas de souci, vous pouvez remplir les séjours manuellement."
+  other: "Vous utilisez VRBO ou une autre plateforme? Téléchargez le CSV ou Excel de réservations.",
+  noFile: "Pas de fichier? Pas de souci, vous pouvez saisir les séjours manuellement."
 },
     pricing: {
       title: "Tarifs clairs",
@@ -425,27 +434,30 @@ es: {
       step3: "Bescheinigung erhalten",
       step3desc: "In 24-48h senden wir Ihnen die offizielle Quittung per E-Mail."
     },
-    download: {
+   download: {
   title: "📥 Wie lade ich meine Buchungen herunter?",
   airbnb: {
     title: "Von Airbnb:",
     steps: [
-      "Gehen Sie zu airbnb.com → Menü → Erhaltene Zahlungen",
-      "Klicken Sie auf 'Alle erhaltenen Zahlungen anzeigen'",
-      "Filtern Sie nach Jahr: 2025",
-      "Klicken Sie auf 'CSV-Bericht abrufen' (unten rechts)"
-    ]
+      "1. Gehen Sie zu airbnb.com → Menü → Inserate",
+      "2. Klicken Sie auf 'Abgeschlossene Buchungen'",
+      "3. Filtern Sie nach Jahr 2025",
+      "4. Klicken Sie auf 'Exportieren'"
+    ],
+    url: "https://es-l.airbnb.com/hosting/reservations/completed"
   },
   booking: {
     title: "Von Booking:",
     steps: [
-      "Gehen Sie zu Booking Extranet → Verwaltung → Zahlungsinfos",
-      "Wählen Sie bei 'Zahlungszeitraum' 'Vorjahr (2025)'",
-      "Klicken Sie auf 'Alle Berichte herunterladen'"
-    ]
+      "1. Gehen Sie zum Booking Extranet",
+      "2. Gehen Sie zu 'Reservierungen' → suchen",
+      "3. Filtern Sie nach 2025",
+      "4. Klicken Sie auf 'Exportieren'"
+    ],
+    url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
   },
-  other: "Sie nutzen VRBO oder eine andere Plattform? Laden Sie das PDF oder den Buchungsbericht herunter.",
-  noFile: "Keine Datei? Kein Problem, Sie können die Aufenthalte manuell eingeben."
+  other: "Sie nutzen VRBO oder eine andere Plattform? Laden Sie die CSV oder Excel mit Buchungen hoch.",
+  noFile: "Keine Datei? Kein Problem, Sie können Aufenthalte manuell eingeben."
 },
     pricing: {
       title: "Klare Preise",
