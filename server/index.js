@@ -112,14 +112,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
   
   console.log('Payment completed for session:', session.id);
 }
-```
 
----
-
-## **PASO 2: Añadir variable en Render**
-
-Ve a Render → Environment → Add:
-```
 RESEND_API_KEY=re_hSNQ7xC6_KTHPdn5yYdVBauxJXAqT54YZ
 
 // JSON middleware for other routes
