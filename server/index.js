@@ -120,7 +120,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 });
 
 // JSON middleware for other routes
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -133,6 +133,12 @@ app.get('/api/health', (req, res) => {
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { plan, email, formData, files, stays, noActivity } = req.body;
+      console.log('📦 Checkout request received:');
+    console.log('- Email:', email);
+    console.log('- Plan:', plan);
+    console.log('- FormData:', formData ? 'YES' : 'NO');
+    console.log('- Files:', files ? 'YES' : 'NO');
+    console.log('- Stays:', stays?.length || 0);
     const priceData = PRICES[plan];
 
     if (!priceData) {
