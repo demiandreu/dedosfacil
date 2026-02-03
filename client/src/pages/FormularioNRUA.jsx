@@ -601,37 +601,65 @@ function FormularioNRUA() {
     URL.revokeObjectURL(url)
   }
 
-  const handlePay = async () => {
-    if (!acceptTerms) return
-    
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          plan: selectedPlan.toString(),
-          email: form.email
-        })
+const handlePay = async () => {
+  if (!acceptTerms) return
+  
+  try {
+    // Convertir archivos a base64
+    const fileToBase64 = (file) => {
+      return new Promise((resolve) => {
+        if (!file) return resolve(null)
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result)
+        reader.readAsDataURL(file)
       })
-      
-      const data = await response.json()
-      
-      if (data.url) {
-        localStorage.setItem('dedosfacil_form', JSON.stringify({
-          ...form,
-          stays: extractedStays,
-          noActivity,
-          plan: selectedPlan
-        }))
-        window.location.href = data.url
-      } else {
-        alert('Error al crear sesión de pago')
-      }
-    } catch (error) {
-      console.error('Payment error:', error)
-      alert('Error al procesar el pago')
     }
+    
+    const airbnbBase64 = await fileToBase64(uploadedFiles.airbnb)
+    const bookingBase64 = await fileToBase64(uploadedFiles.booking)
+    const otherBase64 = await fileToBase64(uploadedFiles.other)
+    
+    const response = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plan: selectedPlan.toString(),
+        email: form.email,
+        // Datos del formulario
+        formData: {
+          name: form.name,
+          phone: form.phone,
+          nrua: form.nrua,
+          address: form.address,
+          province: form.province
+        },
+        // Archivos en base64
+        files: {
+          airbnb: airbnbBase64,
+          airbnbName: uploadedFiles.airbnb?.name || null,
+          booking: bookingBase64,
+          bookingName: uploadedFiles.booking?.name || null,
+          other: otherBase64,
+          otherName: uploadedFiles.other?.name || null
+        },
+        // Estancias extraídas
+        stays: extractedStays,
+        noActivity: noActivity
+      })
+    })
+    
+    const data = await response.json()
+    
+    if (data.url) {
+      window.location.href = data.url
+    } else {
+      alert('Error al crear sesión de pago')
+    }
+  } catch (error) {
+    console.error('Payment error:', error)
+    alert('Error al procesar el pago')
   }
+}
 
   const currentPlan = t.step4.plans.find(p => p.id === selectedPlan)
   const hasAnyFile = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.other
