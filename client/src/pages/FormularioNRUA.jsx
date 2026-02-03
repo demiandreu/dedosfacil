@@ -38,19 +38,23 @@ const translations = {
     },
     step3: {
       title: "Historial de reservas",
-      subtitle: "Sube tu archivo de reservas de 2025",
+      subtitle: "Sube tu archivo de Airbnb, Booking, VRBO u otra plataforma",
       uploadTitle: "Arrastra tu archivo aquí",
       uploadOr: "o haz clic para seleccionar",
       uploadHelp: "Acepta CSV, PDF o Excel de Airbnb, Booking, VRBO u otras plataformas",
-      uploaded: "Archivo subido:",
-      change: "Cambiar archivo",
+      uploaded: "Archivo:",
+      processing: "Extrayendo datos...",
+      reviewTitle: "Revisa tus estancias",
+      reviewInstructions: "Verifica las fechas y añade el número de huéspedes para cada estancia:",
+      changeFile: "Cambiar archivo",
+      checkIn: "Entrada",
+      checkOut: "Salida",
+      guests: "Huéspedes",
+      addStay: "Añadir estancia",
+      staysFound: "estancia(s)",
       noFile: "¿No tienes el archivo?",
-      noFileDesc: "Marca esta casilla y rellena manualmente:",
       manual: "Quiero introducir las estancias manualmente",
-      noActivity: "No tuve ningún alquiler en 2025",
-      manualTitle: "Estancias (una por línea):",
-      manualPh: "01/01/2025 - 05/01/2025 - 2 huéspedes\n15/02/2025 - 20/02/2025 - 4 huéspedes",
-      manualHelp: "Formato: Fecha entrada - Fecha salida - Nº huéspedes"
+      noActivity: "No tuve ningún alquiler en 2025"
     },
     step4: {
       title: "Resumen y pago",
@@ -70,7 +74,7 @@ const translations = {
       delivery: "Recibirás el justificante en 24-48h"
     },
     nav: { back: "Atrás", next: "Siguiente" },
-    errors: { required: "Obligatorio", invalidEmail: "Email no válido" }
+    errors: { required: "Obligatorio", invalidEmail: "Email no válido", missingGuests: "Añade el número de huéspedes para todas las estancias" }
   },
   en: {
     title: "Submit your NRUA",
@@ -98,19 +102,23 @@ const translations = {
     },
     step3: {
       title: "Booking history",
-      subtitle: "Upload your 2025 reservations file",
+      subtitle: "Upload your file from Airbnb, Booking, VRBO or other platform",
       uploadTitle: "Drag your file here",
       uploadOr: "or click to select",
       uploadHelp: "Accepts CSV, PDF or Excel from Airbnb, Booking, VRBO or other platforms",
-      uploaded: "File uploaded:",
-      change: "Change file",
+      uploaded: "File:",
+      processing: "Extracting data...",
+      reviewTitle: "Review your stays",
+      reviewInstructions: "Verify dates and add the number of guests for each stay:",
+      changeFile: "Change file",
+      checkIn: "Check-in",
+      checkOut: "Check-out",
+      guests: "Guests",
+      addStay: "Add stay",
+      staysFound: "stay(s)",
       noFile: "Don't have the file?",
-      noFileDesc: "Check this box and fill manually:",
       manual: "I want to enter stays manually",
-      noActivity: "I had no rentals in 2025",
-      manualTitle: "Stays (one per line):",
-      manualPh: "01/01/2025 - 05/01/2025 - 2 guests\n15/02/2025 - 20/02/2025 - 4 guests",
-      manualHelp: "Format: Check-in - Check-out - No. guests"
+      noActivity: "I had no rentals in 2025"
     },
     step4: {
       title: "Summary and payment",
@@ -130,7 +138,7 @@ const translations = {
       delivery: "You'll receive the certificate in 24-48h"
     },
     nav: { back: "Back", next: "Next" },
-    errors: { required: "Required", invalidEmail: "Invalid email" }
+    errors: { required: "Required", invalidEmail: "Invalid email", missingGuests: "Add the number of guests for all stays" }
   },
   fr: {
     title: "Déposez votre NRUA",
@@ -158,19 +166,23 @@ const translations = {
     },
     step3: {
       title: "Historique des réservations",
-      subtitle: "Uploadez votre fichier de réservations 2025",
+      subtitle: "Uploadez votre fichier d'Airbnb, Booking, VRBO ou autre",
       uploadTitle: "Glissez votre fichier ici",
       uploadOr: "ou cliquez pour sélectionner",
       uploadHelp: "Accepte CSV, PDF ou Excel d'Airbnb, Booking, VRBO ou autres",
-      uploaded: "Fichier uploadé:",
-      change: "Changer de fichier",
+      uploaded: "Fichier:",
+      processing: "Extraction des données...",
+      reviewTitle: "Vérifiez vos séjours",
+      reviewInstructions: "Vérifiez les dates et ajoutez le nombre de voyageurs:",
+      changeFile: "Changer de fichier",
+      checkIn: "Arrivée",
+      checkOut: "Départ",
+      guests: "Voyageurs",
+      addStay: "Ajouter un séjour",
+      staysFound: "séjour(s)",
       noFile: "Pas de fichier?",
-      noFileDesc: "Cochez cette case et remplissez manuellement:",
       manual: "Je veux entrer les séjours manuellement",
-      noActivity: "Je n'ai pas eu de locations en 2025",
-      manualTitle: "Séjours (un par ligne):",
-      manualPh: "01/01/2025 - 05/01/2025 - 2 voyageurs\n15/02/2025 - 20/02/2025 - 4 voyageurs",
-      manualHelp: "Format: Arrivée - Départ - Nb voyageurs"
+      noActivity: "Je n'ai pas eu de locations en 2025"
     },
     step4: {
       title: "Résumé et paiement",
@@ -190,7 +202,7 @@ const translations = {
       delivery: "Vous recevrez le certificat en 24-48h"
     },
     nav: { back: "Retour", next: "Suivant" },
-    errors: { required: "Obligatoire", invalidEmail: "Email invalide" }
+    errors: { required: "Obligatoire", invalidEmail: "Email invalide", missingGuests: "Ajoutez le nombre de voyageurs pour tous les séjours" }
   },
   de: {
     title: "NRUA einreichen",
@@ -218,19 +230,23 @@ const translations = {
     },
     step3: {
       title: "Buchungsverlauf",
-      subtitle: "Laden Sie Ihre 2025 Reservierungsdatei hoch",
+      subtitle: "Laden Sie Ihre Datei von Airbnb, Booking, VRBO oder anderen hoch",
       uploadTitle: "Datei hierher ziehen",
       uploadOr: "oder klicken zum Auswählen",
       uploadHelp: "Akzeptiert CSV, PDF oder Excel von Airbnb, Booking, VRBO oder anderen",
-      uploaded: "Datei hochgeladen:",
-      change: "Datei ändern",
+      uploaded: "Datei:",
+      processing: "Daten werden extrahiert...",
+      reviewTitle: "Überprüfen Sie Ihre Aufenthalte",
+      reviewInstructions: "Überprüfen Sie die Daten und fügen Sie die Gästezahl hinzu:",
+      changeFile: "Datei ändern",
+      checkIn: "Check-in",
+      checkOut: "Check-out",
+      guests: "Gäste",
+      addStay: "Aufenthalt hinzufügen",
+      staysFound: "Aufenthalt(e)",
       noFile: "Keine Datei?",
-      noFileDesc: "Aktivieren Sie dieses Kästchen und füllen Sie manuell aus:",
       manual: "Ich möchte Aufenthalte manuell eingeben",
-      noActivity: "Ich hatte 2025 keine Vermietungen",
-      manualTitle: "Aufenthalte (einer pro Zeile):",
-      manualPh: "01.01.2025 - 05.01.2025 - 2 Gäste\n15.02.2025 - 20.02.2025 - 4 Gäste",
-      manualHelp: "Format: Check-in - Check-out - Anzahl Gäste"
+      noActivity: "Ich hatte 2025 keine Vermietungen"
     },
     step4: {
       title: "Zusammenfassung und Zahlung",
@@ -250,7 +266,7 @@ const translations = {
       delivery: "Sie erhalten die Bescheinigung in 24-48h"
     },
     nav: { back: "Zurück", next: "Weiter" },
-    errors: { required: "Erforderlich", invalidEmail: "Ungültige E-Mail" }
+    errors: { required: "Erforderlich", invalidEmail: "Ungültige E-Mail", missingGuests: "Fügen Sie die Gästezahl für alle Aufenthalte hinzu" }
   }
 }
 
@@ -272,6 +288,8 @@ function FormularioNRUA() {
   const [manualMode, setManualMode] = useState(false)
   const [noActivity, setNoActivity] = useState(false)
   const [uploadedFile, setUploadedFile] = useState(null)
+  const [fileProcessed, setFileProcessed] = useState(false)
+  const [extractedStays, setExtractedStays] = useState([])
   const [errors, setErrors] = useState({})
   
   const [form, setForm] = useState({
@@ -306,8 +324,17 @@ function FormularioNRUA() {
       if (!form.province) e.province = t.errors.required
     }
     if (step === 3) {
-      if (!uploadedFile && !manualMode && !noActivity) e.file = t.errors.required
-      if (manualMode && !noActivity && !form.manualStays.trim()) e.manualStays = t.errors.required
+      if (!noActivity) {
+        if (extractedStays.length === 0) {
+          e.file = t.errors.required
+        } else {
+          // Verificar que todas las estancias tengan huéspedes
+          const missingGuests = extractedStays.some(s => !s.guests || parseInt(s.guests) < 1)
+          if (missingGuests) {
+            e.stays = t.errors.missingGuests || 'Añade el número de huéspedes para todas las estancias'
+          }
+        }
+      }
     }
     setErrors(e)
     return Object.keys(e).length === 0
@@ -323,6 +350,8 @@ function FormularioNRUA() {
       setUploadedFile(file)
       setManualMode(false)
       setNoActivity(false)
+      // Simular extracción de datos (en producción usaría Claude API)
+      simulateExtraction(file)
     }
   }
 
@@ -334,7 +363,52 @@ function FormularioNRUA() {
       setUploadedFile(file)
       setManualMode(false)
       setNoActivity(false)
+      simulateExtraction(file)
     }
+  }
+
+  // Simular extracción - en producción esto llamará a Claude API
+  const simulateExtraction = (file) => {
+    setFileProcessed(false)
+    // Simular delay de procesamiento
+    setTimeout(() => {
+      // Datos de ejemplo - en producción vendrán del archivo
+      const mockStays = [
+        { checkIn: '2025-07-03', checkOut: '2025-07-04', guests: '' },
+        { checkIn: '2025-06-28', checkOut: '2025-06-29', guests: '' },
+        { checkIn: '2025-06-24', checkOut: '2025-06-25', guests: '' },
+        { checkIn: '2025-06-22', checkOut: '2025-06-24', guests: '' },
+        { checkIn: '2025-07-20', checkOut: '2025-07-23', guests: '' },
+      ]
+      setExtractedStays(mockStays)
+      setFileProcessed(true)
+    }, 1500)
+  }
+
+  const updateStay = (index, field, value) => {
+    setExtractedStays(prev => {
+      const updated = [...prev]
+      updated[index] = { ...updated[index], [field]: value }
+      return updated
+    })
+    if (errors.stays) setErrors(prev => ({ ...prev, stays: null }))
+  }
+
+  const removeStay = (index) => {
+    setExtractedStays(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const addEmptyStay = () => {
+    setExtractedStays(prev => [...prev, { checkIn: '', checkOut: '', guests: '' }])
+    if (manualMode && extractedStays.length === 0) {
+      setManualMode(false)
+    }
+  }
+
+  const resetFile = () => {
+    setUploadedFile(null)
+    setFileProcessed(false)
+    setExtractedStays([])
   }
 
   const handlePay = async () => {
@@ -342,7 +416,7 @@ function FormularioNRUA() {
     
     const data = {
       ...form,
-      file: uploadedFile?.name,
+      stays: extractedStays,
       noActivity,
       plan: selectedPlan,
       lang
@@ -455,7 +529,8 @@ function FormularioNRUA() {
                 <p>{t.step3.subtitle}</p>
               </div>
 
-              {!manualMode && !noActivity && (
+              {/* Upload Zone - solo si no hay estancias extraídas */}
+              {!manualMode && !noActivity && extractedStays.length === 0 && (
                 <div 
                   className={`upload-zone ${uploadedFile ? 'has-file' : ''} ${errors.file ? 'error' : ''}`}
                   onDrop={handleDrop}
@@ -463,11 +538,11 @@ function FormularioNRUA() {
                   onClick={() => document.getElementById('fileInput').click()}
                 >
                   <input type="file" id="fileInput" accept=".csv,.pdf,.xlsx,.xls" onChange={handleFile} hidden />
-                  {uploadedFile ? (
+                  {uploadedFile && !fileProcessed ? (
                     <div className="uploaded-file">
                       <FileText size={32} />
                       <p>{t.step3.uploaded} <strong>{uploadedFile.name}</strong></p>
-                      <button className="btn btn-secondary btn-small">{t.step3.change}</button>
+                      <p className="processing">{t.step3.processing}</p>
                     </div>
                   ) : (
                     <>
@@ -480,35 +555,84 @@ function FormularioNRUA() {
                 </div>
               )}
 
-              <div className="manual-options">
-                <p className="manual-title">{t.step3.noFile}</p>
-                
-                <label className="checkbox-label">
-                  <input type="checkbox" checked={noActivity} onChange={e => { setNoActivity(e.target.checked); setManualMode(false); setUploadedFile(null) }} />
-                  <span>{t.step3.noActivity}</span>
-                </label>
-                
-                <label className="checkbox-label">
-                  <input type="checkbox" checked={manualMode} onChange={e => { setManualMode(e.target.checked); setNoActivity(false); setUploadedFile(null) }} />
-                  <span>{t.step3.manual}</span>
-                </label>
-
-                {manualMode && (
-                  <div className="form-group">
-                    <label>{t.step3.manualTitle}</label>
-                    <textarea 
-                      value={form.manualStays} 
-                      onChange={e => updateForm('manualStays', e.target.value)}
-                      placeholder={t.step3.manualPh}
-                      rows={6}
-                    />
-                    <span className="help-text">{t.step3.manualHelp}</span>
-                    {errors.manualStays && <span className="error-msg">{errors.manualStays}</span>}
+              {/* Lista editable de estancias */}
+              {extractedStays.length > 0 && (
+                <div className="stays-editor">
+                  <div className="stays-header">
+                    <h4>{t.step3.reviewTitle}</h4>
+                    <button className="btn btn-secondary btn-small" onClick={resetFile}>
+                      {t.step3.changeFile}
+                    </button>
                   </div>
-                )}
-              </div>
+                  <p className="stays-instructions">{t.step3.reviewInstructions}</p>
+                  
+                  <div className="stays-table">
+                    <div className="stays-table-header">
+                      <span>{t.step3.checkIn}</span>
+                      <span>{t.step3.checkOut}</span>
+                      <span>{t.step3.guests} *</span>
+                      <span></span>
+                    </div>
+                    {extractedStays.map((stay, i) => (
+                      <div key={i} className="stays-table-row">
+                        <input 
+                          type="date" 
+                          value={stay.checkIn} 
+                          onChange={e => updateStay(i, 'checkIn', e.target.value)}
+                        />
+                        <input 
+                          type="date" 
+                          value={stay.checkOut} 
+                          onChange={e => updateStay(i, 'checkOut', e.target.value)}
+                        />
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="20"
+                          value={stay.guests} 
+                          onChange={e => updateStay(i, 'guests', e.target.value)}
+                          className={!stay.guests || stay.guests < 1 ? 'needs-input' : ''}
+                        />
+                        <button className="btn-icon-small" onClick={() => removeStay(i)}>×</button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <button className="btn btn-secondary btn-small add-stay-btn" onClick={addEmptyStay}>
+                    + {t.step3.addStay}
+                  </button>
+                  
+                  <p className="stays-count">{extractedStays.length} {t.step3.staysFound}</p>
+                </div>
+              )}
+
+              {/* Opciones manuales */}
+              {extractedStays.length === 0 && (
+                <div className="manual-options">
+                  <p className="manual-title">{t.step3.noFile}</p>
+                  
+                  <label className="checkbox-label">
+                    <input type="checkbox" checked={noActivity} onChange={e => { setNoActivity(e.target.checked); setManualMode(false); setUploadedFile(null); setExtractedStays([]) }} />
+                    <span>{t.step3.noActivity}</span>
+                  </label>
+                  
+                  <label className="checkbox-label">
+                    <input type="checkbox" checked={manualMode} onChange={e => { setManualMode(e.target.checked); setNoActivity(false); setUploadedFile(null); setExtractedStays([]) }} />
+                    <span>{t.step3.manual}</span>
+                  </label>
+
+                  {manualMode && (
+                    <div className="manual-entry">
+                      <button className="btn btn-primary" onClick={addEmptyStay}>
+                        + {t.step3.addStay}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {errors.file && <span className="error-msg">{errors.file}</span>}
+              {errors.stays && <span className="error-msg">{errors.stays}</span>}
             </div>
           )}
 
