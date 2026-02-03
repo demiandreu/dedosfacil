@@ -328,27 +328,70 @@ const translations = {
       downloadCsv: "CSV für N2 herunterladen",
       downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers"
     },
-    step4: {
-      title: "Zusammenfassung und Zahlung",
-      summary: "Bestellübersicht",
-      plan: "Ausgewählter Plan",
-      plans: [
-     { id: 1, name: "1 Property", price: 69, priceStr: "€69" },
-  { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
-  { id: 10, name: "10 Properties", price: 399, priceStr: "€399" }
-      ],
-      termsLabel: "Ich akzeptiere die",
-      terms: "AGB",
-      termsAnd: "und die",
-      privacy: "Datenschutzrichtlinie",
-      payBtn: "Bezahlen",
-      secure: "🔒 Sichere Zahlung mit Stripe",
-      delivery: "Sie erhalten die Bescheinigung in 24-48h"
-    },
-    nav: { back: "Zurück", next: "Weiter" },
-    errors: { required: "Erforderlich", invalidEmail: "Ungültige E-Mail", missingGuests: "Fügen Sie die Gästezahl für alle Aufenthalte hinzu" }
-  }
-}
+
+    {/* Step 4 */}
+{step === 4 && (
+  <div className="form-step">
+    <div className="step-header">
+      <CreditCard size={32} className="step-icon" />
+      <h2>{t.step4.title}</h2>
+    </div>
+    {/* Plan Selection */}
+    <div className="plans-grid compact">
+      {t.step4.plans.map(plan => (
+        <div 
+          key={plan.id} 
+          className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''} ${plan.popular ? 'popular' : ''}`}
+          onClick={() => setSelectedPlan(plan.id)}
+        >
+          {plan.popular && <div className="popular-badge">⭐</div>}
+          <h3>{plan.name}</h3>
+          <div className="plan-price">{plan.priceStr}</div>
+        </div>
+      ))}
+    </div>
+    {/* Summary */}
+    <div className="order-summary">
+      <h4>{t.step4.summary}</h4>
+      <div className="summary-row"><span>{t.step4.plan}:</span><strong>{currentPlan?.name}</strong></div>
+      <div className="summary-row"><span>NRUA:</span><strong>{form.nrua}</strong></div>
+      <div className="summary-row"><span>{t.step2.address}:</span><strong>{form.address}</strong></div>
+      <div className="summary-row total"><span>Total:</span><strong>{currentPlan?.priceStr}</strong></div>
+    </div>
+    
+    {/* Authorization Checkbox */}
+    <div className="authorization-box">
+      <label className="checkbox-label authorization">
+        <input 
+          type="checkbox" 
+          checked={acceptAuthorization} 
+          onChange={e => setAcceptAuthorization(e.target.checked)} 
+        />
+        <span>
+          <strong>Autorizo a Rental Connect Solutions Tmi</strong> a presentar el Modelo Informativo de Arrendamientos de Corta Duración (NRUA) correspondiente al ejercicio 2025 ante el Registro de la Propiedad en mi nombre, conforme al artículo 10.4 del Real Decreto 1312/2024.
+        </span>
+      </label>
+    </div>
+
+    {/* Terms */}
+    <label className="checkbox-label terms">
+      <input type="checkbox" checked={acceptTerms} onChange={e => setAcceptTerms(e.target.checked)} />
+      <span>{t.step4.termsLabel} <a href="/terminos">{t.step4.terms}</a> {t.step4.termsAnd} <a href="/privacidad">{t.step4.privacy}</a></span>
+    </label>
+    
+    {/* Pay Button */}
+    <button 
+      className="btn btn-primary btn-large btn-pay" 
+      onClick={handlePay} 
+      disabled={!acceptTerms || !acceptAuthorization}
+    >
+      {t.step4.payBtn} {currentPlan?.priceStr}
+      <ArrowRight size={20} />
+    </button>
+    <p className="secure-text">{t.step4.secure}</p>
+    <p className="delivery-text">{t.step4.delivery}</p>
+  </div>
+)}
 
 const provinces = [
   "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Barcelona",
@@ -365,6 +408,7 @@ function FormularioNRUA() {
   const [step, setStep] = useState(1)
   const [selectedPlan, setSelectedPlan] = useState(1)
   const [acceptTerms, setAcceptTerms] = useState(false)
+  const [acceptAuthorization, setAcceptAuthorization] = useState(false)
   const [manualMode, setManualMode] = useState(false)
   const [noActivity, setNoActivity] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState({
