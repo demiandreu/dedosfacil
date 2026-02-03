@@ -329,69 +329,6 @@ const translations = {
       downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers"
     },
 
-    {/* Step 4 */}
-{step === 4 && (
-  <div className="form-step">
-    <div className="step-header">
-      <CreditCard size={32} className="step-icon" />
-      <h2>{t.step4.title}</h2>
-    </div>
-    {/* Plan Selection */}
-    <div className="plans-grid compact">
-      {t.step4.plans.map(plan => (
-        <div 
-          key={plan.id} 
-          className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''} ${plan.popular ? 'popular' : ''}`}
-          onClick={() => setSelectedPlan(plan.id)}
-        >
-          {plan.popular && <div className="popular-badge">⭐</div>}
-          <h3>{plan.name}</h3>
-          <div className="plan-price">{plan.priceStr}</div>
-        </div>
-      ))}
-    </div>
-    {/* Summary */}
-    <div className="order-summary">
-      <h4>{t.step4.summary}</h4>
-      <div className="summary-row"><span>{t.step4.plan}:</span><strong>{currentPlan?.name}</strong></div>
-      <div className="summary-row"><span>NRUA:</span><strong>{form.nrua}</strong></div>
-      <div className="summary-row"><span>{t.step2.address}:</span><strong>{form.address}</strong></div>
-      <div className="summary-row total"><span>Total:</span><strong>{currentPlan?.priceStr}</strong></div>
-    </div>
-    
-    {/* Authorization Checkbox */}
-    <div className="authorization-box">
-      <label className="checkbox-label authorization">
-        <input 
-          type="checkbox" 
-          checked={acceptAuthorization} 
-          onChange={e => setAcceptAuthorization(e.target.checked)} 
-        />
-        <span>
-          <strong>Autorizo a Rental Connect Solutions Tmi</strong> a presentar el Modelo Informativo de Arrendamientos de Corta Duración (NRUA) correspondiente al ejercicio 2025 ante el Registro de la Propiedad en mi nombre, conforme al artículo 10.4 del Real Decreto 1312/2024.
-        </span>
-      </label>
-    </div>
-
-    {/* Terms */}
-    <label className="checkbox-label terms">
-      <input type="checkbox" checked={acceptTerms} onChange={e => setAcceptTerms(e.target.checked)} />
-      <span>{t.step4.termsLabel} <a href="/terminos">{t.step4.terms}</a> {t.step4.termsAnd} <a href="/privacidad">{t.step4.privacy}</a></span>
-    </label>
-    
-    {/* Pay Button */}
-    <button 
-      className="btn btn-primary btn-large btn-pay" 
-      onClick={handlePay} 
-      disabled={!acceptTerms || !acceptAuthorization}
-    >
-      {t.step4.payBtn} {currentPlan?.priceStr}
-      <ArrowRight size={20} />
-    </button>
-    <p className="secure-text">{t.step4.secure}</p>
-    <p className="delivery-text">{t.step4.delivery}</p>
-  </div>
-)}
 
 const provinces = [
   "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Barcelona",
@@ -691,29 +628,7 @@ if (!acceptTerms || !acceptAuthorization) return
         noActivity: noActivity
       })
     })
-    body: JSON.stringify({
-  plan: selectedPlan.toString(),
-  email: form.email,
-  formData: {
-    name: form.name,
-    phone: form.phone,
-    nrua: form.nrua,
-    address: form.address,
-    province: form.province
-  },
-  files: {
-    airbnb: airbnbBase64,
-    airbnbName: uploadedFiles.airbnb?.name || null,
-    booking: bookingBase64,
-    bookingName: uploadedFiles.booking?.name || null,
-    other: otherBase64,
-    otherName: uploadedFiles.other?.name || null
-  },
-  stays: extractedStays,
-  noActivity: noActivity,
-  acceptAuthorization: true  // <-- AÑADIR ESTO
-})
-    
+  
     const data = await response.json()
     
     if (data.url) {
@@ -1095,6 +1010,19 @@ if (!acceptTerms || !acceptAuthorization) return
                 <div className="summary-row total"><span>Total:</span><strong>{currentPlan?.priceStr}</strong></div>
               </div>
 
+              {/* Authorization Checkbox */}
+<div className="authorization-box">
+  <label className="checkbox-label authorization">
+    <input 
+      type="checkbox" 
+      checked={acceptAuthorization} 
+      onChange={e => setAcceptAuthorization(e.target.checked)} 
+    />
+    <span>
+      <strong>Autorizo a Rental Connect Solutions Tmi</strong> a presentar el Modelo Informativo de Arrendamientos de Corta Duración (NRUA) correspondiente al ejercicio 2025 ante el Registro de la Propiedad en mi nombre, conforme al artículo 10.4 del Real Decreto 1312/2024.
+    </span>
+  </label>
+</div>
               {/* Terms */}
               <label className="checkbox-label terms">
                 <input type="checkbox" checked={acceptTerms} onChange={e => setAcceptTerms(e.target.checked)} />
@@ -1102,7 +1030,7 @@ if (!acceptTerms || !acceptAuthorization) return
               </label>
 
               {/* Pay Button */}
-              <button className="btn btn-primary btn-large btn-pay" onClick={handlePay} disabled={!acceptTerms}>
+              <button className="btn btn-primary btn-large btn-pay" onClick={handlePay} disabled={!acceptTerms || !acceptAuthorization}>
                 {t.step4.payBtn} {currentPlan?.priceStr}
                 <ArrowRight size={20} />
               </button>
