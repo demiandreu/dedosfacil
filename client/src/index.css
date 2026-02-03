@@ -1076,3 +1076,31 @@ h1, h2, h3, h4, h5, h6 {
   .footer-content { grid-template-columns: 1fr; }
   .urgent-banner { flex-direction: column; text-align: center; }
 }
+/* Format Help */
+.format-help {
+  margin-top: 1rem;
+  text-align: left;
+  max-width: 400px;
+}
+
+.format-help summary {
+  cursor: pointer;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.format-help summary:hover {
+  text-decoration: underline;
+}
+
+.format-help p {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--gray-600);
+  line-height: 1.5;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+}
