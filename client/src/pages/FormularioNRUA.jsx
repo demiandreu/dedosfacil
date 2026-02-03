@@ -81,9 +81,9 @@ nruaHelp: "Es el número largo que empieza por 'ES' de la Ventanilla Única Digi
       summary: "Resumen de tu pedido",
       plan: "Plan seleccionado",
       plans: [
-         { id: 1, name: "1 Propiedad", price: 79, priceStr: "79€" },
+         { id: 1, name: "1 Propiedad", price: 69, priceStr: "69€" },
   { id: 3, name: "3 Propiedades", price: 199, priceStr: "199€", popular: true },
-  { id: 10, name: "10 Propiedades", price: 449, priceStr: "449€" }
+  { id: 10, name: "10 Propiedades", price: 399, priceStr: "399€" }
       ],
       termsLabel: "Acepto los",
       terms: "términos y condiciones",
@@ -333,9 +333,9 @@ nruaHelp: "Die lange Nummer, die mit 'ES' beginnt, vom Digitalen Einheitlichen F
       summary: "Ihre Bestellübersicht",
       plan: "Ausgewählter Plan",
       plans: [
-        { id: 1, name: "1 Immobilie", price: 79, priceStr: "79€" },
+        { id: 1, name: "1 Immobilie", price: 69, priceStr: "69€" },
         { id: 3, name: "3 Immobilien", price: 199, priceStr: "199€", popular: true },
-        { id: 10, name: "10 Immobilien", price: 449, priceStr: "449€" }
+        { id: 10, name: "10 Immobilien", price: 399, priceStr: "399€" }
       ],
       termsLabel: "Ich akzeptiere die",
       terms: "Nutzungsbedingungen",
