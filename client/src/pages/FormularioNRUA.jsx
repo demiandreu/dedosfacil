@@ -367,22 +367,52 @@ function FormularioNRUA() {
     }
   }
 
-  // Simular extracción - en producción esto llamará a Claude API
-  const simulateExtraction = (file) => {
+// Extraer datos del archivo usando Claude API
+  const simulateExtraction = async (file) => {
     setFileProcessed(false)
-    // Simular delay de procesamiento
-    setTimeout(() => {
-      // Datos de ejemplo - en producción vendrán del archivo
-      const mockStays = [
-        { checkIn: '2025-07-03', checkOut: '2025-07-04', guests: '' },
-        { checkIn: '2025-06-28', checkOut: '2025-06-29', guests: '' },
-        { checkIn: '2025-06-24', checkOut: '2025-06-25', guests: '' },
-        { checkIn: '2025-06-22', checkOut: '2025-06-24', guests: '' },
-        { checkIn: '2025-07-20', checkOut: '2025-07-23', guests: '' },
-      ]
-      setExtractedStays(mockStays)
-      setFileProcessed(true)
-    }, 1500)
+    
+    try {
+      const formData = new FormData()
+      formData.append('airbnb', file) // o 'booking' según el archivo
+      
+      const response = await fetch('/api/process-csv', {
+        method: 'POST',
+        body: formData
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        // Combinar estancias de Airbnb y Booking
+        let allStays = []
+        
+        if (data.airbnb?.estancias) {
+          allStays = [...allStays, ...data.airbnb.estancias.map(s => ({
+            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+            guests: ''
+          }))]
+        }
+        
+        if (data.booking?.estancias) {
+          allStays = [...allStays, ...data.booking.estancias.map(s => ({
+            checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+            checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+            guests: ''
+          }))]
+        }
+        
+        setExtractedStays(allStays)
+      } else {
+        console.error('Error processing file:', data.error)
+        alert('Error al procesar el archivo. Intenta de nuevo.')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error al procesar el archivo. Intenta de nuevo.')
+    }
+    
+    setFileProcessed(true)
   }
 
   const updateStay = (index, field, value) => {
@@ -411,19 +441,38 @@ function FormularioNRUA() {
     setExtractedStays([])
   }
 
-  const handlePay = async () => {
+ const handlePay = async () => {
     if (!acceptTerms) return
     
-    const data = {
-      ...form,
-      stays: extractedStays,
-      noActivity,
-      plan: selectedPlan,
-      lang
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: selectedPlan.toString(),
+          email: form.email
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (data.url) {
+        // Guardar datos en localStorage para después del pago
+        localStorage.setItem('dedosfacil_form', JSON.stringify({
+          ...form,
+          stays: extractedStays,
+          noActivity,
+          plan: selectedPlan
+        }))
+        // Redirigir a Stripe
+        window.location.href = data.url
+      } else {
+        alert('Error al crear sesión de pago')
+      }
+    } catch (error) {
+      console.error('Payment error:', error)
+      alert('Error al procesar el pago')
     }
-    console.log('Paying:', data)
-    // TODO: Stripe integration
-    alert('Redirigiendo a Stripe...')
   }
 
   const currentPlan = t.step4.plans.find(p => p.id === selectedPlan)
