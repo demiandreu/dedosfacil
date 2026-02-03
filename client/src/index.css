@@ -1206,4 +1206,40 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
+   /* Botón Extraer Estancias - llamativo */
+.btn-extract {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  color: white !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border: none;
+  animation: pulse-extract 2s infinite;
+}
+
+.btn-extract:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
+  transform: scale(1.02);
+}
+
+@keyframes pulse-extract {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
+}
+/* Caja de estancias más ancha */
+.stays-editor {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.stays-table {
+  min-width: 700px;
+}
+
+.stays-table-row {
+  display: grid;
+  grid-template-columns: 130px 130px 80px 150px 80px 40px 30px;
+  gap: 0.5rem;
+  align-items: center;
+}   
 }
