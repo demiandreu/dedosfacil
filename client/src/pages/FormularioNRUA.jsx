@@ -47,6 +47,7 @@ const translations = {
       reviewTitle: "Revisa tus estancias",
       reviewInstructions: "Verifica las fechas y añade el número de huéspedes para cada estancia:",
       changeFile: "Cambiar archivo",
+      selectFile: "Seleccionar archivo",
       checkIn: "Entrada",
       checkOut: "Salida",
       guests: "Huéspedes",
@@ -124,6 +125,7 @@ downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
       reviewTitle: "Review your stays",
       reviewInstructions: "Verify dates and add the number of guests for each stay:",
       changeFile: "Change file",
+      selectFile: "Select file",
       checkIn: "Check-in",
       checkOut: "Check-out",
       guests: "Guests",
@@ -201,6 +203,7 @@ downloadCsvHelp: "Import this file in the Registry's N2 application"
       reviewTitle: "Vérifiez vos séjours",
       reviewInstructions: "Vérifiez les dates et ajoutez le nombre de voyageurs:",
       changeFile: "Changer de fichier",
+      selectFile: "Sélectionner fichier",
       checkIn: "Arrivée",
       checkOut: "Départ",
       guests: "Voyageurs",
@@ -278,6 +281,7 @@ downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
       reviewTitle: "Überprüfen Sie Ihre Aufenthalte",
       reviewInstructions: "Überprüfen Sie die Daten und fügen Sie die Gästezahl hinzu:",
       changeFile: "Datei ändern",
+      selectFile: "Datei auswählen",
       checkIn: "Check-in",
       checkOut: "Check-out",
       guests: "Gäste",
@@ -685,11 +689,15 @@ const downloadN2Csv = () => {
                     </div>
                   ) : (
                     <>
-                      <Upload size={48} />
-                      <p><strong>{t.step3.uploadTitle}</strong></p>
-                      <p>{t.step3.uploadOr}</p>
-                      <span className="help-text">{t.step3.uploadHelp}</span>
-                    </>
+                     <>
+  <Upload size={48} />
+  <p><strong>{t.step3.uploadTitle}</strong></p>
+  <p>{t.step3.uploadOr}</p>
+  <button type="button" className="btn btn-primary upload-btn">
+    📁 {t.step3.selectFile}
+  </button>
+  <span className="help-text">{t.step3.uploadHelp}</span>
+</>
                   )}
                 </div>
               )}
