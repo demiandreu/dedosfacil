@@ -115,17 +115,17 @@ const Admin = () => {
         <meta charset="UTF-8">
         <title>Autorización NRUA - ${data.name}</title>
         <style>
-          body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; line-height: 1.6; }
-          h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; }
-          .section { margin: 20px 0; }
-          .section-title { font-weight: bold; color: #1e3a5f; margin-bottom: 10px; }
-          .data-row { margin: 8px 0; }
-          .label { color: #666; }
-          .value { font-weight: 500; }
-          .highlight { background: #f0fdf4; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin: 20px 0; }
-          .legal { font-size: 12px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
-          .footer { text-align: center; margin-top: 40px; font-size: 11px; color: #999; }
-          .timestamp { background: #fef3c7; padding: 10px; border-radius: 4px; font-family: monospace; }
+       body { font-family: Arial, sans-serif; max-width: 700px; margin: 20px auto; padding: 15px; line-height: 1.4; font-size: 13px; }
+h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 8px; font-size: 16px; margin: 10px 0 15px 0; }
+.section { margin: 12px 0; }
+.section-title { font-weight: bold; color: #1e3a5f; margin-bottom: 6px; font-size: 14px; }
+.data-row { margin: 4px 0; }
+.label { color: #666; }
+.value { font-weight: 500; }
+.highlight { background: #f0fdf4; border: 1px solid #10b981; padding: 12px; border-radius: 6px; margin: 15px 0; font-size: 12px; }
+.legal { font-size: 11px; color: #666; margin-top: 15px; padding-top: 10px; border-top: 1px solid #ddd; }
+.footer { text-align: center; margin-top: 20px; font-size: 10px; color: #999; }
+.timestamp { background: #fef3c7; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 12px; }
         </style>
       </head>
       <body>
