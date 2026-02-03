@@ -74,19 +74,28 @@ es: {
       step3: "Recibe tu justificante",
       step3desc: "En 24-48h te enviamos el comprobante oficial por email."
     },
-    download: {
-      title: "📥 ¿Cómo descargo mis reservas?",
-      airbnb: {
-        title: "Desde Airbnb:",
-        steps: ["Entra en airbnb.com → Tu cuenta", "Ve a 'Historial de transacciones'", "Haz clic en 'Exportar CSV'", "Guarda el archivo"]
-      },
-      booking: {
-        title: "Desde Booking:",
-        steps: ["Entra en Extranet de Booking", "Ve a 'Reservas' → 'Historial'", "Haz clic en 'Exportar'", "Guarda el archivo CSV"]
-      },
-      other: "¿Usas VRBO u otra plataforma? Descarga el PDF o informe de reservas y súbelo igualmente.",
-      noFile: "¿No tienes archivo? No te preocupes, también puedes rellenar las estancias manualmente en el formulario."
-    },
+   download: {
+  title: "📥 ¿Cómo descargo mis reservas?",
+  airbnb: {
+    title: "Desde Airbnb:",
+    steps: [
+      "Entra en airbnb.com → Menú → Cobros recibidos",
+      "Haz clic en 'Mostrar todos los cobros recibidos'",
+      "Filtra por año: 2025",
+      "Haz clic en 'Obtén el informe en CSV' (abajo a la derecha)"
+    ]
+  },
+  booking: {
+    title: "Desde Booking:",
+    steps: [
+      "Entra en Extranet de Booking → Administración → Información de pagos",
+      "En 'Período de pago' selecciona 'Año anterior (2025)'",
+      "Haz clic en 'Descargar todos los informes'"
+    ]
+  },
+  other: "¿Usas VRBO u otra plataforma? Descarga el PDF o informe de reservas y súbelo igualmente.",
+  noFile: "¿No tienes archivo? No te preocupes, también puedes rellenar las estancias manualmente en el formulario."
+},
     pricing: {
       title: "Precios claros",
       note: "* Tasas del Registro (27€/NRUA) no incluidas",
@@ -182,19 +191,28 @@ es: {
       step3: "Receive your certificate",
       step3desc: "In 24-48h we send you the official receipt by email."
     },
-    download: {
-      title: "📥 How do I download my reservations?",
-      airbnb: {
-        title: "From Airbnb:",
-        steps: ["Go to airbnb.com → Your account", "Go to 'Transaction history'", "Click 'Export CSV'", "Save the file"]
-      },
-      booking: {
-        title: "From Booking:",
-        steps: ["Go to Booking Extranet", "Go to 'Reservations' → 'History'", "Click 'Export'", "Save the CSV file"]
-      },
-      other: "Using VRBO or another platform? Download the PDF or reservation report and upload it anyway.",
-      noFile: "No file? Don't worry, you can also fill in the stays manually in the form."
-    },
+   download: {
+  title: "📥 How do I download my reservations?",
+  airbnb: {
+    title: "From Airbnb:",
+    steps: [
+      "Go to airbnb.com → Menu → Gross earnings",
+      "Click 'Show all gross earnings'",
+      "Filter by year: 2025",
+      "Click 'Get CSV report' (bottom right)"
+    ]
+  },
+  booking: {
+    title: "From Booking:",
+    steps: [
+      "Go to Booking Extranet → Admin → Payment info",
+      "In 'Payment period' select 'Previous year (2025)'",
+      "Click 'Download all reports'"
+    ]
+  },
+  other: "Using VRBO or another platform? Download the PDF or reservation report and upload it anyway.",
+  noFile: "No file? Don't worry, you can also fill in the stays manually in the form."
+},
     pricing: {
       title: "Clear pricing",
       note: "* Registry fees (27€/NRUA) not included",
@@ -290,19 +308,28 @@ es: {
       step3: "Recevez votre certificat",
       step3desc: "En 24-48h nous vous envoyons le reçu officiel par email."
     },
-    download: {
-      title: "📥 Comment télécharger mes réservations?",
-      airbnb: {
-        title: "Depuis Airbnb:",
-        steps: ["Allez sur airbnb.com → Votre compte", "Allez à 'Historique des transactions'", "Cliquez sur 'Exporter CSV'", "Enregistrez le fichier"]
-      },
-      booking: {
-        title: "Depuis Booking:",
-        steps: ["Allez sur Extranet Booking", "Allez à 'Réservations' → 'Historique'", "Cliquez sur 'Exporter'", "Enregistrez le fichier CSV"]
-      },
-      other: "Vous utilisez VRBO ou une autre plateforme? Téléchargez le PDF ou le rapport de réservations et téléchargez-le quand même.",
-      noFile: "Pas de fichier? Pas de souci, vous pouvez aussi remplir les séjours manuellement dans le formulaire."
-    },
+   download: {
+  title: "📥 Comment télécharger mes réservations?",
+  airbnb: {
+    title: "Depuis Airbnb:",
+    steps: [
+      "Allez sur airbnb.com → Menu → Revenus perçus",
+      "Cliquez sur 'Afficher tous les revenus perçus'",
+      "Filtrez par année: 2025",
+      "Cliquez sur 'Obtenir le rapport CSV' (en bas à droite)"
+    ]
+  },
+  booking: {
+    title: "Depuis Booking:",
+    steps: [
+      "Allez sur Extranet Booking → Administration → Infos de paiement",
+      "Dans 'Période de paiement' sélectionnez 'Année précédente (2025)'",
+      "Cliquez sur 'Télécharger tous les rapports'"
+    ]
+  },
+  other: "Vous utilisez VRBO ou une autre plateforme? Téléchargez le PDF ou le rapport de réservations.",
+  noFile: "Pas de fichier? Pas de souci, vous pouvez remplir les séjours manuellement."
+},
     pricing: {
       title: "Tarifs clairs",
       note: "* Frais de Registre (27€/NRUA) non inclus",
@@ -399,18 +426,27 @@ es: {
       step3desc: "In 24-48h senden wir Ihnen die offizielle Quittung per E-Mail."
     },
     download: {
-      title: "📥 Wie lade ich meine Buchungen herunter?",
-      airbnb: {
-        title: "Von Airbnb:",
-        steps: ["Gehen Sie zu airbnb.com → Ihr Konto", "Gehen Sie zu 'Transaktionsverlauf'", "Klicken Sie auf 'CSV exportieren'", "Speichern Sie die Datei"]
-      },
-      booking: {
-        title: "Von Booking:",
-        steps: ["Gehen Sie zum Booking Extranet", "Gehen Sie zu 'Buchungen' → 'Verlauf'", "Klicken Sie auf 'Exportieren'", "Speichern Sie die CSV-Datei"]
-      },
-      other: "Sie nutzen VRBO oder eine andere Plattform? Laden Sie das PDF oder den Buchungsbericht herunter und laden Sie es trotzdem hoch.",
-      noFile: "Keine Datei? Kein Problem, Sie können die Aufenthalte auch manuell im Formular eingeben."
-    },
+  title: "📥 Wie lade ich meine Buchungen herunter?",
+  airbnb: {
+    title: "Von Airbnb:",
+    steps: [
+      "Gehen Sie zu airbnb.com → Menü → Erhaltene Zahlungen",
+      "Klicken Sie auf 'Alle erhaltenen Zahlungen anzeigen'",
+      "Filtern Sie nach Jahr: 2025",
+      "Klicken Sie auf 'CSV-Bericht abrufen' (unten rechts)"
+    ]
+  },
+  booking: {
+    title: "Von Booking:",
+    steps: [
+      "Gehen Sie zu Booking Extranet → Verwaltung → Zahlungsinfos",
+      "Wählen Sie bei 'Zahlungszeitraum' 'Vorjahr (2025)'",
+      "Klicken Sie auf 'Alle Berichte herunterladen'"
+    ]
+  },
+  other: "Sie nutzen VRBO oder eine andere Plattform? Laden Sie das PDF oder den Buchungsbericht herunter.",
+  noFile: "Keine Datei? Kein Problem, Sie können die Aufenthalte manuell eingeben."
+},
     pricing: {
       title: "Klare Preise",
       note: "* Registergebühren (27€/NRUA) nicht enthalten",
