@@ -786,110 +786,66 @@ if (!acceptTerms || !acceptAuthorization) return
                 <p>{t.step3.subtitle}</p>
               </div>
 
-              {/* Multi Upload Section */}
-              {!manualMode && !noActivity && extractedStays.length === 0 && (
-                <div className="multi-upload-section">
-                  
-                  {/* Airbnb Upload */}
-                  <div 
-                    className={`upload-zone-mini ${uploadedFiles.airbnb ? 'has-file' : ''}`}
-                    onDrop={handleFileDrop('airbnb')}
-                    onDragOver={e => e.preventDefault()}
-                    onClick={() => document.getElementById('airbnbInput').click()}
-                  >
-                    <input type="file" id="airbnbInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('airbnb')} hidden />
-                    <div className="upload-zone-content">
-                      <span className="upload-icon">🏠</span>
-                      <strong>{t.step3.airbnbFile}</strong>
-                     {uploadedFiles.airbnb ? (
-  <div className="file-info">
-    <span className="file-name">{uploadedFiles.airbnb.name}</span>
-    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('airbnb'); }}>×</button>
-  </div>
-) : (
-  <>
-    <span className="upload-hint">{t.step3.dragOrClick}</span>
-    <a href={t.step3.airbnbUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>{t.step3.airbnbHelp}</a>
-  </>
-)}
-                    </div>
-                  </div>
+                {/* Multi Upload Section */}
+{!manualMode && !noActivity && extractedStays.length === 0 && (
+  <div className="multi-upload-section">
+    
+    {/* Download Instructions - DESTACADO */}
+    <div className="download-instructions-box">
+      <h4>📥 Primero descarga tus reservas:</h4>
+      <div className="download-buttons">
+        <a href="https://es-l.airbnb.com/hosting/reservations/completed" target="_blank" rel="noopener noreferrer" className="btn btn-outline">
+          🏠 Descargar desde Airbnb
+        </a>
+        <a href="https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html" target="_blank" rel="noopener noreferrer" className="btn btn-outline">
+          🅱️ Descargar desde Booking
+        </a>
+      </div>
+    </div>
 
-                  {/* Booking Upload */}
-                  <div 
-                    className={`upload-zone-mini ${uploadedFiles.booking ? 'has-file' : ''}`}
-                    onDrop={handleFileDrop('booking')}
-                    onDragOver={e => e.preventDefault()}
-                    onClick={() => document.getElementById('bookingInput').click()}
-                  >
-                    <input type="file" id="bookingInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('booking')} hidden />
-                    <div className="upload-zone-content">
-                      <span className="upload-icon">🅱️</span>
-                      <strong>{t.step3.bookingFile}</strong>
-                   {uploadedFiles.booking ? (
-  <div className="file-info">
-    <span className="file-name">{uploadedFiles.booking.name}</span>
-    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('booking'); }}>×</button>
-  </div>
-) : (
-  <>
-    <span className="upload-hint">{t.step3.dragOrClick}</span>
-    <a href={t.step3.bookingUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>{t.step3.bookingHelp}</a>
-  </>
-)}
-                    </div>
-                  </div>
+    {/* Upload Zone - Simple */}
+    <div 
+      className={`upload-zone-unified ${hasAnyFile ? 'has-file' : ''}`}
+      onDrop={handleFileDrop('other')}
+      onDragOver={e => e.preventDefault()}
+      onClick={() => document.getElementById('mainUpload').click()}
+    >
+      <input type="file" id="mainUpload" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('other')} hidden multiple />
+      <Upload size={40} className="upload-icon-large" />
+      <strong>Sube aquí tu archivo</strong>
+      <span className="upload-hint">Arrastra o haz clic para seleccionar</span>
+      <span className="upload-formats">CSV o Excel de Airbnb, Booking u otra plataforma</span>
+    </div>
 
-                  {/* Other Upload */}
-                  <div 
-                    className={`upload-zone-mini ${uploadedFiles.other ? 'has-file' : ''}`}
-                    onDrop={handleFileDrop('other')}
-                    onDragOver={e => e.preventDefault()}
-                    onClick={() => document.getElementById('otherInput').click()}
-                  >
-                    <input type="file" id="otherInput" accept=".csv,.xlsx,.xls,.pdf" onChange={handleFileUpload('other')} hidden />
-                    <div className="upload-zone-content">
-                      <span className="upload-icon">📄</span>
-                      <strong>{t.step3.otherFile}</strong>
-                  {uploadedFiles.other ? (
-  <div className="file-info">
-    <span className="file-name">{uploadedFiles.other.name}</span>
-    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('other'); }}>×</button>
-  </div>
-) : (
-  <>
-    <span className="upload-hint">{t.step3.dragOrClick}</span>
-    <span className="upload-help-text">{t.step3.otherHelp}</span>
-  </>
-)}
-                    </div>
-                  </div>
+    {/* Files uploaded */}
+    {hasAnyFile && (
+      <div className="uploaded-files-list">
+        {Object.entries(uploadedFiles).map(([key, file]) => file && (
+          <div key={key} className="file-tag">
+            <span>{file.name}</span>
+            <button onClick={() => removeFile(key)}>×</button>
+          </div>
+        ))}
+      </div>
+    )}
 
-                  {/* Process Button */}
-               {hasAnyFile && !fileProcessed && (
-  <button 
-    className="btn btn-extract btn-process"
-    onClick={processAllFiles}
-    disabled={isProcessing}
-  >
-    {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
-  </button>
+    {/* Process Button */}
+    {hasAnyFile && !fileProcessed && (
+      <button 
+        className="btn btn-extract btn-process"
+        onClick={processAllFiles}
+        disabled={isProcessing}
+      >
+        {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
+      </button>
+    )}
+
+    <details className="format-help">
+      <summary>{t.step3.formatHelp}</summary>
+      <p>{t.step3.formatInfo}</p>
+    </details>
+  </div>
 )}
-             <div className="download-links">
-                    <p>📥 Descarga tus reservas:</p>
-                    <a href="https://es-l.airbnb.com/hosting/reservations/completed" target="_blank" rel="noopener noreferrer">
-                      → Desde Airbnb
-                    </a>
-                    <a href="https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html" target="_blank" rel="noopener noreferrer">
-                      → Desde Booking
-                    </a>
-                  </div>
-                  <details className="format-help">
-                    <summary>{t.step3.formatHelp}</summary>
-                    <p>{t.step3.formatInfo}</p>
-                  </details>
-                </div>
-              )}
 
             
               {/* Lista editable de estancias */}
@@ -1045,20 +1001,7 @@ if (!acceptTerms || !acceptAuthorization) return
                 <h2>{t.step4.title}</h2>
               </div>
 
-              {/* Plan Selection */}
-              <div className="plans-grid compact">
-                {t.step4.plans.map(plan => (
-                  <div 
-                    key={plan.id} 
-                    className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''} ${plan.popular ? 'popular' : ''}`}
-                    onClick={() => setSelectedPlan(plan.id)}
-                  >
-                    {plan.popular && <div className="popular-badge">⭐</div>}
-                    <h3>{plan.name}</h3>
-                    <div className="plan-price">{plan.priceStr}</div>
-                  </div>
-                ))}
-              </div>
+  
 
               {/* Summary */}
               <div className="order-summary">
