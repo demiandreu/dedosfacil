@@ -568,17 +568,20 @@ function Landing() {
               <div className="trust-item"><Shield size={18} /><span>{t.hero.trust2}</span></div>
               <div className="trust-item"><Clock size={18} /><span>{t.hero.trust3}</span></div>
             </div>
-          </div>
-          <div className="hero-visual">
-            <div className="hero-card urgent-card">
-              <div className="card-header"><X size={12} className="card-dot red" /><X size={12} className="card-dot yellow" /><X size={12} className="card-dot green" /></div>
-              <div className="card-content">
-                <div className="card-icon"><Home size={48} /></div>
-                <div className="card-status"><Check size={24} className="status-check" /><span>NRUA ✓</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="hero-visual">
+  <div className="video-container">
+    <iframe 
+      width="100%" 
+      height="315" 
+      src="https://www.youtube.com/embed/ftETjWOIG5w" 
+      title="Depósito de Arrendamientos - Registradores de España"
+      frameBorder="0" 
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+      allowFullScreen
+      style={{ borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
+    ></iframe>
+  </div>
+</div>
         <div className="hero-bg"></div>
       </section>
 
