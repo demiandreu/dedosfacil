@@ -879,7 +879,16 @@ if (!acceptTerms || !acceptAuthorization) return
   </div>
 </div>
 
-            
+            {/* Process Button */}
+{hasAnyFile && !fileProcessed && (
+  <button 
+    className="btn btn-extract btn-process"
+    onClick={processAllFiles}
+    disabled={isProcessing}
+  >
+    {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
+  </button>
+)}
               {/* Lista editable de estancias */}
               {extractedStays.length > 0 && (
                 <div className="stays-editor">
