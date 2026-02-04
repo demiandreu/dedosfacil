@@ -38,7 +38,7 @@ async function sendConfirmationEmail(email, orderData) {
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
       to: email,
-      subject: '✅ Pago confirmado - DedosFácil',
+      subject: `✅ Pedido DF-${orderData.orderId} confirmado - DedosFácil`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -47,6 +47,10 @@ async function sendConfirmationEmail(email, orderData) {
           <div style="padding: 30px; background: #f8fafc;">
             <h2 style="color: #10b981;">✅ ¡Pago completado!</h2>
             <p>Gracias por confiar en DedosFácil. Hemos recibido tu pedido.</p>
+            <div style="background: #1e3a5f; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <span style="font-size: 14px;">Tu número de referencia</span><br>
+              <strong style="font-size: 28px;">DF-${orderData.orderId}</strong>
+            </div>
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="margin-top: 0;">Resumen:</h3>
               <p><strong>Plan:</strong> ${orderData.plan} Propiedad(es)</p>
@@ -60,7 +64,7 @@ async function sendConfirmationEmail(email, orderData) {
               </ol>
             </div>
             <p style="margin-top: 30px; color: #64748b; font-size: 14px;">
-              ¿Dudas? Escríbenos a support@dedosfacil.es
+              ¿Dudas? Escríbenos a support@dedosfacil.es indicando tu referencia DF-${orderData.orderId}
             </p>
           </div>
         </div>
@@ -171,10 +175,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
         ]
       );
 
-      await sendConfirmationEmail(email, {
-        plan: priceData.properties,
-        amount: priceData.amount / 100
-      });
+     await sendConfirmationEmail(email, {
+  orderId: orderId,
+  plan: priceData.properties,
+  amount: priceData.amount / 100
+});
       return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&test=true`, orderId });
     }
     if (!priceData) {
