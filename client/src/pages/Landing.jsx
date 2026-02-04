@@ -568,7 +568,8 @@ function Landing() {
               <div className="trust-item"><Shield size={18} /><span>{t.hero.trust2}</span></div>
               <div className="trust-item"><Clock size={18} /><span>{t.hero.trust3}</span></div>
             </div>
-        <div className="hero-visual">
+          </div>
+          <div className="hero-visual">
   <div className="video-container">
     <iframe 
       width="100%" 
@@ -582,6 +583,7 @@ function Landing() {
     ></iframe>
   </div>
 </div>
+          </div>
         <div className="hero-bg"></div>
       </section>
 
