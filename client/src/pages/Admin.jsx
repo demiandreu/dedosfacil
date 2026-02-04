@@ -100,6 +100,18 @@ const Admin = () => {
       alert(data.error)
       return
     }
+    const deleteOrder = async (orderId) => {
+  try {
+    const response = await fetch(`/api/admin/delete-order/${orderId}`, {
+      method: 'DELETE'
+    })
+    const data = await response.json()
+    if (data.error) throw new Error(data.error)
+    await fetchOrders()
+  } catch (err) {
+    alert('Error al eliminar: ' + err.message)
+  }
+}
 
     const timestamp = data.authorization_timestamp 
       ? new Date(data.authorization_timestamp).toLocaleString('es-ES', {
@@ -728,7 +740,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                                 </tr>
                               </thead>
                               <tbody>
-                                {(order.extracted_stays || []).slice(0, 10).map((stay, idx) => (
+                                {(order.extracted_stays || []).map((stay, idx) => (
                                   <tr key={idx}>
                                     <td style={styles.tableCell}>{stay.fecha_entrada || stay.checkIn}</td>
                                     <td style={styles.tableCell}>{stay.fecha_salida || stay.checkOut}</td>
@@ -739,11 +751,6 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                                 ))}
                               </tbody>
                             </table>
-                            {order.stays_count > 10 && (
-                              <div style={{ textAlign: 'center', padding: '12px', color: '#6b7280', fontSize: '14px', borderTop: '1px solid #e5e7eb' }}>
-                                ... y {order.stays_count - 10} estancias más
-                              </div>
-                            )}
                           </div>
                         </div>
                       )}
@@ -782,6 +789,25 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                               Desmarcar Enviado
                             </button>
                           )}
+                          <button
+  onClick={() => {
+    if (window.confirm(`¿Seguro que quieres eliminar el pedido #${order.id}?`)) {
+      deleteOrder(order.id)
+    }
+  }}
+  style={{
+    padding: '10px 16px',
+    backgroundColor: '#fee2e2',
+    color: '#dc2626',
+    border: '1px solid #fca5a5',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '500'
+  }}
+>
+  🗑️ Eliminar
+</button>
                         </div>
                       </div>
                     </div>
