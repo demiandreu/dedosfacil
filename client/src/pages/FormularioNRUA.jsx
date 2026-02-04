@@ -998,16 +998,7 @@ if (!acceptTerms || !acceptAuthorization) return
                   
                   <p className="stays-count">{extractedStays.length} {t.step3.staysFound}</p>
 
-                  <div className="download-n2-section">
-                    <button 
-                      className="btn btn-secondary" 
-                      onClick={downloadN2Csv}
-                      disabled={extractedStays.some(s => !s.guests || !s.purpose)}
-                    >
-                      📥 {t.step3.downloadCsv}
-                    </button>
-                    <span className="help-text">{t.step3.downloadCsvHelp}</span>
-                  </div>
+                
                 </div>
               )}
 
