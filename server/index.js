@@ -63,7 +63,12 @@ async function sendConfirmationEmail(email, orderData) {
                 <li>En 24-48h recibirás el justificante</li>
               </ol>
             </div>
-            <p style="margin-top: 30px; color: #64748b; font-size: 14px;">
+           <div style="text-align: center; margin: 20px 0;">
+  <a href="https://dedosfacil.es/factura/${orderData.orderId}" 
+     style="display: inline-block; padding: 12px 24px; background: #1e3a5f; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+    📄 Descargar Factura
+  </a>
+</div>
               ¿Dudas? Escríbenos a support@dedosfacil.es indicando tu referencia DF-${orderData.orderId}
             </p>
           </div>
