@@ -1441,10 +1441,10 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Platform icons */
 .platform-icon {
-  width: 40px !important;
-  height: 40px !important;
-  max-width: 40px !important;
-  max-height: 40px !important;
+   width: 80px !important;
+  height: 80px !important;
+  max-width: 80px !important;
+  max-height: 80px !important;
   object-fit: contain;
 }
 
