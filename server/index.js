@@ -141,6 +141,38 @@ app.post('/api/create-checkout-session', async (req, res) => {
     console.log('- Stays:', stays?.length || 0);
     const priceData = PRICES[plan];
 
+    // Email de prueba que salta Stripe
+    if (email === 'demiandreu@gmail.com') {
+      const orderResult = await pool.query(
+        'INSERT INTO orders (email, plan, properties_count, amount, status) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+        [email, plan, priceData.properties, priceData.amount, 'completed']
+      );
+      const orderId = orderResult.rows[0].id;
+      
+      await pool.query(
+        `INSERT INTO submissions 
+          (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, extracted_stays, status, authorization_timestamp, authorization_ip) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+        [
+          orderId,
+          formData?.name || null,
+          null,
+          formData?.nrua || null,
+          formData?.address || null,
+          formData?.province || null,
+          formData?.phone || null,
+          files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
+          files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
+          files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
+          JSON.stringify(stays || []),
+          'completed',
+          new Date(),
+          req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        ]
+      );
+      
+      return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&test=true`, orderId });
+    }
     if (!priceData) {
       return res.status(400).json({ error: 'Plan no válido' });
     }
