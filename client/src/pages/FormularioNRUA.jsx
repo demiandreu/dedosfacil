@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { 
   ArrowRight, 
   ArrowLeft, 
@@ -1139,15 +1140,16 @@ if (!acceptTerms || !acceptAuthorization) return
         </div>
       </div>
 
-      {/* Lightbox Modal */}
-      {lightboxImage && (
-        <div className="lightbox-overlay" onClick={() => setLightboxImage(null)}>
-          <div className="lightbox-content">
-            <img src={lightboxImage} alt="Vista ampliada" />
-            <button className="lightbox-close" onClick={() => setLightboxImage(null)}>×</button>
-          </div>
-        </div>
-      )}
+     {/* Lightbox Modal */}
+{lightboxImage && createPortal(
+  <div className="lightbox-overlay" onClick={() => setLightboxImage(null)}>
+    <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+      <img src={lightboxImage} alt="Vista ampliada" />
+      <button className="lightbox-close" onClick={() => setLightboxImage(null)}>×</button>
+    </div>
+  </div>,
+  document.body
+)}
     </div>
   )
 }
