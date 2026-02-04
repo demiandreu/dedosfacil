@@ -799,7 +799,9 @@ if (!acceptTerms || !acceptAuthorization) return
                 <h2>{t.step3.title}</h2>
                 <p>{t.step3.subtitle}</p>
               </div>
-
+              {/* Multi Upload Section */}
+{!manualMode && !noActivity && extractedStays.length === 0 && (
+  <div className="multi-upload-section">
               {/* Airbnb Upload */}
 <div 
   className={`upload-zone-mini ${uploadedFiles.airbnb ? 'has-file' : ''}`}
@@ -889,6 +891,11 @@ if (!acceptTerms || !acceptAuthorization) return
     {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
   </button>
 )}
+
+  </div>
+)}
+
+              {/* Lista editable de estancias */}
               {/* Lista editable de estancias */}
               {extractedStays.length > 0 && (
                 <div className="stays-editor">
