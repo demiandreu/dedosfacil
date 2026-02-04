@@ -512,6 +512,7 @@ h1, h2, h3, h4, h5, h6 {
    FORM CONTENT
    ============================================ */
 .form-content {
+ max-width: 1000px;
   background: white;
   border-radius: 16px;
   padding: 48px;
