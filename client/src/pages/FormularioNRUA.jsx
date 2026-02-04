@@ -986,7 +986,7 @@ if (!acceptTerms || !acceptAuthorization) return
                           <option value="5">{t.step3.purposes.other}</option>
                         </select>
                         <span className="source-badge">{stay.source || '-'}</span>
-                        <button className="btn-icon-small" onClick={() => removeStay(i)}>×</button>
+                        <button className="btn-delete-stay" onClick={() => removeStay(i)} title="Eliminar estancia">🗑️</button>
                         {stay.isDuplicate && <span className="duplicate-badge" title={t.step3.duplicateWarning}>⚠️</span>}
                       </div>
                     ))}
