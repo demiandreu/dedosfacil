@@ -1074,6 +1074,7 @@ h1, h2, h3, h4, h5, h6 {
   .footer-content { grid-template-columns: 1fr; }
   .urgent-banner { flex-direction: column; text-align: center; }
 }
+
 /* Format Help */
 .format-help {
   margin-top: 1rem;
@@ -1102,6 +1103,7 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 8px;
   border: 1px solid var(--gray-200);
 }
+
 /* ============================================
    MULTI-UPLOAD ZONES - Step 3
    ============================================ */
@@ -1243,6 +1245,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.5rem;
   align-items: center;
 }
+
 /* Authorization Box */
 .authorization-box {
   background: #fef3c7;
@@ -1271,11 +1274,10 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.5;
   color: #92400e;
 }
+
 /* ========================================
    ESTILOS PARA PÁGINAS LEGALES
-   Añadir al final de index.css
    ======================================== */
-
 .legal-page {
   min-height: 100vh;
   background: #f8fafc;
@@ -1636,7 +1638,7 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
 }
 
-/* Responsive */
+/* Responsive legal */
 @media (max-width: 768px) {
   .legal-header {
     padding: 15px 20px;
@@ -1669,13 +1671,14 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 12px;
   }
   
- .stays-table input,
+  .stays-table input,
   .stays-table select {
     font-size: 12px;
     padding: 4px;
   }
 }
 
+/* Lightbox */
 .help-screenshot.clickable {
   cursor: zoom-in;
 }
@@ -1721,5 +1724,4 @@ h1, h2, h3, h4, h5, h6 {
 
 .lightbox-close:hover {
   color: #ff6b6b;
-}
 }
