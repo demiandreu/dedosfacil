@@ -528,15 +528,23 @@ if (data.other?.estancias) {
         
         allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
         
-        // Detectar duplicados
-        allStays = allStays.map((stay, index) => {
-          const isDuplicate = allStays.some((other, otherIndex) => 
-            otherIndex !== index && 
-            other.checkIn === stay.checkIn &&
-            other.source !== stay.source
-          )
-          return { ...stay, isDuplicate }
-        })
+       // Detectar duplicados y solapamientos
+allStays = allStays.map((stay, index) => {
+  const isDuplicate = allStays.some((other, otherIndex) => 
+    otherIndex !== index && 
+    other.checkIn === stay.checkIn
+  )
+  const isOverlapping = allStays.some((other, otherIndex) => {
+    if (otherIndex === index) return false
+    if (!stay.checkIn || !stay.checkOut || !other.checkIn || !other.checkOut) return false
+    const stayStart = new Date(stay.checkIn)
+    const stayEnd = new Date(stay.checkOut)
+    const otherStart = new Date(other.checkIn)
+    const otherEnd = new Date(other.checkOut)
+    return stayStart < otherEnd && stayEnd > otherStart && !(stay.checkIn === other.checkIn && stay.checkOut === other.checkOut)
+  })
+  return { ...stay, isDuplicate, isOverlapping }
+})
         
         setExtractedStays(allStays)
       } else {
@@ -566,19 +574,25 @@ if (data.other?.estancias) {
     if (errors.stays) setErrors(prev => ({ ...prev, stays: null }))
   }
 
- const removeStay = (index) => {
+const removeStay = (index) => {
   setExtractedStays(prev => {
-    // Primero eliminar la estancia
     const filtered = prev.filter((_, i) => i !== index)
     
-    // Luego recalcular duplicados
     return filtered.map((stay, idx) => {
       const isDuplicate = filtered.some((other, otherIdx) => 
         otherIdx !== idx && 
-        other.checkIn === stay.checkIn &&
-        other.source !== stay.source
+        other.checkIn === stay.checkIn
       )
-      return { ...stay, isDuplicate }
+      const isOverlapping = filtered.some((other, otherIdx) => {
+        if (otherIdx === idx) return false
+        if (!stay.checkIn || !stay.checkOut || !other.checkIn || !other.checkOut) return false
+        const stayStart = new Date(stay.checkIn)
+        const stayEnd = new Date(stay.checkOut)
+        const otherStart = new Date(other.checkIn)
+        const otherEnd = new Date(other.checkOut)
+        return stayStart < otherEnd && stayEnd > otherStart && !(stay.checkIn === other.checkIn && stay.checkOut === other.checkOut)
+      })
+      return { ...stay, isDuplicate, isOverlapping }
     })
   })
 }
@@ -786,110 +800,84 @@ if (!acceptTerms || !acceptAuthorization) return
                 <p>{t.step3.subtitle}</p>
               </div>
 
-              {/* Multi Upload Section */}
-              {!manualMode && !noActivity && extractedStays.length === 0 && (
-                <div className="multi-upload-section">
-                  
-                  {/* Airbnb Upload */}
-                  <div 
-                    className={`upload-zone-mini ${uploadedFiles.airbnb ? 'has-file' : ''}`}
-                    onDrop={handleFileDrop('airbnb')}
-                    onDragOver={e => e.preventDefault()}
-                    onClick={() => document.getElementById('airbnbInput').click()}
-                  >
-                    <input type="file" id="airbnbInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('airbnb')} hidden />
-                    <div className="upload-zone-content">
-                      <span className="upload-icon">🏠</span>
-                      <strong>{t.step3.airbnbFile}</strong>
-                     {uploadedFiles.airbnb ? (
-  <div className="file-info">
-    <span className="file-name">{uploadedFiles.airbnb.name}</span>
-    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('airbnb'); }}>×</button>
+              {/* Airbnb Upload */}
+<div 
+  className={`upload-zone-mini ${uploadedFiles.airbnb ? 'has-file' : ''}`}
+  onDrop={handleFileDrop('airbnb')}
+  onDragOver={e => e.preventDefault()}
+  onClick={() => document.getElementById('airbnbInput').click()}
+>
+  <input type="file" id="airbnbInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('airbnb')} hidden />
+  <div className="upload-zone-content">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Airbnb_Logo_B%C3%A9lo.svg" alt="Airbnb" className="platform-icon" />
+    <strong>{t.step3.airbnbFile}</strong>
+    {uploadedFiles.airbnb ? (
+      <div className="file-info">
+        <span className="file-name">{uploadedFiles.airbnb.name}</span>
+        <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('airbnb'); }}>×</button>
+      </div>
+    ) : (
+      <>
+        <span className="upload-hint">{t.step3.dragOrClick}</span>
+        <a href={t.step3.airbnbUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>📥 {t.step3.airbnbHelp}</a>
+      </>
+    )}
   </div>
-) : (
-  <>
-    <span className="upload-hint">{t.step3.dragOrClick}</span>
-    <a href={t.step3.airbnbUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>{t.step3.airbnbHelp}</a>
-  </>
-)}
-                    </div>
-                  </div>
+</div>
 
-                  {/* Booking Upload */}
-                  <div 
-                    className={`upload-zone-mini ${uploadedFiles.booking ? 'has-file' : ''}`}
-                    onDrop={handleFileDrop('booking')}
-                    onDragOver={e => e.preventDefault()}
-                    onClick={() => document.getElementById('bookingInput').click()}
-                  >
-                    <input type="file" id="bookingInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('booking')} hidden />
-                    <div className="upload-zone-content">
-                      <span className="upload-icon">🅱️</span>
-                      <strong>{t.step3.bookingFile}</strong>
-                   {uploadedFiles.booking ? (
-  <div className="file-info">
-    <span className="file-name">{uploadedFiles.booking.name}</span>
-    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('booking'); }}>×</button>
+{/* Booking Upload */}
+<div 
+  className={`upload-zone-mini ${uploadedFiles.booking ? 'has-file' : ''}`}
+  onDrop={handleFileDrop('booking')}
+  onDragOver={e => e.preventDefault()}
+  onClick={() => document.getElementById('bookingInput').click()}
+>
+  <input type="file" id="bookingInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('booking')} hidden />
+  <div className="upload-zone-content">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Booking.com_logo.svg" alt="Booking" className="platform-icon" />
+    <strong>{t.step3.bookingFile}</strong>
+    {uploadedFiles.booking ? (
+      <div className="file-info">
+        <span className="file-name">{uploadedFiles.booking.name}</span>
+        <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('booking'); }}>×</button>
+      </div>
+    ) : (
+      <>
+        <span className="upload-hint">{t.step3.dragOrClick}</span>
+        <a href={t.step3.bookingUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>📥 {t.step3.bookingHelp}</a>
+      </>
+    )}
   </div>
-) : (
-  <>
-    <span className="upload-hint">{t.step3.dragOrClick}</span>
-    <a href={t.step3.bookingUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>{t.step3.bookingHelp}</a>
-  </>
-)}
-                    </div>
-                  </div>
+</div>
 
-                  {/* Other Upload */}
-                  <div 
-                    className={`upload-zone-mini ${uploadedFiles.other ? 'has-file' : ''}`}
-                    onDrop={handleFileDrop('other')}
-                    onDragOver={e => e.preventDefault()}
-                    onClick={() => document.getElementById('otherInput').click()}
-                  >
-                    <input type="file" id="otherInput" accept=".csv,.xlsx,.xls,.pdf" onChange={handleFileUpload('other')} hidden />
-                    <div className="upload-zone-content">
-                      <span className="upload-icon">📄</span>
-                      <strong>{t.step3.otherFile}</strong>
-                  {uploadedFiles.other ? (
-  <div className="file-info">
-    <span className="file-name">{uploadedFiles.other.name}</span>
-    <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('other'); }}>×</button>
+{/* Other Upload */}
+<div 
+  className={`upload-zone-mini ${uploadedFiles.other ? 'has-file' : ''}`}
+  onDrop={handleFileDrop('other')}
+  onDragOver={e => e.preventDefault()}
+  onClick={() => document.getElementById('otherInput').click()}
+>
+  <input type="file" id="otherInput" accept=".csv,.xlsx,.xls,.pdf" onChange={handleFileUpload('other')} hidden />
+  <div className="upload-zone-content">
+    <span className="upload-icon">📄</span>
+    <strong>{t.step3.otherFile}</strong>
+    {uploadedFiles.other ? (
+      <div className="file-info">
+        <span className="file-name">{uploadedFiles.other.name}</span>
+        <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('other'); }}>×</button>
+      </div>
+    ) : (
+      <>
+        <span className="upload-hint">{t.step3.dragOrClick}</span>
+        <span className="upload-help-text-small">{t.step3.otherHelp}</span>
+        <details className="format-help-inline" onClick={e => e.stopPropagation()}>
+          <summary>📋 {t.step3.formatHelp}</summary>
+          <p>{t.step3.formatInfo}</p>
+        </details>
+      </>
+    )}
   </div>
-) : (
-  <>
-    <span className="upload-hint">{t.step3.dragOrClick}</span>
-    <span className="upload-help-text">{t.step3.otherHelp}</span>
-  </>
-)}
-                    </div>
-                  </div>
-
-                  {/* Process Button */}
-               {hasAnyFile && !fileProcessed && (
-  <button 
-    className="btn btn-extract btn-process"
-    onClick={processAllFiles}
-    disabled={isProcessing}
-  >
-    {isProcessing ? `⏳ ${t.step3.processing}` : t.step3.extractBtn}
-  </button>
-)}
-             <div className="download-links">
-                    <p>📥 Descarga tus reservas:</p>
-                    <a href="https://es-l.airbnb.com/hosting/reservations/completed" target="_blank" rel="noopener noreferrer">
-                      → Desde Airbnb
-                    </a>
-                    <a href="https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html" target="_blank" rel="noopener noreferrer">
-                      → Desde Booking
-                    </a>
-                  </div>
-                  <details className="format-help">
-                    <summary>{t.step3.formatHelp}</summary>
-                    <p>{t.step3.formatInfo}</p>
-                  </details>
-                </div>
-              )}
+</div>
 
             
               {/* Lista editable de estancias */}
@@ -950,7 +938,7 @@ if (!acceptTerms || !acceptAuthorization) return
                       <span></span>
                     </div>
                     {extractedStays.map((stay, i) => (
-                      <div key={i} className={`stays-table-row ${stay.isDuplicate ? 'duplicate-warning' : ''}`}>
+                     <div key={i} className={`stays-table-row ${stay.isDuplicate ? 'duplicate-warning' : ''} ${stay.isOverlapping ? 'overlap-warning' : ''}`}>
                         <input 
                           type="date" 
                           value={stay.checkIn} 
