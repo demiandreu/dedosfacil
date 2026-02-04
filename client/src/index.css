@@ -1611,9 +1611,11 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #f8d7da;
   border-left: 3px solid #dc3545;
 }
-   .platform-icon {
-  width: 20px;
-  height: 20px;
+ .platform-icon {
+  width: 40px !important;
+  height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
   object-fit: contain;
 }
 
