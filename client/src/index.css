@@ -705,9 +705,8 @@ h1, h2, h3, h4, h5, h6 {
    STAYS EDITOR
    ============================================ */
 .stays-editor {
-  background: var(--gray-100);
-  border-radius: 12px;
-  padding: 24px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .stays-header {
@@ -763,10 +762,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Stays Table */
 .stays-table {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 16px;
+  min-width: 650px;
 }
 
 .stays-table-header {
@@ -1724,4 +1720,16 @@ h1, h2, h3, h4, h5, h6 {
   background: #fecaca;
   border-color: #f87171;
 }
+   @media (max-width: 768px) {
+  .stays-table-row,
+  .stays-table-header {
+    grid-template-columns: 100px 100px 60px 120px 70px 40px;
+    font-size: 12px;
+  }
+  
+  .stays-table input,
+  .stays-table select {
+    font-size: 12px;
+    padding: 4px;
+  }
 }
