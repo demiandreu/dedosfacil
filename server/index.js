@@ -426,6 +426,28 @@ app.get('/api/orders/:id', async (req, res) => {
   }
 });
 
+// Obtener datos para factura
+app.get('/api/factura/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params
+    const result = await pool.query(
+      `SELECT o.id, o.email, o.amount, o.properties_count, o.created_at, s.name, s.phone
+       FROM orders o
+       LEFT JOIN submissions s ON s.order_id = o.id
+       WHERE o.id = $1 AND o.status IN ('completed', 'enviado')`,
+      [orderId]
+    )
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Factura no encontrada' })
+    }
+    
+    res.json(result.rows[0])
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
 // Get authorization data for PDF
 app.get('/api/admin/authorization/:orderId', async (req, res) => {
   try {
