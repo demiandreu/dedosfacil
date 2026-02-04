@@ -1604,4 +1604,49 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   height: auto;
 }
+   .upload-card-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.platform-help-details {
+  margin-top: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.platform-help-details summary {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #0066cc;
+}
+
+.platform-help-details .help-content {
+  padding: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.platform-help-details .help-content p {
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.help-screenshot {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin: 10px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-outline {
+  background: white;
+  border: 2px solid #0066cc;
+  color: #0066cc;
+  margin-top: 10px;
+  display: inline-block;
+}
 }
