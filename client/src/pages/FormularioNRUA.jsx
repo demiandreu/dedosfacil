@@ -528,15 +528,22 @@ if (data.other?.estancias) {
         
         allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
         
-        // Detectar duplicados
-        allStays = allStays.map((stay, index) => {
-          const isDuplicate = allStays.some((other, otherIndex) => 
-            otherIndex !== index && 
-            other.checkIn === stay.checkIn &&
-            other.source !== stay.source
-          )
-          return { ...stay, isDuplicate }
-        })
+      // Detectar duplicados Y solapamientos
+allStays = allStays.map((stay, index) => {
+  const isDuplicate = allStays.some((other, otherIndex) => 
+    otherIndex !== index && 
+    other.checkIn === stay.checkIn
+  )
+  const isOverlapping = allStays.some((other, otherIndex) => {
+    if (otherIndex === index) return false
+    const stayStart = new Date(stay.checkIn)
+    const stayEnd = new Date(stay.checkOut)
+    const otherStart = new Date(other.checkIn)
+    const otherEnd = new Date(other.checkOut)
+    return stayStart < otherEnd && stayEnd > otherStart
+  })
+  return { ...stay, isDuplicate, isOverlapping }
+})
         
         setExtractedStays(allStays)
       } else {
@@ -566,19 +573,25 @@ if (data.other?.estancias) {
     if (errors.stays) setErrors(prev => ({ ...prev, stays: null }))
   }
 
- const removeStay = (index) => {
+const removeStay = (index) => {
   setExtractedStays(prev => {
-    // Primero eliminar la estancia
     const filtered = prev.filter((_, i) => i !== index)
     
-    // Luego recalcular duplicados
+    // Recalcular duplicados y solapamientos
     return filtered.map((stay, idx) => {
       const isDuplicate = filtered.some((other, otherIdx) => 
         otherIdx !== idx && 
-        other.checkIn === stay.checkIn &&
-        other.source !== stay.source
+        other.checkIn === stay.checkIn
       )
-      return { ...stay, isDuplicate }
+      const isOverlapping = filtered.some((other, otherIdx) => {
+        if (otherIdx === idx) return false
+        const stayStart = new Date(stay.checkIn)
+        const stayEnd = new Date(stay.checkOut)
+        const otherStart = new Date(other.checkIn)
+        const otherEnd = new Date(other.checkOut)
+        return stayStart < otherEnd && stayEnd > otherStart
+      })
+      return { ...stay, isDuplicate, isOverlapping }
     })
   })
 }
@@ -906,7 +919,7 @@ if (!acceptTerms || !acceptAuthorization) return
                       <span></span>
                     </div>
                     {extractedStays.map((stay, i) => (
-                      <div key={i} className={`stays-table-row ${stay.isDuplicate ? 'duplicate-warning' : ''}`}>
+                      <div key={i} className={`stays-table-row ${stay.isDuplicate ? 'duplicate-warning' : ''} ${stay.isOverlapping ? 'overlap-warning' : ''}`}>
                         <input 
                           type="date" 
                           value={stay.checkIn} 
