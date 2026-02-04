@@ -7,11 +7,14 @@ import Admin from './pages/Admin'
 import AvisoLegal from './pages/AvisoLegal'
 import Privacidad from './pages/Privacidad'
 import Cookies from './pages/Cookies'
+import Factura from './pages/Factura'
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/factura/:orderId" element={<Factura />} />
         <Route path="/" element={<Landing />} />
         <Route path="/formulario" element={<FormularioNRUA />} />
         <Route path="/formulario-nrua" element={<FormularioNRUA />} />
