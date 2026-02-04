@@ -86,9 +86,9 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
       summary: "Resumen de tu pedido",
       plan: "Plan seleccionado",
       plans: [
-         { id: 1, name: "1 Propiedad", price: 69, priceStr: "69€" },
-  { id: 3, name: "3 Propiedades", price: 199, priceStr: "199€", popular: true },
-  { id: 10, name: "10 Propiedades", price: 399, priceStr: "399€" }
+        { id: 1, name: "1 Propiedad", price: 79, priceStr: "79€" },
+  { id: 3, name: "3 Propiedades", price: 229, priceStr: "229€", popular: true },
+  { id: 10, name: "10 Propiedades", price: 549, priceStr: "549€" }
       ],
       termsLabel: "Acepto los",
       terms: "términos y condiciones",
@@ -175,9 +175,9 @@ otherHelp: "CSV or Excel with check-in/check-out dates and guests",
       summary: "Order summary",
       plan: "Selected plan",
       plans: [
-  { id: 1, name: "1 Property", price: 69, priceStr: "€69" },
-  { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
-  { id: 10, name: "10 Properties", price: 399, priceStr: "€399" }
+  { id: 1, name: "1 Property", price: 79, priceStr: "€79" },
+  { id: 3, name: "3 Properties", price: 229, priceStr: "€229", popular: true },
+  { id: 10, name: "10 Properties", price: 549, priceStr: "€549" }
       ],
       termsLabel: "I accept the",
       terms: "terms and conditions",
@@ -264,9 +264,9 @@ otherHelp: "CSV ou Excel avec dates d'arrivée/départ et voyageurs",
       summary: "Résumé de votre commande",
       plan: "Plan sélectionné",
       plans: [
-    { id: 1, name: "1 Property", price: 69, priceStr: "€69" },
-  { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
-  { id: 10, name: "10 Properties", price: 399, priceStr: "€399" }
+    { id: 1, name: "1 Property", price: 79, priceStr: "€79" },
+  { id: 3, name: "3 Properties", price: 229, priceStr: "€229", popular: true },
+  { id: 10, name: "10 Properties", price: 549, priceStr: "€549" }
       ],
       termsLabel: "J'accepte les",
       terms: "conditions générales",
@@ -353,9 +353,9 @@ otherHelp: "CSV oder Excel mit Check-in/Check-out und Gästen",
       summary: "Ihre Bestellübersicht",
       plan: "Ausgewählter Plan",
       plans: [
-        { id: 1, name: "1 Immobilie", price: 69, priceStr: "69€" },
-        { id: 3, name: "3 Immobilien", price: 199, priceStr: "199€", popular: true },
-        { id: 10, name: "10 Immobilien", price: 399, priceStr: "399€" }
+        { id: 1, name: "1 Immobilie", price: 79, priceStr: "79€" },
+  { id: 3, name: "3 Immobilien", price: 229, priceStr: "229€", popular: true },
+  { id: 10, name: "10 Immobilien", price: 549, priceStr: "549€" }
       ],
       termsLabel: "Ich akzeptiere die",
       terms: "Nutzungsbedingungen",
