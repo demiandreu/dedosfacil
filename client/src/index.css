@@ -1687,4 +1687,41 @@ h1, h2, h3, h4, h5, h6 {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
 }
+   .stays-table {
+  min-width: 100%;
+  overflow-x: visible;
+}
+
+.stays-table-row {
+  display: grid;
+  grid-template-columns: 130px 130px 80px 150px 80px 50px;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.stays-table-header {
+  display: grid;
+  grid-template-columns: 130px 130px 80px 150px 80px 50px;
+  gap: 0.5rem;
+}
+
+.stays-editor {
+  overflow-x: auto;
+}
+
+.btn-delete-stay {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+  min-width: 40px;
+}
+
+.btn-delete-stay:hover {
+  background: #fecaca;
+  border-color: #f87171;
+}
 }
