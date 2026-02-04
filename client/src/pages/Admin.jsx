@@ -100,18 +100,7 @@ const Admin = () => {
       alert(data.error)
       return
     }
-    const deleteOrder = async (orderId) => {
-  try {
-    const response = await fetch(`/api/admin/delete-order/${orderId}`, {
-      method: 'DELETE'
-    })
-    const data = await response.json()
-    if (data.error) throw new Error(data.error)
-    await fetchOrders()
-  } catch (err) {
-    alert('Error al eliminar: ' + err.message)
-  }
-}
+   
 
     const timestamp = data.authorization_timestamp 
       ? new Date(data.authorization_timestamp).toLocaleString('es-ES', {
@@ -219,6 +208,19 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
       setUpdatingStatus(null)
     }
   }
+   const deleteOrder = async (orderId) => {
+    try {
+      const response = await fetch(`/api/admin/delete-order/${orderId}`, {
+        method: 'DELETE'
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchOrders()
+    } catch (err) {
+      alert('Error al eliminar: ' + err.message)
+    }
+  }
+
 
   const filteredOrders = orders.filter(order => {
     if (filter === 'all') return true
