@@ -397,6 +397,7 @@ function FormularioNRUA() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [extractedStays, setExtractedStays] = useState([])
   const [errors, setErrors] = useState({})
+  const [lightboxImage, setLightboxImage] = useState(null)
   
   const [form, setForm] = useState({
     name: '', email: '', phone: '',
@@ -830,9 +831,9 @@ if (!acceptTerms || !acceptAuthorization) return
       <summary>📥 {t.step3.airbnbHelp}</summary>
       <div className="help-content">
         <p><strong>Paso 1:</strong> Filtra por fechas (1 ene - 31 dic 2025) y propiedad</p>
-        <img src="/images/airbnbexplain1.png" alt="Filtrar reservas en Airbnb" className="help-screenshot" />
+       <img src="/images/airbnbexplain1.png" alt="Filtrar reservas en Airbnb" className="help-screenshot clickable" onClick={(e) => { e.stopPropagation(); setLightboxImage('/images/airbnbexplain1.png'); }} />
         <p><strong>Paso 2:</strong> Exportar → Descarga el archivo CSV</p>
-        <img src="/images/airbnbexplain2.png" alt="Descargar CSV en Airbnb" className="help-screenshot" />
+        <img src="/images/airbnbexplain2.png" alt="Descargar CSV en Airbnb" className="help-screenshot clickable" onClick={(e) => { e.stopPropagation(); setLightboxImage('/images/airbnbexplain2.png'); }} />
         <a href="https://www.airbnb.es/hosting/reservations/completed" target="_blank" rel="noopener noreferrer" className="btn btn-small btn-outline">
           🔗 Ir a mis reservas de Airbnb
         </a>
@@ -870,7 +871,7 @@ if (!acceptTerms || !acceptAuthorization) return
       <div className="help-content">
         <p><strong>Paso 1:</strong> Filtra por estado "OK" y fechas 2025</p>
         <p><strong>Paso 2:</strong> Haz clic en "Download"</p>
-        <img src="/images/bookingexplain.png" alt="Descargar reservas en Booking" className="help-screenshot" />
+       <img src="/images/bookingexplain.png" alt="Descargar reservas en Booking" className="help-screenshot clickable" onClick={(e) => { e.stopPropagation(); setLightboxImage('/images/bookingexplain.png'); }} />
         <a href="https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/booking_reservations.html" target="_blank" rel="noopener noreferrer" className="btn btn-small btn-outline">
           🔗 Ir a mis reservas de Booking
         </a>
@@ -1122,7 +1123,7 @@ if (!acceptTerms || !acceptAuthorization) return
           )}
         </div>
 
-        {/* Navigation */}
+    {/* Navigation */}
         <div className="form-nav">
           {step > 1 && <button className="btn btn-secondary" onClick={back}><ArrowLeft size={18} />{t.nav.back}</button>}
          {step < 4 && (
@@ -1137,8 +1138,17 @@ if (!acceptTerms || !acceptAuthorization) return
 )}
         </div>
       </div>
+
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div className="lightbox-overlay" onClick={() => setLightboxImage(null)}>
+          <div className="lightbox-content">
+            <img src={lightboxImage} alt="Vista ampliada" />
+            <button className="lightbox-close" onClick={() => setLightboxImage(null)}>×</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-
 export default FormularioNRUA
