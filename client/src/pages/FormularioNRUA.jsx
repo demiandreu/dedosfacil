@@ -802,54 +802,81 @@ if (!acceptTerms || !acceptAuthorization) return
               {/* Multi Upload Section */}
 {!manualMode && !noActivity && extractedStays.length === 0 && (
   <div className="multi-upload-section">
-              {/* Airbnb Upload */}
-<div 
-  className={`upload-zone-mini ${uploadedFiles.airbnb ? 'has-file' : ''}`}
-  onDrop={handleFileDrop('airbnb')}
-  onDragOver={e => e.preventDefault()}
-  onClick={() => document.getElementById('airbnbInput').click()}
->
-  <input type="file" id="airbnbInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('airbnb')} hidden />
-  <div className="upload-zone-content">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Airbnb_Logo_B%C3%A9lo.svg" alt="Airbnb" className="platform-icon" />
-    <strong>{t.step3.airbnbFile}</strong>
-    {uploadedFiles.airbnb ? (
-      <div className="file-info">
-        <span className="file-name">{uploadedFiles.airbnb.name}</span>
-        <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('airbnb'); }}>×</button>
-      </div>
-    ) : (
-      <>
+             {/* Airbnb Upload */}
+<div className="upload-card-wrapper">
+  <div 
+    className={`upload-zone-mini ${uploadedFiles.airbnb ? 'has-file' : ''}`}
+    onDrop={handleFileDrop('airbnb')}
+    onDragOver={e => e.preventDefault()}
+    onClick={() => document.getElementById('airbnbInput').click()}
+  >
+    <input type="file" id="airbnbInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('airbnb')} hidden />
+    <div className="upload-zone-content">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Airbnb_Logo_B%C3%A9lo.svg" alt="Airbnb" className="platform-icon" />
+      <strong>{t.step3.airbnbFile}</strong>
+      {uploadedFiles.airbnb ? (
+        <div className="file-info">
+          <span className="file-name">{uploadedFiles.airbnb.name}</span>
+          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('airbnb'); }}>×</button>
+        </div>
+      ) : (
         <span className="upload-hint">{t.step3.dragOrClick}</span>
-        <a href={t.step3.airbnbUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>📥 {t.step3.airbnbHelp}</a>
-      </>
-    )}
+      )}
+    </div>
   </div>
+  
+  {!uploadedFiles.airbnb && (
+    <details className="platform-help-details">
+      <summary>📥 {t.step3.airbnbHelp}</summary>
+      <div className="help-content">
+        <p><strong>Paso 1:</strong> Filtra por fechas (1 ene - 31 dic 2025) y propiedad</p>
+        <img src="/images/airbnbexplain1.png" alt="Filtrar reservas en Airbnb" className="help-screenshot" />
+        <p><strong>Paso 2:</strong> Exportar → Descarga el archivo CSV</p>
+        <img src="/images/airbnbexplain2.png" alt="Descargar CSV en Airbnb" className="help-screenshot" />
+        <a href="https://www.airbnb.es/hosting/reservations/completed" target="_blank" rel="noopener noreferrer" className="btn btn-small btn-outline">
+          🔗 Ir a mis reservas de Airbnb
+        </a>
+      </div>
+    </details>
+  )}
 </div>
 
 {/* Booking Upload */}
-<div 
-  className={`upload-zone-mini ${uploadedFiles.booking ? 'has-file' : ''}`}
-  onDrop={handleFileDrop('booking')}
-  onDragOver={e => e.preventDefault()}
-  onClick={() => document.getElementById('bookingInput').click()}
->
-  <input type="file" id="bookingInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('booking')} hidden />
-  <div className="upload-zone-content">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Booking.com_logo.svg" alt="Booking" className="platform-icon" />
-    <strong>{t.step3.bookingFile}</strong>
-    {uploadedFiles.booking ? (
-      <div className="file-info">
-        <span className="file-name">{uploadedFiles.booking.name}</span>
-        <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('booking'); }}>×</button>
-      </div>
-    ) : (
-      <>
+<div className="upload-card-wrapper">
+  <div 
+    className={`upload-zone-mini ${uploadedFiles.booking ? 'has-file' : ''}`}
+    onDrop={handleFileDrop('booking')}
+    onDragOver={e => e.preventDefault()}
+    onClick={() => document.getElementById('bookingInput').click()}
+  >
+    <input type="file" id="bookingInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('booking')} hidden />
+    <div className="upload-zone-content">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Booking.com_logo.svg" alt="Booking" className="platform-icon" />
+      <strong>{t.step3.bookingFile}</strong>
+      {uploadedFiles.booking ? (
+        <div className="file-info">
+          <span className="file-name">{uploadedFiles.booking.name}</span>
+          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('booking'); }}>×</button>
+        </div>
+      ) : (
         <span className="upload-hint">{t.step3.dragOrClick}</span>
-        <a href={t.step3.bookingUrl} target="_blank" rel="noopener noreferrer" className="upload-help-link" onClick={e => e.stopPropagation()}>📥 {t.step3.bookingHelp}</a>
-      </>
-    )}
+      )}
+    </div>
   </div>
+  
+  {!uploadedFiles.booking && (
+    <details className="platform-help-details">
+      <summary>📥 {t.step3.bookingHelp}</summary>
+      <div className="help-content">
+        <p><strong>Paso 1:</strong> Filtra por estado "OK" y fechas 2025</p>
+        <p><strong>Paso 2:</strong> Haz clic en "Download"</p>
+        <img src="/images/bookingexplain.png" alt="Descargar reservas en Booking" className="help-screenshot" />
+        <a href="https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/booking_reservations.html" target="_blank" rel="noopener noreferrer" className="btn btn-small btn-outline">
+          🔗 Ir a mis reservas de Booking
+        </a>
+      </div>
+    </details>
+  )}
 </div>
 
 {/* Other Upload */}
