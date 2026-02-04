@@ -170,7 +170,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
           req.headers['x-forwarded-for'] || req.socket.remoteAddress
         ]
       );
-      
+
+      await sendConfirmationEmail(email, {
+        plan: priceData.properties,
+        amount: priceData.amount / 100
+      });
       return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&test=true`, orderId });
     }
     if (!priceData) {
