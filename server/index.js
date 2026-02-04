@@ -604,6 +604,23 @@ app.post('/api/admin/update-status/:orderId', async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar estado' });
   }
 });
+// Delete order
+app.delete('/api/admin/delete-order/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    // Primero eliminar submissions relacionadas
+    await pool.query('DELETE FROM submissions WHERE order_id = $1', [orderId]);
+    
+    // Luego eliminar la orden
+    await pool.query('DELETE FROM orders WHERE id = $1', [orderId]);
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete order error:', error);
+    res.status(500).json({ error: 'Error al eliminar pedido' });
+  }
+});
 
 // ============================================
 // FIN ADMIN ENDPOINTS
