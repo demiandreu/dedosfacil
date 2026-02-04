@@ -1592,4 +1592,16 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 12px;
     padding: 4px;
   }
+   .video-container {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.video-container iframe {
+  aspect-ratio: 16/9;
+  width: 100%;
+  height: auto;
+}
 }
