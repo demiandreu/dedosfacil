@@ -1725,3 +1725,14 @@ h1, h2, h3, h4, h5, h6 {
 .lightbox-close:hover {
   color: #ff6b6b;
 }
+.nrua-preview-thumb {
+  max-width: 80px;
+  max-height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+  margin-bottom: 4px;
+}
+
+.nrua-photo-upload {
+  min-height: 80px;
+}
