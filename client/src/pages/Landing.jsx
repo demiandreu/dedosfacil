@@ -231,7 +231,7 @@ es: {
       plans: [
      { name: "1 Immobilie", price: "79€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "Lieferung 48h"] },
         { name: "3 Immobilien", price: "199€", period: "sparen Sie 38€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
-        { name: "10 Immobilien", price: "629€", period: "sparen Sie 161€", features: ["Bis zu 10 NRUA", "Komplette Verwaltung", "Telefon-Support", "Priori
+       { name: "10 Immobilien", price: "629€", period: "sparen Sie 161€", features: ["Bis zu 10 NRUA", "Komplette Verwaltung", "Telefon-Support", "Prioritätslieferung"] }
       ],
       select: "Select",
       popular: "Most popular"
