@@ -671,7 +671,114 @@ app.post('/api/admin/update-nrua/:orderId', async (req, res) => {
   }
 });
 
-// Update order status
+// Upload justificante and send email with everything
+app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '20mb' }), async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { pdfBase64, pdfName } = req.body;
+
+    if (!pdfBase64) {
+      return res.status(400).json({ error: 'No se ha adjuntado el PDF' });
+    }
+
+    // Get order data
+    const result = await pool.query(
+      `SELECT o.email, o.amount, o.properties_count, o.status, s.name 
+       FROM orders o 
+       LEFT JOIN submissions s ON s.order_id = o.id 
+       WHERE o.id = $1`,
+      [orderId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    const { email, name, amount, properties_count } = result.rows[0];
+    const facturaUrl = `https://dedosfacil.es/factura/${orderId}`;
+    const reviewUrl = `https://dedosfacil.es/valoracion?order_id=${orderId}`;
+
+    // Save PDF in database
+    await pool.query(
+      'UPDATE submissions SET justificante_pdf = $1, justificante_sent_at = NOW() WHERE order_id = $2',
+      [pdfBase64, orderId]
+    );
+
+    // Update status to enviado
+    await pool.query('UPDATE orders SET status = $1 WHERE id = $2', ['enviado', orderId]);
+    await pool.query('UPDATE submissions SET status = $1 WHERE order_id = $2', ['enviado', orderId]);
+
+    // Extract pure base64 (remove data:application/pdf;base64, prefix if present)
+    const base64Data = pdfBase64.includes(',') ? pdfBase64.split(',')[1] : pdfBase64;
+
+    // Send email with PDF attached + factura link + review link
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: email,
+      subject: `📄 Justificante Modelo N2 - Pedido DF-${orderId}`,
+      attachments: [
+        {
+          filename: pdfName || `Justificante_N2_DF-${orderId}.pdf`,
+          content: base64Data,
+          type: 'application/pdf'
+        }
+      ],
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #10b981; margin-top: 0;">✅ ¡Tu Modelo N2 ha sido presentado!</h2>
+            <p>Hola${name ? ' ' + name : ''}, te confirmamos que hemos completado la presentación de tu Modelo N2.</p>
+            
+            <div style="background: #1e3a5f; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <span style="font-size: 14px;">Referencia</span><br>
+              <strong style="font-size: 28px;">DF-${orderId}</strong>
+            </div>
+
+            <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0; font-size: 16px;">📎 <strong>El justificante oficial está adjunto a este email</strong></p>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb;">
+              <h3 style="margin-top: 0;">📋 Resumen</h3>
+              <p><strong>Plan:</strong> ${properties_count} Propiedad(es)</p>
+              <p><strong>Importe:</strong> ${amount / 100}€</p>
+              <p><strong>Estado:</strong> ✅ Presentado</p>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="${facturaUrl}" 
+                 style="display: inline-block; padding: 14px 32px; background: #1e3a5f; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                📄 Ver Factura
+              </a>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
+              <p style="margin: 0 0 12px 0; font-size: 16px;"><strong>¿Qué tal tu experiencia?</strong></p>
+              <p style="margin: 0 0 16px 0; color: #6b7280;">Solo tardas 30 segundos. Tu opinión nos ayuda mucho.</p>
+              <a href="${reviewUrl}" 
+                 style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #f97316, #f59e0b); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                ⭐ Dejar valoración
+              </a>
+            </div>
+
+            <p style="color: #6b7280; font-size: 13px;">
+              ¿Dudas? Escríbenos a <a href="mailto:support@dedosfacil.es">support@dedosfacil.es</a> indicando tu referencia DF-${orderId}.
+            </p>
+          </div>
+        </div>
+      `
+    });
+
+    console.log(`📧 Justificante + factura + valoración enviado a: ${email}`);
+    res.json({ success: true, email });
+  } catch (error) {
+    console.error('Send justificante error:', error);
+    res.status(500).json({ error: 'Error al enviar justificante' });
+  }
+});
 // Update order status
 app.post('/api/admin/update-status/:orderId', async (req, res) => {
   try {
