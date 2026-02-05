@@ -849,9 +849,9 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
 <button onClick={() => downloadAuthorizationPdf(order.id)} style={styles.btnSecondary}>
     📋 Autorización PDF
   </button>
-  {(order.status === 'completed' || order.status === 'enviado') && (
+ {order.status === 'enviado' && (
     <button onClick={() => sendReviewEmail(order.id)} style={{ ...styles.btnSecondary, backgroundColor: '#f59e0b' }}>
-      ⭐ Pedir valoración
+      ⭐ Reenviar valoración
     </button>
   )}
 </div>
