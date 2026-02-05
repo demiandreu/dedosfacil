@@ -209,6 +209,19 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     }
   }
 
+  const sendReviewEmail = async (orderId) => {
+    try {
+      const response = await fetch(`/api/admin/send-review/${orderId}`, {
+        method: 'POST'
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      alert(`✅ Email de valoración enviado a ${data.email}`)
+    } catch (err) {
+      alert('Error: ' + err.message)
+    }
+  }
+
   const updateNrua = async (orderId, newNrua) => {
   try {
     const response = await fetch(`/api/admin/update-nrua/${orderId}`, {
@@ -805,9 +818,14 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
       📄 CSV para N2
     </button>
   )}
-  <button onClick={() => downloadAuthorizationPdf(order.id)} style={styles.btnSecondary}>
+<button onClick={() => downloadAuthorizationPdf(order.id)} style={styles.btnSecondary}>
     📋 Autorización PDF
   </button>
+  {(order.status === 'completed' || order.status === 'enviado') && (
+    <button onClick={() => sendReviewEmail(order.id)} style={{ ...styles.btnSecondary, backgroundColor: '#f59e0b' }}>
+      ⭐ Pedir valoración
+    </button>
+  )}
 </div>
                         </div>
                         
