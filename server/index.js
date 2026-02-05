@@ -680,13 +680,22 @@ app.post('/api/admin/update-nrua/:orderId', async (req, res) => {
 });
 
 // Upload justificante and send email with everything
-app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '20mb' }), async (req, res) => {
+
+app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '50mb' }), async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { pdfBase64, pdfName } = req.body;
+    const { pdfs, pdfBase64, pdfName } = req.body;
 
-    if (!pdfBase64) {
-      return res.status(400).json({ error: 'No se ha adjuntado el PDF' });
+    // Support both old format (single) and new format (array)
+    let pdfList = [];
+    if (pdfs && Array.isArray(pdfs)) {
+      pdfList = pdfs;
+    } else if (pdfBase64) {
+      pdfList = [{ data: pdfBase64, name: pdfName || `Justificante_N2_DF-${orderId}.pdf` }];
+    }
+
+    if (pdfList.length === 0) {
+      return res.status(400).json({ error: 'No se han adjuntado PDFs' });
     }
 
     // Get order data
@@ -694,7 +703,8 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '20mb' }
       `SELECT o.email, o.amount, o.properties_count, o.status, s.name 
        FROM orders o 
        LEFT JOIN submissions s ON s.order_id = o.id 
-       WHERE o.id = $1`,
+       WHERE o.id = $1
+       LIMIT 1`,
       [orderId]
     );
 
@@ -706,49 +716,51 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '20mb' }
     const facturaUrl = `https://dedosfacil.es/factura/${orderId}`;
     const reviewUrl = `https://dedosfacil.es/valoracion?order_id=${orderId}`;
 
-    // Save PDF in database
+    // Save first PDF in database (for reference)
+    const firstPdfData = pdfList[0].data;
     await pool.query(
       'UPDATE submissions SET justificante_pdf = $1, justificante_sent_at = NOW() WHERE order_id = $2',
-      [pdfBase64, orderId]
+      [firstPdfData, orderId]
     );
 
-    // Update status to enviado
+    // Update status
     await pool.query('UPDATE orders SET status = $1 WHERE id = $2', ['enviado', orderId]);
     await pool.query('UPDATE submissions SET status = $1 WHERE order_id = $2', ['enviado', orderId]);
 
-    // Extract pure base64 (remove data:application/pdf;base64, prefix if present)
-    const base64Data = pdfBase64.includes(',') ? pdfBase64.split(',')[1] : pdfBase64;
+    // Build attachments array
+    const attachments = pdfList.map((pdf, i) => {
+      const base64Data = pdf.data.includes(',') ? pdf.data.split(',')[1] : pdf.data;
+      return {
+        filename: pdf.name || `Justificante_N2_${i + 1}_DF-${orderId}.pdf`,
+        content: base64Data,
+        type: 'application/pdf'
+      };
+    });
 
-    // Send email with PDF attached + factura link + review link
+    // Send email with all PDFs attached
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
       to: email,
       bcc: 'support@dedosfacil.es',
-      subject: `📄 Justificante Modelo N2 - Pedido DF-${orderId}`,
-      attachments: [
-        {
-          filename: pdfName || `Justificante_N2_DF-${orderId}.pdf`,
-          content: base64Data,
-          type: 'application/pdf'
-        }
-      ],
+      subject: `📄 Justificante${pdfList.length > 1 ? 's' : ''} Modelo N2 - Pedido DF-${orderId}`,
+      attachments,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
             <h1 style="color: white; margin: 0;">DedosFácil</h1>
           </div>
           <div style="padding: 30px; background: #f8fafc;">
-            <h2 style="color: #10b981; margin-top: 0;">✅ ¡Tu Modelo N2 ha sido presentado!</h2>
-            <p>Hola${name ? ' ' + name : ''}, te confirmamos que hemos completado la presentación de tu Modelo N2.</p>
+            <h2 style="color: #10b981; margin-top: 0;">✅ ¡Tu${pdfList.length > 1 ? 's' : ''} Modelo N2 ha${pdfList.length > 1 ? 'n' : ''} sido presentado${pdfList.length > 1 ? 's' : ''}!</h2>
+            <p>Hola${name ? ' ' + name : ''}, te confirmamos que hemos completado la presentación de tu${pdfList.length > 1 ? 's' : ''} Modelo N2.</p>
             
             <div style="background: #1e3a5f; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
               <span style="font-size: 14px;">Referencia</span><br>
               <strong style="font-size: 28px;">DF-${orderId}</strong>
             </div>
 
-           <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
-              <p style="margin: 0 0 8px 0; font-size: 16px;">📎 <strong>El justificante oficial está adjunto a este email</strong></p>
-              <p style="margin: 0; font-size: 13px; color: #065f46;">Documento emitido por Registradores de España. Puedes verificar su autenticidad con el identificador WEB que aparece en el acuse de recibo.</p>
+            <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 16px;">📎 <strong>${pdfList.length} justificante${pdfList.length > 1 ? 's' : ''} adjunto${pdfList.length > 1 ? 's' : ''} a este email</strong></p>
+              <p style="margin: 0; font-size: 13px; color: #065f46;">Documento(s) emitido(s) por Registradores de España.</p>
             </div>
 
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb;">
@@ -782,13 +794,14 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '20mb' }
       `
     });
 
-    console.log(`📧 Justificante + factura + valoración enviado a: ${email}`);
+    console.log(`📧 ${pdfList.length} justificante(s) enviado(s) a: ${email}`);
     res.json({ success: true, email });
   } catch (error) {
     console.error('Send justificante error:', error);
     res.status(500).json({ error: 'Error al enviar justificante' });
   }
 });
+
 // Update order status
 app.post('/api/admin/update-status/:orderId', async (req, res) => {
   try {
