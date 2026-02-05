@@ -509,6 +509,8 @@ app.get('/api/admin/orders', async (req, res) => {
         s.airbnb_file IS NOT NULL as has_airbnb,
         s.booking_file IS NOT NULL as has_booking,
         s.other_file IS NOT NULL as has_other,
+        s.nrua_photo_name,
+        s.nrua_photo_base64 IS NOT NULL as has_nrua_photo,
         s.extracted_stays,
         COALESCE(jsonb_array_length(s.extracted_stays), 0) as stays_count
       FROM orders o
@@ -528,10 +530,11 @@ app.get('/api/admin/download/:orderId/:fileType', async (req, res) => {
   try {
     const { orderId, fileType } = req.params;
     
-    const columnMap = {
+ const columnMap = {
       airbnb: 'airbnb_file',
       booking: 'booking_file',
-      other: 'other_file'
+      other: 'other_file',
+      nruaPhoto: 'nrua_photo_base64'
     };
     
     const column = columnMap[fileType];
