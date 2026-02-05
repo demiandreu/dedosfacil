@@ -469,6 +469,7 @@ function FormularioNRUA() {
       setStep(s => Math.min(s + 1, 4))
     }
   }
+   }  
  const back = () => {
   if (step === 4 && selectedPlan > 1) {
     setStep(1)
