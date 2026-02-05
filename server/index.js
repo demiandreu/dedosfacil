@@ -768,6 +768,57 @@ app.get('/api/reviews', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener valoraciones' });
   }
 });
+// Send review request email
+app.post('/api/admin/send-review/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    const result = await pool.query(
+      `SELECT o.email, s.name FROM orders o 
+       LEFT JOIN submissions s ON s.order_id = o.id 
+       WHERE o.id = $1 AND o.status IN ('completed', 'enviado')`,
+      [orderId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+    
+    const { email, name } = result.rows[0];
+    const reviewUrl = `https://dedosfacil.es/valoracion?order_id=${orderId}`;
+    
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: email,
+      subject: `${name ? name + ', ¿' : '¿'}Qué tal tu experiencia con DedosFácil?`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #1f2937;">¡Hola${name ? ' ' + name : ''}! 👋</h2>
+            <p>Tu declaración NRUA ya ha sido presentada. Esperamos que todo haya ido bien.</p>
+            <p>¿Podrías dedicarnos <strong>30 segundos</strong> para valorar el servicio? Tu opinión nos ayuda mucho.</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${reviewUrl}" 
+                 style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #f97316, #10b981); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 18px;">
+                ⭐ Dejar valoración
+              </a>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; text-align: center;">Solo tardas 30 segundos. ¡Gracias!</p>
+          </div>
+        </div>
+      `
+    });
+    
+    console.log('Review email sent to:', email);
+    res.json({ success: true, email });
+  } catch (error) {
+    console.error('Send review error:', error);
+    res.status(500).json({ error: 'Error al enviar email' });
+  }
+});
 
 // ============================================
 // FIN ADMIN ENDPOINTS
