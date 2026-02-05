@@ -720,7 +720,12 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                               ⬇️ Descargar Otro
                             </button>
                           )}
-                          {!order.has_airbnb && !order.has_booking && !order.has_other && (
+                         {order.has_nrua_photo && (
+                            <button onClick={() => downloadFile(order.id, 'nruaPhoto')} style={styles.downloadBtn}>
+                              📷 Foto NRUA ({order.nrua_photo_name})
+                            </button>
+                          )}
+                          {!order.has_airbnb && !order.has_booking && !order.has_other && !order.has_nrua_photo && (
                             <p style={{ color: '#9ca3af', fontSize: '14px' }}>Sin archivos</p>
                           )}
                         </div>
