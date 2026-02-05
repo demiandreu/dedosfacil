@@ -229,9 +229,9 @@ es: {
       title: "Clear pricing",
       note: "* Registry fees (27€/NRUA) not included",
       plans: [
-        { name: "1 Immobilie", price: "79€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "Lieferung 48h"] },
-        { name: "3 Immobilien", price: "229€", period: "sparen Sie 8€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
-        { name: "10 Immobilien", price: "549€", period: "sparen Sie 291€", features: ["Bis zu 10 NRUA", "Komplette Verwaltung", "Telefon-Support", "Prioritätslieferung"] }
+     { name: "1 Immobilie", price: "79€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "Lieferung 48h"] },
+        { name: "3 Immobilien", price: "199€", period: "sparen Sie 38€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
+        { name: "10 Immobilien", price: "629€", period: "sparen Sie 161€", features: ["Bis zu 10 NRUA", "Komplette Verwaltung", "Telefon-Support", "Priori
       ],
       select: "Select",
       popular: "Most popular"
@@ -354,10 +354,10 @@ es: {
     pricing: {
       title: "Tarifs clairs",
       note: "* Frais de Registre (27€/NRUA) non inclus",
-      plans: [
+     plans: [
         { name: "1 Propriété", price: "79€", features: ["1 NRUA", "Dépôt officiel", "Certificat", "Support email", "Livraison 48h"] },
-        { name: "3 Propriétés", price: "229€", period: "économisez 8€", features: ["Jusqu'à 3 NRUA", "Dépôt officiel", "Certificat", "Support prioritaire", "Livraison 24h"], popular: true },
-        { name: "10 Propriétés", price: "549€", period: "économisez 291€", features: ["Jusqu'à 10 NRUA", "Gestion complète", "Support téléphonique", "Livraison prioritaire"] }
+        { name: "3 Propriétés", price: "199€", period: "économisez 38€", features: ["Jusqu'à 3 NRUA", "Dépôt officiel", "Certificat", "Support prioritaire", "Livraison 24h"], popular: true },
+        { name: "10 Propriétés", price: "629€", period: "économisez 161€", features: ["Jusqu'à 10 NRUA", "Gestion complète", "Support téléphonique", "Livraison prioritaire"] }
       ],
       select: "Sélectionner",
       popular: "Le plus populaire"
@@ -480,10 +480,10 @@ es: {
     pricing: {
       title: "Klare Preise",
       note: "* Registergebühren (27€/NRUA) nicht enthalten",
-      plans: [
+    plans: [
         { name: "1 Immobilie", price: "79€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "Lieferung 48h"] },
-        { name: "3 Immobilien", price: "229€", period: "sparen Sie 8€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
-        { name: "10 Immobilien", price: "549€", period: "sparen Sie 291€", features: ["Bis zu 10 NRUA", "Komplette Verwaltung", "Telefon-Support", "Prioritätslieferung"] }
+        { name: "3 Immobilien", price: "199€", period: "sparen Sie 38€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
+        { name: "10 Immobilien", price: "629€", period: "sparen Sie 161€", features: ["Bis zu 10 NRUA", "Komplette Verwaltung", "Telefon-Support", "Prioritätslieferung"] }
       ],
       select: "Auswählen",
       popular: "Am beliebtesten"
