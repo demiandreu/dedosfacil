@@ -22,9 +22,10 @@ const Factura = () => {
   if (!order) return <div style={{ padding: '50px', textAlign: 'center' }}>Factura no encontrada</div>
 
   const fecha = new Date(order.created_at).toLocaleDateString('es-ES')
-  const baseImponible = (order.amount / 100).toFixed(2)
-  const iva = 0 // Servicio desde Finlandia, sin IVA español
-  const total = baseImponible
+ const totalConIva = (order.amount / 100)
+const baseImponible = (totalConIva / 1.255).toFixed(2)
+const alv = (totalConIva - parseFloat(baseImponible)).toFixed(2)
+const total = totalConIva.toFixed(2)
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'Arial, sans-serif' }}>
@@ -103,8 +104,8 @@ const Factura = () => {
             <span>{baseImponible} €</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
-            <span>IVA (0%):</span>
-            <span>{iva.toFixed(2)} €</span>
+          <span>ALV (25.5%):</span>
+<span>{alv} €</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontWeight: '700', fontSize: '18px', color: '#1e3a5f' }}>
             <span>TOTAL:</span>
@@ -115,7 +116,7 @@ const Factura = () => {
 
       {/* Nota */}
       <div style={{ marginTop: '40px', padding: '15px', background: '#f0fdf4', borderRadius: '8px', fontSize: '13px', color: '#166534' }}>
-        <strong>Nota:</strong> Servicio prestado por empresa finlandesa. Exento de IVA español según artículo 69 LIVA (servicios prestados por vía electrónica por empresarios no establecidos en España).
+       <strong>Nota:</strong> Servicio prestado por Rental Connect Solutions Tmi (Y-tunnus: 3502814-5), empresa establecida en Finlandia. Precio con ALV finlandés (25.5%) incluido conforme a la normativa fiscal finlandesa aplicable a servicios electrónicos B2C.
       </div>
 
       {/* Footer */}
