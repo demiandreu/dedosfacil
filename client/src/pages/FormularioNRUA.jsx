@@ -685,8 +685,16 @@ if (!acceptTerms || !acceptAuthorization) return
           province: form.province
         },
         // Archivos en base64
-       files: {
-
+      files: {
+          airbnb: airbnbBase64,
+          airbnbName: uploadedFiles.airbnb?.name || null,
+          booking: bookingBase64,
+          bookingName: uploadedFiles.booking?.name || null,
+          other: otherBase64,
+          otherName: uploadedFiles.other?.name || null,
+          nruaPhoto: nruaPhotoBase64,
+          nruaPhotoName: nruaFile?.name || null
+        },
         // Estancias extraídas
         stays: extractedStays,
         noActivity: noActivity
