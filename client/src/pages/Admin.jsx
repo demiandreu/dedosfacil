@@ -221,31 +221,38 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
       alert('Error: ' + err.message)
     }
   }
-  const sendJustificante = async (orderId) => {
+const sendJustificante = async (orderId) => {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.pdf'
+    input.multiple = true  // ← permite seleccionar varios
     input.onchange = async (e) => {
-      const file = e.target.files[0]
-      if (!file) return
+      const files = Array.from(e.target.files)
+      if (files.length === 0) return
 
-      const reader = new FileReader()
-      reader.onload = async () => {
-        try {
-          const response = await fetch(`/api/admin/send-justificante/${orderId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pdfBase64: reader.result, pdfName: file.name })
+      try {
+        // Read all files as base64
+        const pdfs = await Promise.all(files.map(file => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve({ data: reader.result, name: file.name })
+            reader.onerror = reject
+            reader.readAsDataURL(file)
           })
-          const data = await response.json()
-          if (data.error) throw new Error(data.error)
-          alert(`✅ Justificante + factura + valoración enviado a ${data.email}`)
-          await fetchOrders()
-        } catch (err) {
-          alert('Error: ' + err.message)
-        }
+        }))
+
+        const response = await fetch(`/api/admin/send-justificante/${orderId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pdfs })  // ← array de PDFs
+        })
+        const data = await response.json()
+        if (data.error) throw new Error(data.error)
+        alert(`✅ ${files.length} justificante(s) enviado(s) a ${data.email}`)
+        await fetchOrders()
+      } catch (err) {
+        alert('Error: ' + err.message)
       }
-      reader.readAsDataURL(file)
     }
     input.click()
   }
