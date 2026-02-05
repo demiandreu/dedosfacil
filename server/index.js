@@ -1015,6 +1015,211 @@ app.post('/api/admin/send-review/:orderId', async (req, res) => {
 // FIN ADMIN ENDPOINTS
 // ============================================
 
+// ============================================
+// MI CUENTA ENDPOINTS
+// ============================================
+
+// Login: email + orderId
+app.post('/api/mi-cuenta/login', async (req, res) => {
+  try {
+    const { email, orderId } = req.body;
+
+    if (!email || !orderId) {
+      return res.status(400).json({ error: 'Email y número de pedido son obligatorios' });
+    }
+
+    // Find order
+    const orderResult = await pool.query(
+      `SELECT id, email, plan, properties_count, amount, status, created_at
+       FROM orders 
+       WHERE id = $1 AND LOWER(email) = LOWER($2) AND status IN ('completed', 'enviado')`,
+      [orderId, email.trim()]
+    );
+
+    if (orderResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Email o número de pedido incorrectos' });
+    }
+
+    const order = orderResult.rows[0];
+
+    // Get submissions for this order
+    const subsResult = await pool.query(
+      `SELECT id, nrua, address, province, status, created_at
+       FROM submissions 
+       WHERE order_id = $1
+       ORDER BY id ASC`,
+      [order.id]
+    );
+
+    // For multi-property plans: count only submissions that have address (added via mi-cuenta)
+    // The first submission (from checkout) may not have address if plan > 1
+    const propertySubmissions = subsResult.rows.filter(s => s.address && s.address.trim() !== '');
+
+    res.json({
+      order,
+      submissions: propertySubmissions,
+      creditsTotal: order.properties_count,
+      creditsUsed: propertySubmissions.length
+    });
+  } catch (error) {
+    console.error('Mi cuenta login error:', error);
+    res.status(500).json({ error: 'Error de conexión' });
+  }
+});
+
+// Process CSV (reuse existing logic but under mi-cuenta path)
+app.post('/api/mi-cuenta/process-csv', upload.fields([
+  { name: 'airbnb', maxCount: 1 },
+  { name: 'booking', maxCount: 1 },
+  { name: 'other', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const files = req.files;
+    let airbnbData = null, bookingData = null, otherData = null;
+
+    const processFile = async (content, platform, hints) => {
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8192,
+        messages: [{
+          role: 'user',
+          content: `Analiza este archivo de ${platform} y extrae TODAS las estancias.
+${hints}
+REGLAS:
+- Incluye TODAS las estancias del archivo
+- Ignora reservas canceladas
+- Convierte todas las fechas a formato DD/MM/YYYY
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
+{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"${platform}"}],"total_estancias":0}
+Archivo:
+${content}`
+        }]
+      });
+      const text = response.content[0].text;
+      const match = text.match(/\{[\s\S]*\}/);
+      return match ? JSON.parse(match[0]) : null;
+    };
+
+    if (files.airbnb?.[0]) {
+      airbnbData = await processFile(
+        files.airbnb[0].buffer.toString('utf-8'), 'Airbnb',
+        '"Fecha de inicio" = check-in, "Hasta" = check-out, huéspedes = adultos + niños + bebés'
+      );
+    }
+    if (files.booking?.[0]) {
+      bookingData = await processFile(
+        files.booking[0].buffer.toString('utf-8'), 'Booking',
+        '"Entrada"/"Check-in" = check-in, "Salida"/"Checkout" = check-out'
+      );
+    }
+    if (files.other?.[0]) {
+      otherData = await processFile(
+        files.other[0].buffer.toString('utf-8'), 'Otro',
+        'Detecta automáticamente las columnas de entrada, salida, huéspedes'
+      );
+    }
+
+    res.json({ success: true, airbnb: airbnbData, booking: bookingData, other: otherData });
+  } catch (error) {
+    console.error('Mi cuenta process-csv error:', error);
+    res.status(500).json({ error: 'Error al procesar archivos' });
+  }
+});
+
+// Add property to existing order
+app.post('/api/mi-cuenta/add-property', upload.fields([
+  { name: 'airbnb', maxCount: 1 },
+  { name: 'booking', maxCount: 1 },
+  { name: 'other', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { orderId, email, nrua, address, province, phone, stays, noActivity } = req.body;
+
+    // Verify order exists and belongs to this email
+    const orderCheck = await pool.query(
+      `SELECT id, properties_count, email FROM orders 
+       WHERE id = $1 AND LOWER(email) = LOWER($2) AND status IN ('completed', 'enviado')`,
+      [orderId, email]
+    );
+
+    if (orderCheck.rows.length === 0) {
+      return res.status(401).json({ error: 'Pedido no válido' });
+    }
+
+    const order = orderCheck.rows[0];
+
+    // Check credits
+    const usedResult = await pool.query(
+      `SELECT COUNT(*) as count FROM submissions 
+       WHERE order_id = $1 AND address IS NOT NULL AND address != ''`,
+      [orderId]
+    );
+    const usedCount = parseInt(usedResult.rows[0].count);
+
+    if (usedCount >= order.properties_count) {
+      return res.status(400).json({ error: 'No te quedan propiedades disponibles' });
+    }
+
+    // Convert uploaded files to base64 JSON
+    const files = req.files;
+    const fileToJson = (file) => {
+      if (!file?.[0]) return null;
+      const base64 = file[0].buffer.toString('base64');
+      return JSON.stringify({ name: file[0].originalname, data: base64 });
+    };
+
+    // Parse stays
+    let parsedStays = [];
+    try {
+      parsedStays = JSON.parse(stays || '[]');
+    } catch (e) {
+      parsedStays = [];
+    }
+
+    // Insert submission
+    await pool.query(
+      `INSERT INTO submissions 
+       (order_id, name, nrua, address, province, phone, 
+        airbnb_file, booking_file, other_file, 
+        extracted_stays, status, authorization_timestamp, authorization_ip)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+      [
+        orderId,
+        null, // name already on file
+        nrua || null,
+        address || null,
+        province || null,
+        phone || null,
+        fileToJson(files?.airbnb),
+        fileToJson(files?.booking),
+        fileToJson(files?.other),
+        JSON.stringify(parsedStays),
+        'completed',
+        new Date(),
+        req.headers['x-forwarded-for'] || req.socket.remoteAddress
+      ]
+    );
+
+    // Count updated credits
+    const newUsedResult = await pool.query(
+      `SELECT COUNT(*) as count FROM submissions 
+       WHERE order_id = $1 AND address IS NOT NULL AND address != ''`,
+      [orderId]
+    );
+
+    res.json({ 
+      success: true, 
+      creditsUsed: parseInt(newUsedResult.rows[0].count) 
+    });
+  } catch (error) {
+    console.error('Add property error:', error);
+    res.status(500).json({ error: 'Error al añadir propiedad' });
+  }
+});
+
+// ============================================
+// FIN MI CUENTA ENDPOINTS
+// ============================================
 
 // Catch-all: serve React app
 app.get('*', (req, res) => {
