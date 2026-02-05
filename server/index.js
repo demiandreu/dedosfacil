@@ -38,6 +38,7 @@ async function sendConfirmationEmail(email, orderData) {
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
       to: email,
+       bcc: 'support@dedosfacil.es',
       subject: `✅ Pedido DF-${orderData.orderId} confirmado - DedosFácil`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -715,6 +716,7 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '20mb' }
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
       to: email,
+      bcc: 'support@dedosfacil.es',
       subject: `📄 Justificante Modelo N2 - Pedido DF-${orderId}`,
       attachments: [
         {
@@ -970,6 +972,7 @@ app.post('/api/admin/send-review/:orderId', async (req, res) => {
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
       to: email,
+     bcc: 'support@dedosfacil.es',
       subject: `${name ? name + ', ¿' : '¿'}Qué tal tu experiencia con DedosFácil?`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
