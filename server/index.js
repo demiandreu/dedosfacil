@@ -202,9 +202,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     // Create submission with all data (pending until payment completes)
   await pool.query(
-  `INSERT INTO submissions 
-    (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, extracted_stays, status, authorization_timestamp, authorization_ip) 
-   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+ `INSERT INTO submissions 
+    (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip) 
+   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
   [
     orderId,
     formData?.name || null,
