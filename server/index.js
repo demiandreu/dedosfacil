@@ -739,8 +739,9 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '20mb' }
               <strong style="font-size: 28px;">DF-${orderId}</strong>
             </div>
 
-            <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
-              <p style="margin: 0; font-size: 16px;">📎 <strong>El justificante oficial está adjunto a este email</strong></p>
+           <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 16px;">📎 <strong>El justificante oficial está adjunto a este email</strong></p>
+              <p style="margin: 0; font-size: 13px; color: #065f46;">Documento emitido por Registradores de España. Puedes verificar su autenticidad con el identificador WEB que aparece en el acuse de recibo.</p>
             </div>
 
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb;">
