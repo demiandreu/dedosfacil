@@ -221,6 +221,34 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
       alert('Error: ' + err.message)
     }
   }
+  const sendJustificante = async (orderId) => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.pdf'
+    input.onchange = async (e) => {
+      const file = e.target.files[0]
+      if (!file) return
+
+      const reader = new FileReader()
+      reader.onload = async () => {
+        try {
+          const response = await fetch(`/api/admin/send-justificante/${orderId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pdfBase64: reader.result, pdfName: file.name })
+          })
+          const data = await response.json()
+          if (data.error) throw new Error(data.error)
+          alert(`✅ Justificante + factura + valoración enviado a ${data.email}`)
+          await fetchOrders()
+        } catch (err) {
+          alert('Error: ' + err.message)
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+    input.click()
+  }
 
   const updateNrua = async (orderId, newNrua) => {
   try {
@@ -830,13 +858,12 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                         </div>
                         
                         <div style={{ display: 'flex', gap: '8px' }}>
-                          {order.status === 'completed' && (
+                        {order.status === 'completed' && (
                             <button
-                              onClick={() => updateStatus(order.id, 'enviado')}
-                              disabled={updatingStatus === order.id}
-                              style={{ ...styles.btnSuccess, opacity: updatingStatus === order.id ? 0.5 : 1 }}
+                              onClick={() => sendJustificante(order.id)}
+                              style={styles.btnSuccess}
                             >
-                              {updatingStatus === order.id ? '⏳' : '✅'} Marcar como Enviado
+                              📧 Enviar justificante
                             </button>
                           )}
                           {order.status === 'enviado' && (
