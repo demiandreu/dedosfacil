@@ -715,6 +715,60 @@ app.delete('/api/admin/delete-order/:orderId', async (req, res) => {
   }
 });
 
+// Submit review
+app.post('/api/reviews', async (req, res) => {
+  try {
+    const { orderId, name, rating, comment } = req.body;
+    
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Valoración no válida' });
+    }
+    
+    // Check order exists and is completed
+    const orderCheck = await pool.query(
+      'SELECT id FROM orders WHERE id = $1 AND status IN ($2, $3)',
+      [orderId, 'completed', 'enviado']
+    );
+    
+    if (orderCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+    
+    // Check if already reviewed
+    const existing = await pool.query(
+      'SELECT id FROM reviews WHERE order_id = $1',
+      [orderId]
+    );
+    
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: 'Ya has dejado una valoración' });
+    }
+    
+    await pool.query(
+      'INSERT INTO reviews (order_id, name, rating, comment) VALUES ($1, $2, $3, $4)',
+      [orderId, name, rating, comment]
+    );
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Review error:', error);
+    res.status(500).json({ error: 'Error al guardar valoración' });
+  }
+});
+
+// Get approved reviews (public)
+app.get('/api/reviews', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT name, rating, comment, created_at FROM reviews WHERE approved = true ORDER BY created_at DESC LIMIT 20'
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get reviews error:', error);
+    res.status(500).json({ error: 'Error al obtener valoraciones' });
+  }
+});
+
 // ============================================
 // FIN ADMIN ENDPOINTS
 // ============================================
