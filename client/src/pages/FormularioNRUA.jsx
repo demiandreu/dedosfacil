@@ -32,6 +32,9 @@ const translations = {
       nrua: "Número NRUA (Ventanilla Única)",
 nruaPh: "ESFCTU0000430240001151320000...",
 nruaHelp: "Es el número largo que empieza por 'ES' de la Ventanilla Única Digital. Si aún no lo tienes, solicítalo en registradores.org",
+      nruaPhoto: "Foto del NRUA (opcional)",
+nruaPhotoHelp: "Sube una foto o captura donde se vea tu número NRUA",
+nruaPhotoDrag: "Arrastra o haz clic para subir",
       address: "Dirección completa",
       addressPh: "Calle, número, piso, ciudad",
       province: "Provincia",
@@ -121,6 +124,9 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
      nrua: "NRUA Number (Single Window)",
 nruaPh: "ESFCTU0000430240001151320000...",
 nruaHelp: "The long number starting with 'ES' from the Digital Single Window. If you don't have it, apply at registradores.org",
+      nruaPhoto: "NRUA photo (optional)",
+nruaPhotoHelp: "Upload a photo or screenshot showing your NRUA number",
+nruaPhotoDrag: "Drag or click to upload",
       address: "Full address",
       addressPh: "Street, number, floor, city",
       province: "Province",
@@ -210,6 +216,9 @@ otherHelp: "CSV or Excel with check-in/check-out dates and guests",
      nrua: "Numéro NRUA (Guichet Unique)",
 nruaPh: "ESFCTU0000430240001151320000...",
 nruaHelp: "Le numéro long commençant par 'ES' du Guichet Unique Numérique. Si vous ne l'avez pas, demandez-le sur registradores.org",
+      nruaPhoto: "Photo du NRUA (optionnel)",
+nruaPhotoHelp: "Téléchargez une photo ou capture montrant votre numéro NRUA",
+nruaPhotoDrag: "Glisser ou cliquer pour télécharger",
       address: "Adresse complète",
       addressPh: "Rue, numéro, étage, ville",
       province: "Province",
@@ -299,6 +308,9 @@ otherHelp: "CSV ou Excel avec dates d'arrivée/départ et voyageurs",
     nrua: "NRUA-Nummer (Einheitliche Anlaufstelle)",
 nruaPh: "ESFCTU0000430240001151320000...",
 nruaHelp: "Die lange Nummer, die mit 'ES' beginnt, vom Digitalen Einheitlichen Fenster. Falls nicht vorhanden, beantragen Sie sie auf registradores.org",
+      nruaPhoto: "NRUA-Foto (optional)",
+nruaPhotoHelp: "Laden Sie ein Foto oder Screenshot mit Ihrer NRUA-Nummer hoch",
+nruaPhotoDrag: "Ziehen oder klicken zum Hochladen",
       address: "Vollständige Adresse",
       addressPh: "Straße, Nummer, Etage, Stadt",
       province: "Provinz",
@@ -394,6 +406,7 @@ function FormularioNRUA() {
     booking: null,
     other: null
   })
+  const [nruaFile, setNruaFile] = useState(null)
   const [fileProcessed, setFileProcessed] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [extractedStays, setExtractedStays] = useState([])
@@ -655,6 +668,7 @@ if (!acceptTerms || !acceptAuthorization) return
     const airbnbBase64 = await fileToBase64(uploadedFiles.airbnb)
     const bookingBase64 = await fileToBase64(uploadedFiles.booking)
     const otherBase64 = await fileToBase64(uploadedFiles.other)
+    const nruaPhotoBase64 = await fileToBase64(nruaFile)
     
     const response = await fetch('/api/create-checkout-session', {
       method: 'POST',
@@ -671,14 +685,8 @@ if (!acceptTerms || !acceptAuthorization) return
           province: form.province
         },
         // Archivos en base64
-        files: {
-          airbnb: airbnbBase64,
-          airbnbName: uploadedFiles.airbnb?.name || null,
-          booking: bookingBase64,
-          bookingName: uploadedFiles.booking?.name || null,
-          other: otherBase64,
-          otherName: uploadedFiles.other?.name || null
-        },
+       files: {
+
         // Estancias extraídas
         stays: extractedStays,
         noActivity: noActivity
@@ -773,8 +781,48 @@ if (!acceptTerms || !acceptAuthorization) return
                 <div className={`form-group ${errors.nrua ? 'error' : ''}`}>
                   <label>{t.step2.nrua} *</label>
                   <input value={form.nrua} onChange={e => updateForm('nrua', e.target.value)} placeholder={t.step2.nruaPh} />
-                  <span className="help-text">{t.step2.nruaHelp}</span>
+                 <span className="help-text">{t.step2.nruaHelp}</span>
                   {errors.nrua && <span className="error-msg">{errors.nrua}</span>}
+                </div>
+
+                {/* NRUA Photo Upload */}
+                <div className="form-group">
+                  <label>{t.step2.nruaPhoto}</label>
+                  <div 
+                    className={`upload-zone-mini nrua-photo-upload ${nruaFile ? 'has-file' : ''}`}
+                    onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) setNruaFile(f); }}
+                    onDragOver={e => e.preventDefault()}
+                    onClick={() => document.getElementById('nruaPhotoInput').click()}
+                  >
+                    <input 
+                      type="file" 
+                      id="nruaPhotoInput" 
+                      accept="image/*,.pdf" 
+                      onChange={e => { const f = e.target.files?.[0]; if (f) setNruaFile(f); }}
+                      hidden 
+                    />
+                    <div className="upload-zone-content">
+                      {nruaFile ? (
+                        <div className="file-info">
+                          {nruaFile.type.startsWith('image/') && (
+                            <img 
+                              src={URL.createObjectURL(nruaFile)} 
+                              alt="NRUA preview" 
+                              className="nrua-preview-thumb" 
+                            />
+                          )}
+                          <span className="file-name">{nruaFile.name}</span>
+                          <button className="btn-remove" onClick={e => { e.stopPropagation(); setNruaFile(null); }}>×</button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="upload-icon">📷</span>
+                          <span className="upload-hint">{t.step2.nruaPhotoDrag}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <span className="help-text">{t.step2.nruaPhotoHelp}</span>
                 </div>
                 <div className={`form-group ${errors.address ? 'error' : ''}`}>
                   <label>{t.step2.address} *</label>
