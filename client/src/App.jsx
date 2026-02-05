@@ -8,12 +8,14 @@ import AvisoLegal from './pages/AvisoLegal'
 import Privacidad from './pages/Privacidad'
 import Cookies from './pages/Cookies'
 import Factura from './pages/Factura'
+import Valoracion from './pages/Valoracion'
 
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/valoracion" element={<Valoracion />} />
         <Route path="/factura/:orderId" element={<Factura />} />
         <Route path="/" element={<Landing />} />
         <Route path="/formulario" element={<FormularioNRUA />} />
