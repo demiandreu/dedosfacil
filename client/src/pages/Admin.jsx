@@ -710,19 +710,43 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                       </span>
                       <span style={styles.orderEmail}>{order.email}</span>
                     </div>
-                    <div style={styles.orderHeaderRight}>
-                      <span style={styles.orderDate}>
-                        {new Date(order.created_at).toLocaleDateString('es-ES', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </span>
-                      <span style={styles.orderAmount}>{(order.amount / 100).toFixed(0)}€</span>
-                      <span>{expandedOrder === order.id ? '▲' : '▼'}</span>
-                    </div>
+
+                   <div style={styles.orderHeaderRight}>
+  <span style={styles.orderDate}>
+    {new Date(order.created_at).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}
+  </span>
+  <span style={styles.orderAmount}>{(order.amount / 100).toFixed(0)}€</span>
+  <button
+    onClick={(e) => {
+      e.stopPropagation()
+      if (window.confirm(`¿Eliminar pedido #${order.id}?`)) {
+        deleteOrder(order.id)
+      }
+    }}
+    style={{
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: '16px',
+      padding: '4px 8px',
+      borderRadius: '4px',
+      opacity: 0.4
+    }}
+    onMouseEnter={e => e.target.style.opacity = 1}
+    onMouseLeave={e => e.target.style.opacity = 0.4}
+    title="Eliminar pedido"
+  >
+    🗑️
+  </button>
+  <span>{expandedOrder === order.id ? '▲' : '▼'}</span>
+</div>
+                    
                   </div>
 
                   {/* Expanded details */}
