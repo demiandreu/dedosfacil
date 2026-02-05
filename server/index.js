@@ -189,7 +189,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
   plan: priceData.properties,
   amount: priceData.amount / 100
 });
-      return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&test=true`, orderId });
+     if (parseInt(plan) > 1) {
+  return res.json({ url: `${req.headers.origin}/mi-cuenta?email=${encodeURIComponent(email)}&order_id=${orderId}`, orderId });
+} else {
+  return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&test=true`, orderId });
+}
     }
     if (!priceData) {
       return res.status(400).json({ error: 'Plan no válido' });
@@ -242,7 +246,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${req.headers.origin}/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
+      success_url: parseInt(plan) > 1 
+  ? `${req.headers.origin}/mi-cuenta?email=${encodeURIComponent(email)}&order_id=${orderId}`
+  : `${req.headers.origin}/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
       cancel_url: `${req.headers.origin}/formulario`,
       customer_email: email,
       metadata: { orderId: orderId.toString() }
