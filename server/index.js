@@ -159,6 +159,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       );
       const orderId = orderResult.rows[0].id;
       
+       if (parseInt(plan) === 1) {
       await pool.query(
         `INSERT INTO submissions 
          (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip)
@@ -182,7 +183,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
           req.headers['x-forwarded-for'] || req.socket.remoteAddress
         ]
       );
-
+}
      await sendConfirmationEmail(email, {
   orderId: orderId,
   plan: priceData.properties,
@@ -201,7 +202,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     );
     const orderId = orderResult.rows[0].id;
 
-    // Create submission with all data (pending until payment completes)
+  if (parseInt(plan) === 1) {
   await pool.query(
  `INSERT INTO submissions 
     (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip) 
@@ -225,7 +226,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     req.headers['x-forwarded-for'] || req.socket.remoteAddress
   ]
 );
-
+}
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
