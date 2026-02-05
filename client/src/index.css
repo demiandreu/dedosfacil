@@ -512,7 +512,7 @@ h1, h2, h3, h4, h5, h6 {
    FORM CONTENT
    ============================================ */
 .form-content {
- min-width: 900px;
+ min-width: 100%;
   background: white;
   border-radius: 16px;
   padding: 48px;
@@ -1042,6 +1042,22 @@ h1, h2, h3, h4, h5, h6 {
   .stays-table-row {
     grid-template-columns: 1fr 1fr;
     gap: 8px;
+     .file-uploads-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-container {
+    padding: 0 16px;
+    margin: 20px auto;
+  }
+  
+  .step-header h2 {
+    font-size: 22px;
+  }
+  
+  .form-header {
+    padding: 16px 20px;
+  }
   }
   
   .stays-table-header span:nth-child(3),
@@ -1829,4 +1845,102 @@ h1, h2, h3, h4, h5, h6 {
   .reviews-grid {
     grid-template-columns: 1fr;
   }
+}
+/* ============================================
+   MI CUENTA - FILE UPLOADS
+   ============================================ */
+.file-uploads-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.file-upload-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-upload-zone .file-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--gray-700);
+}
+
+.file-drop-area {
+  border: 2px dashed var(--gray-300);
+  border-radius: 12px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--gray-100);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-500);
+  font-size: 13px;
+}
+
+.file-drop-area:hover {
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.05);
+  color: var(--primary);
+}
+
+.file-uploaded {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 16px;
+  background: #f0fdf4;
+  border: 2px solid #bbf7d0;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #166534;
+  word-break: break-all;
+}
+
+.btn-remove-file {
+  background: #fee2e2;
+  border: none;
+  color: #dc2626;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 14px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.btn-remove-file:hover {
+  background: #fecaca;
+}
+
+.processing-indicator {
+  text-align: center;
+  padding: 20px;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.stays-review h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--gray-900);
+}
+
+.stays-review .stays-count {
+  text-align: center;
+  color: var(--secondary);
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 12px;
 }
