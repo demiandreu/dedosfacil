@@ -461,8 +461,22 @@ function FormularioNRUA() {
     return Object.keys(e).length === 0
   }
 
-  const next = () => { if (validate()) setStep(s => Math.min(s + 1, 4)) }
-  const back = () => setStep(s => Math.max(s - 1, 1))
+ const next = () => {
+  if (validate()) {
+    if (step === 1 && selectedPlan > 1) {
+      setStep(4)
+    } else {
+      setStep(s => Math.min(s + 1, 4))
+    }
+  }
+}const next = () => { if (validate()) setStep(s => Math.min(s + 1, 4)) }
+ const back = () => {
+  if (step === 4 && selectedPlan > 1) {
+    setStep(1)
+  } else {
+    setStep(s => Math.max(s - 1, 1))
+  }
+}
 
   // File handling functions
   const handleFileUpload = (type) => (e) => {
@@ -739,13 +753,26 @@ if (!acceptTerms || !acceptAuthorization) return
       <div className="form-container">
         {/* Progress */}
         <div className="progress-bar">
-          {t.steps.map((s, i) => (
-            <div key={i} className={`progress-step ${step > i + 1 ? 'completed' : ''} ${step === i + 1 ? 'active' : ''}`}>
-              <div className="step-circle">{step > i + 1 ? <Check size={16} /> : i + 1}</div>
-              <span className="step-label">{s}</span>
-            </div>
-          ))}
-        </div>
+            {selectedPlan > 1 ? (
+              <>
+                <div className={`progress-step ${step > 1 ? 'completed' : 'active'}`}>
+                  <div className="step-circle">{step > 1 ? <Check size={16} /> : 1}</div>
+                  <span className="step-label">{t.steps[0]}</span>
+                </div>
+                <div className={`progress-step ${step === 4 ? 'active' : ''}`}>
+                  <div className="step-circle">2</div>
+                  <span className="step-label">{t.steps[3]}</span>
+                </div>
+              </>
+            ) : (
+              t.steps.map((s, i) => (
+                <div key={i} className={`progress-step ${step > i + 1 ? 'completed' : ''} ${step === i + 1 ? 'active' : ''}`}>
+                  <div className="step-circle">{step > i + 1 ? <Check size={16} /> : i + 1}</div>
+                  <span className="step-label">{s}</span>
+                </div>
+              ))
+            )}
+          </div>
 
         {/* Content */}
         <div className="form-content">
@@ -772,6 +799,31 @@ if (!acceptTerms || !acceptAuthorization) return
                   <label>{t.step1.phone} *</label>
                   <input type="tel" value={form.phone} onChange={e => updateForm('phone', e.target.value)} placeholder={t.step1.phonePh} />
                   {errors.phone && <span className="error-msg">{errors.phone}</span>}
+                  {/* Plan Selection */}
+              <div className="plan-select-mini" style={{marginTop: '24px'}}>
+                <h4>{t.step4.plan}</h4>
+                <div className="plans-grid compact">
+                  {t.step4.plans.map(plan => (
+                    <div 
+                      key={plan.id} 
+                      className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''} ${plan.popular ? 'popular' : ''}`}
+                      onClick={() => setSelectedPlan(plan.id)}
+                    >
+                      {plan.popular && <div className="popular-badge">⭐</div>}
+                      <h3>{plan.name}</h3>
+                      <div className="plan-price">{plan.priceStr}</div>
+                    </div>
+                  ))}
+                </div>
+                {selectedPlan > 1 && (
+                  <p className="multi-info" style={{marginTop: '12px', padding: '12px', background: '#f0f7ff', borderRadius: '8px', fontSize: '14px'}}>
+                    ℹ️ {lang === 'es' ? `Tras el pago, podrás añadir tus ${selectedPlan} propiedades desde "Mi cuenta"` :
+                         lang === 'en' ? `After payment, you can add your ${selectedPlan} properties from "My account"` :
+                         lang === 'fr' ? `Après paiement, ajoutez vos ${selectedPlan} propriétés depuis "Mon compte"` :
+                         `Nach der Zahlung können Sie Ihre ${selectedPlan} Immobilien über "Mein Konto" hinzufügen`}
+                  </p>
+                )}
+              </div>
                 </div>
               </div>
             </div>
@@ -1125,8 +1177,8 @@ if (!acceptTerms || !acceptAuthorization) return
                 <h2>{t.step4.title}</h2>
               </div>
 
-              {/* Plan Selection */}
-              <div className="plans-grid compact">
+             {/* Plan Selection - only show for single property */}
+              {selectedPlan === 1 && <div className="plans-grid compact">
                 {t.step4.plans.map(plan => (
                   <div 
                     key={plan.id} 
@@ -1138,14 +1190,26 @@ if (!acceptTerms || !acceptAuthorization) return
                     <div className="plan-price">{plan.priceStr}</div>
                   </div>
                 ))}
-              </div>
+              </div>}
 
               {/* Summary */}
               <div className="order-summary">
                 <h4>{t.step4.summary}</h4>
                 <div className="summary-row"><span>{t.step4.plan}:</span><strong>{currentPlan?.name}</strong></div>
-                <div className="summary-row"><span>NRUA:</span><strong>{form.nrua}</strong></div>
-                <div className="summary-row"><span>{t.step2.address}:</span><strong>{form.address}</strong></div>
+              {selectedPlan === 1 ? (
+                  <>
+                    <div className="summary-row"><span>NRUA:</span><strong>{form.nrua}</strong></div>
+                    <div className="summary-row"><span>{t.step2.address}:</span><strong>{form.address}</strong></div>
+                  </>
+                ) : (
+                  <div className="summary-row">
+                    <span>📋</span>
+                    <strong>{lang === 'es' ? `Añadirás ${selectedPlan} propiedades después del pago` :
+                             lang === 'en' ? `You'll add ${selectedPlan} properties after payment` :
+                             lang === 'fr' ? `Vous ajouterez ${selectedPlan} propriétés après paiement` :
+                             `Sie fügen ${selectedPlan} Immobilien nach der Zahlung hinzu`}</strong>
+                  </div>
+                )}
                 <div className="summary-row total"><span>Total:</span><strong>{currentPlan?.priceStr}</strong></div>
               </div>
 
