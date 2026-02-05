@@ -110,6 +110,31 @@ es: {
       select: "Seleccionar",
       popular: "Más popular"
     },
+
+  reviews: {
+      title: "Lo que dicen nuestros clientes",
+      subtitle: "Valoraciones reales de propietarios como tú",
+      noReviews: "Sé el primero en valorarnos",
+      rating: "de 5"
+    },
+  reviews: {
+      title: "What our customers say",
+      subtitle: "Real reviews from property owners like you",
+      noReviews: "Be the first to review us",
+      rating: "out of 5"
+    },
+  reviews: {
+      title: "Ce que disent nos clients",
+      subtitle: "Avis réels de propriétaires comme vous",
+      noReviews: "Soyez le premier à nous évaluer",
+      rating: "sur 5"
+    },
+  reviews: {
+      title: "Was unsere Kunden sagen",
+      subtitle: "Echte Bewertungen von Eigentümern wie Ihnen",
+      noReviews: "Seien Sie der Erste, der uns bewertet",
+      rating: "von 5"
+    },
     faq: {
       title: "Preguntas frecuentes",
       items: [
@@ -502,6 +527,14 @@ function Landing() {
   const [lang, setLang] = useState('es')
   const [daysLeft, setDaysLeft] = useState(27)
   const t = translations[lang]
+  const [reviews, setReviews] = useState([])
+
+  useEffect(() => {
+    fetch('/api/reviews')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setReviews(data) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     const deadline = new Date('2026-03-02')
@@ -670,6 +703,50 @@ function Landing() {
         </div>
       </section>
 
+     {/* Reviews */}
+      <section className="reviews-section" id="reviews">
+        <div className="container">
+          <h2>{t.reviews.title}</h2>
+          <p className="section-subtitle">{t.reviews.subtitle}</p>
+          {reviews.length > 0 ? (
+            <>
+              <div className="reviews-summary">
+                <span className="reviews-avg">
+                  {'⭐'.repeat(Math.round(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length))}
+                </span>
+                <span className="reviews-score">
+                  {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)} {t.reviews.rating}
+                </span>
+                <span className="reviews-count">({reviews.length})</span>
+              </div>
+              <div className="reviews-grid">
+                {reviews.slice(0, 6).map((review, i) => (
+                  <div key={i} className="review-card">
+                    <div className="review-stars">
+                      {[1,2,3,4,5].map(s => (
+                        <span key={s} style={{ fontSize: '18px' }}>{s <= review.rating ? '⭐' : '☆'}</span>
+                      ))}
+                    </div>
+                    {review.comment && <p className="review-comment">"{review.comment}"</p>}
+                    <div className="review-author">
+                      <div className="review-avatar">{review.name?.charAt(0)?.toUpperCase() || '?'}</div>
+                      <div>
+                        <strong className="review-name">{review.name}</strong>
+                        <span className="review-date">
+                          {new Date(review.created_at).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="no-reviews">{t.reviews.noReviews}</p>
+          )}
+        </div>
+      </section>
+      
       {/* FAQ */}
       <section className="faq" id="faq">
         <div className="container">
