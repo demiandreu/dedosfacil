@@ -74,31 +74,31 @@ es: {
       step3: "Recibe tu justificante",
       step3desc: "En 24-48h te enviamos el comprobante oficial por email."
     },
-  download: {
-  title: "📥 ¿Cómo descargo mis reservas?",
-  airbnb: {
-    title: "Desde Airbnb:",
-    steps: [
-      "1. Entra en airbnb.com → Menú → Anuncios",
-      "2. Haz clic en 'Reservas completadas'",
-      "3. Filtra por año 2025",
-      "4. Haz clic en 'Exportar'"
-    ],
-    url: "https://es-l.airbnb.com/hosting/reservations/completed"
-  },
-  booking: {
-    title: "Desde Booking:",
-    steps: [
-      "1. Entra en Extranet de Booking",
-      "2. Ve a 'Reservas' → busca reservas",
-      "3. Filtra por fechas 2025",
-      "4. Haz clic en 'Exportar'"
-    ],
-    url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
-  },
-  other: "¿Usas VRBO u otra plataforma? Descarga el CSV o Excel de reservas y súbelo igualmente.",
-  noFile: "¿No tienes archivo? No te preocupes, puedes rellenar las estancias manualmente en el formulario."
-},
+    download: {
+      title: "📥 ¿Cómo descargo mis reservas?",
+      airbnb: {
+        title: "Desde Airbnb:",
+        steps: [
+          "1. Entra en airbnb.com → Menú → Anuncios",
+          "2. Haz clic en 'Reservas completadas'",
+          "3. Filtra por año 2025",
+          "4. Haz clic en 'Exportar'"
+        ],
+        url: "https://es-l.airbnb.com/hosting/reservations/completed"
+      },
+      booking: {
+        title: "Desde Booking:",
+        steps: [
+          "1. Entra en Extranet de Booking",
+          "2. Ve a 'Reservas' → busca reservas",
+          "3. Filtra por fechas 2025",
+          "4. Haz clic en 'Exportar'"
+        ],
+        url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
+      },
+      other: "¿Usas VRBO u otra plataforma? Descarga el CSV o Excel de reservas y súbelo igualmente.",
+      noFile: "¿No tienes archivo? No te preocupes, puedes rellenar las estancias manualmente en el formulario."
+    },
     pricing: {
       title: "Precios claros",
       note: "* Tasas del Registro (27€/NRUA) no incluidas",
@@ -110,30 +110,11 @@ es: {
       select: "Seleccionar",
       popular: "Más popular"
     },
-
-  reviews: {
+    reviews: {
       title: "Lo que dicen nuestros clientes",
       subtitle: "Valoraciones reales de propietarios como tú",
       noReviews: "Sé el primero en valorarnos",
       rating: "de 5"
-    },
-  reviews: {
-      title: "What our customers say",
-      subtitle: "Real reviews from property owners like you",
-      noReviews: "Be the first to review us",
-      rating: "out of 5"
-    },
-  reviews: {
-      title: "Ce que disent nos clients",
-      subtitle: "Avis réels de propriétaires comme vous",
-      noReviews: "Soyez le premier à nous évaluer",
-      rating: "sur 5"
-    },
-  reviews: {
-      title: "Was unsere Kunden sagen",
-      subtitle: "Echte Bewertungen von Eigentümern wie Ihnen",
-      noReviews: "Seien Sie der Erste, der uns bewertet",
-      rating: "von 5"
     },
     faq: {
       title: "Preguntas frecuentes",
@@ -219,31 +200,31 @@ es: {
       step3: "Receive your certificate",
       step3desc: "In 24-48h we send you the official receipt by email."
     },
-  download: {
-  title: "📥 How do I download my reservations?",
-  airbnb: {
-    title: "From Airbnb:",
-    steps: [
-      "1. Go to airbnb.com → Menu → Listings",
-      "2. Click 'Completed reservations'",
-      "3. Filter by year 2025",
-      "4. Click 'Export'"
-    ],
-    url: "https://es-l.airbnb.com/hosting/reservations/completed"
-  },
-  booking: {
-    title: "From Booking:",
-    steps: [
-      "1. Go to Booking Extranet",
-      "2. Go to 'Reservations' → search",
-      "3. Filter by 2025 dates",
-      "4. Click 'Export'"
-    ],
-    url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
-  },
-  other: "Using VRBO or another platform? Download the CSV or Excel with your reservations and upload it.",
-  noFile: "No file? No worries, you can fill in stays manually in the form."
-},
+    download: {
+      title: "📥 How do I download my reservations?",
+      airbnb: {
+        title: "From Airbnb:",
+        steps: [
+          "1. Go to airbnb.com → Menu → Listings",
+          "2. Click 'Completed reservations'",
+          "3. Filter by year 2025",
+          "4. Click 'Export'"
+        ],
+        url: "https://es-l.airbnb.com/hosting/reservations/completed"
+      },
+      booking: {
+        title: "From Booking:",
+        steps: [
+          "1. Go to Booking Extranet",
+          "2. Go to 'Reservations' → search",
+          "3. Filter by 2025 dates",
+          "4. Click 'Export'"
+        ],
+        url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
+      },
+      other: "Using VRBO or another platform? Download the CSV or Excel with your reservations and upload it.",
+      noFile: "No file? No worries, you can fill in stays manually in the form."
+    },
     pricing: {
       title: "Clear pricing",
       note: "* Registry fees (27€/NRUA) not included",
@@ -254,6 +235,12 @@ es: {
       ],
       select: "Select",
       popular: "Most popular"
+    },
+    reviews: {
+      title: "What our customers say",
+      subtitle: "Real reviews from property owners like you",
+      noReviews: "Be the first to review us",
+      rating: "out of 5"
     },
     faq: {
       title: "Frequently asked questions",
@@ -339,31 +326,31 @@ es: {
       step3: "Recevez votre certificat",
       step3desc: "En 24-48h nous vous envoyons le reçu officiel par email."
     },
- download: {
-  title: "📥 Comment télécharger mes réservations?",
-  airbnb: {
-    title: "Depuis Airbnb:",
-    steps: [
-      "1. Allez sur airbnb.com → Menu → Annonces",
-      "2. Cliquez sur 'Réservations terminées'",
-      "3. Filtrez par année 2025",
-      "4. Cliquez sur 'Exporter'"
-    ],
-    url: "https://es-l.airbnb.com/hosting/reservations/completed"
-  },
-  booking: {
-    title: "Depuis Booking:",
-    steps: [
-      "1. Allez sur Extranet Booking",
-      "2. Allez à 'Réservations' → rechercher",
-      "3. Filtrez par dates 2025",
-      "4. Cliquez sur 'Exporter'"
-    ],
-    url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
-  },
-  other: "Vous utilisez VRBO ou une autre plateforme? Téléchargez le CSV ou Excel de réservations.",
-  noFile: "Pas de fichier? Pas de souci, vous pouvez saisir les séjours manuellement."
-},
+    download: {
+      title: "📥 Comment télécharger mes réservations?",
+      airbnb: {
+        title: "Depuis Airbnb:",
+        steps: [
+          "1. Allez sur airbnb.com → Menu → Annonces",
+          "2. Cliquez sur 'Réservations terminées'",
+          "3. Filtrez par année 2025",
+          "4. Cliquez sur 'Exporter'"
+        ],
+        url: "https://es-l.airbnb.com/hosting/reservations/completed"
+      },
+      booking: {
+        title: "Depuis Booking:",
+        steps: [
+          "1. Allez sur Extranet Booking",
+          "2. Allez à 'Réservations' → rechercher",
+          "3. Filtrez par dates 2025",
+          "4. Cliquez sur 'Exporter'"
+        ],
+        url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
+      },
+      other: "Vous utilisez VRBO ou une autre plateforme? Téléchargez le CSV ou Excel de réservations.",
+      noFile: "Pas de fichier? Pas de souci, vous pouvez saisir les séjours manuellement."
+    },
     pricing: {
       title: "Tarifs clairs",
       note: "* Frais de Registre (27€/NRUA) non inclus",
@@ -374,6 +361,12 @@ es: {
       ],
       select: "Sélectionner",
       popular: "Le plus populaire"
+    },
+    reviews: {
+      title: "Ce que disent nos clients",
+      subtitle: "Avis réels de propriétaires comme vous",
+      noReviews: "Soyez le premier à nous évaluer",
+      rating: "sur 5"
     },
     faq: {
       title: "Questions fréquentes",
@@ -459,31 +452,31 @@ es: {
       step3: "Bescheinigung erhalten",
       step3desc: "In 24-48h senden wir Ihnen die offizielle Quittung per E-Mail."
     },
-   download: {
-  title: "📥 Wie lade ich meine Buchungen herunter?",
-  airbnb: {
-    title: "Von Airbnb:",
-    steps: [
-      "1. Gehen Sie zu airbnb.com → Menü → Inserate",
-      "2. Klicken Sie auf 'Abgeschlossene Buchungen'",
-      "3. Filtern Sie nach Jahr 2025",
-      "4. Klicken Sie auf 'Exportieren'"
-    ],
-    url: "https://es-l.airbnb.com/hosting/reservations/completed"
-  },
-  booking: {
-    title: "Von Booking:",
-    steps: [
-      "1. Gehen Sie zum Booking Extranet",
-      "2. Gehen Sie zu 'Reservierungen' → suchen",
-      "3. Filtern Sie nach 2025",
-      "4. Klicken Sie auf 'Exportieren'"
-    ],
-    url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
-  },
-  other: "Sie nutzen VRBO oder eine andere Plattform? Laden Sie die CSV oder Excel mit Buchungen hoch.",
-  noFile: "Keine Datei? Kein Problem, Sie können Aufenthalte manuell eingeben."
-},
+    download: {
+      title: "📥 Wie lade ich meine Buchungen herunter?",
+      airbnb: {
+        title: "Von Airbnb:",
+        steps: [
+          "1. Gehen Sie zu airbnb.com → Menü → Inserate",
+          "2. Klicken Sie auf 'Abgeschlossene Buchungen'",
+          "3. Filtern Sie nach Jahr 2025",
+          "4. Klicken Sie auf 'Exportieren'"
+        ],
+        url: "https://es-l.airbnb.com/hosting/reservations/completed"
+      },
+      booking: {
+        title: "Von Booking:",
+        steps: [
+          "1. Gehen Sie zum Booking Extranet",
+          "2. Gehen Sie zu 'Reservierungen' → suchen",
+          "3. Filtern Sie nach 2025",
+          "4. Klicken Sie auf 'Exportieren'"
+        ],
+        url: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html"
+      },
+      other: "Sie nutzen VRBO oder eine andere Plattform? Laden Sie die CSV oder Excel mit Buchungen hoch.",
+      noFile: "Keine Datei? Kein Problem, Sie können Aufenthalte manuell eingeben."
+    },
     pricing: {
       title: "Klare Preise",
       note: "* Registergebühren (27€/NRUA) nicht enthalten",
@@ -494,6 +487,12 @@ es: {
       ],
       select: "Auswählen",
       popular: "Am beliebtesten"
+    },
+    reviews: {
+      title: "Was unsere Kunden sagen",
+      subtitle: "Echte Bewertungen von Eigentümern wie Ihnen",
+      noReviews: "Seien Sie der Erste, der uns bewertet",
+      rating: "von 5"
     },
     faq: {
       title: "Häufig gestellte Fragen",
@@ -542,16 +541,26 @@ function Landing() {
     const diff = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24))
     setDaysLeft(diff > 0 ? diff : 0)
     
-    const browserLang = navigator.language.slice(0, 2)
-    if (['es', 'en', 'fr', 'de'].includes(browserLang)) setLang(browserLang)
+    const saved = localStorage.getItem('dedosfacil-lang')
+    if (saved && ['es', 'en', 'fr', 'de'].includes(saved)) {
+      setLang(saved)
+    } else {
+      const browserLang = navigator.language.slice(0, 2)
+      if (['es', 'en', 'fr', 'de'].includes(browserLang)) setLang(browserLang)
+    }
   }, [])
+
+  const changeLang = (l) => {
+    setLang(l)
+    localStorage.setItem('dedosfacil-lang', l)
+  }
 
   return (
     <div className="landing">
       {/* Language Selector */}
       <div className="lang-selector">
         {['es', 'en', 'fr', 'de'].map(l => (
-          <button key={l} className={`lang-btn ${lang === l ? 'active' : ''}`} onClick={() => setLang(l)}>
+          <button key={l} className={`lang-btn ${lang === l ? 'active' : ''}`} onClick={() => changeLang(l)}>
             {l === 'es' ? '🇪🇸' : l === 'en' ? '🇬🇧' : l === 'fr' ? '🇫🇷' : '🇩🇪'}
           </button>
         ))}
