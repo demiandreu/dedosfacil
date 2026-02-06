@@ -139,8 +139,7 @@ es: {
       legal: "Legal", legalNotice: "Aviso legal", privacy: "Privacidad", cookies: "Cookies",
       contact: "Contacto",
       copyright: "© 2026 DedosFácil. Todos los derechos reservados.",
-      cuentas: "¿Necesitas depositar Cuentas Anuales? ",
-      cuentasLink: "Más info"
+     
     }
   },
   
