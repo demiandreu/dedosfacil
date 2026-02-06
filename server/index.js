@@ -1024,9 +1024,115 @@ app.post('/api/admin/send-review/:orderId', async (req, res) => {
   }
 });
 
-// ============================================
-// FIN ADMIN ENDPOINTS
-// ============================================
+// Send payment reminder email
+app.post('/api/admin/send-payment-reminder/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    // Get order data
+    const result = await pool.query(
+      `SELECT o.id, o.email, o.plan, o.amount, o.properties_count, o.status, s.name 
+       FROM orders o 
+       LEFT JOIN submissions s ON s.order_id = o.id 
+       WHERE o.id = $1`,
+      [orderId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+    
+    const order = result.rows[0];
+    
+    if (order.status !== 'pending') {
+      return res.status(400).json({ error: 'Este pedido ya está pagado' });
+    }
+    
+    const priceData = PRICES[order.plan];
+    if (!priceData) {
+      return res.status(400).json({ error: 'Plan no válido' });
+    }
+    
+    // Create new Stripe session for this order
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: priceData.name,
+            description: 'Presentación NRUA ante el Registro de la Propiedad',
+          },
+          unit_amount: priceData.amount,
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `https://dedosfacil.es/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
+      cancel_url: `https://dedosfacil.es`,
+      customer_email: order.email,
+      metadata: { orderId: orderId.toString() }
+    });
+    
+    // Update order with new session ID
+    await pool.query(
+      'UPDATE orders SET stripe_session_id = $1 WHERE id = $2',
+      [session.id, orderId]
+    );
+    
+    // Send reminder email
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: order.email,
+      bcc: 'support@dedosfacil.es',
+      subject: `⏳ Tu pedido DF-${orderId} está pendiente de pago`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #1f2937;">Hola${order.name ? ' ' + order.name : ''} 👋</h2>
+            
+            <p>Hemos recibido tus datos para la presentación del Modelo N2, pero el pago no se completó.</p>
+            
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #92400e;">
+                <strong>⚠️ Recuerda:</strong> El plazo para presentar el Modelo N2 termina el <strong>2 de marzo de 2026</strong>.
+              </p>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb;">
+              <h3 style="margin-top: 0;">📋 Tu pedido</h3>
+              <p><strong>Referencia:</strong> DF-${orderId}</p>
+              <p><strong>Plan:</strong> ${order.properties_count} Propiedad(es)</p>
+              <p><strong>Importe:</strong> ${order.amount / 100}€</p>
+            </div>
+            
+            <p><strong>Buenas noticias:</strong> No tienes que volver a rellenar nada. Tus datos ya están guardados.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${session.url}" 
+                 style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #f97316, #10b981); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 18px;">
+                💳 Completar pago
+              </a>
+            </div>
+            
+            <p style="color: #6b7280; font-size: 13px;">
+              ¿Dudas? Escríbenos a <a href="mailto:support@dedosfacil.es">support@dedosfacil.es</a>
+            </p>
+          </div>
+        </div>
+      `
+    });
+    
+    console.log(`📧 Payment reminder sent to: ${order.email} for order ${orderId}`);
+    res.json({ success: true, email: order.email, paymentUrl: session.url });
+  } catch (error) {
+    console.error('Send payment reminder error:', error);
+    res.status(500).json({ error: 'Error al enviar recordatorio' });
+  }
+});
 
 // ============================================
 // MI CUENTA ENDPOINTS
