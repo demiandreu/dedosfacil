@@ -32,7 +32,7 @@ es: {
       subtitleBold: " Sin descargar programas. Sin certificado digital. Nosotros lo presentamos por ti.",
       cta: "Presentar ahora",
       priceFrom: "Desde",
-      trust1: "Sin programa N2", trust2: "Sin certificado digital", trust3: "100% Legal", trust4: "24-48h"
+     trust1: "Sin programa N2", trust2: "Sin certificado digital", trust3: "100% Legal", trust4: "24-48h", trust5: "Garantía 100%"
     },
     warning: {
       title: "⚠️ Si no presentas el Modelo N2 antes del 2 de marzo:",
@@ -62,6 +62,8 @@ es: {
         "Nos lo envías y nosotros hacemos todo",
         "Sin certificado digital",
         "Recibes justificante oficial en 24-48h"
+       "Garantía: Si no lo presentamos, te devolvemos el 100%"
+
       ]
     },
     howItWorks: {
@@ -158,7 +160,7 @@ es: {
       subtitleBold: " No software to download. No digital certificate. We submit it for you.",
       cta: "Submit now",
       priceFrom: "From",
-      trust1: "No N2 software", trust2: "No digital certificate", trust3: "100% Legal", trust4: "24-48h"
+     trust1: "No N2 software", trust2: "No digital certificate", trust3: "100% Legal", trust4: "24-48h", trust5: "100% Guarantee"
     },
     warning: {
       title: "⚠️ If you don't submit Form N2 before March 2nd:",
@@ -188,6 +190,7 @@ es: {
         "Send it to us and we do everything",
         "No digital certificate needed",
         "Receive official certificate in 24-48h"
+        "Guarantee: If we don't submit it, 100% refund"
       ]
     },
     howItWorks: {
@@ -284,7 +287,7 @@ es: {
       subtitleBold: " Sans télécharger de logiciel. Sans certificat numérique. Nous le déposons pour vous.",
       cta: "Déposer maintenant",
       priceFrom: "À partir de",
-      trust1: "Sans logiciel N2", trust2: "Sans certificat numérique", trust3: "100% Légal", trust4: "24-48h"
+      trust1: "Sans logiciel N2", trust2: "Sans certificat numérique", trust3: "100% Légal", trust4: "24-48h", trust5: "Garantie 100%"
     },
     warning: {
       title: "⚠️ Si vous ne déposez pas le Formulaire N2 avant le 2 mars:",
@@ -314,6 +317,7 @@ es: {
         "Envoyez-le nous et nous faisons tout",
         "Sans certificat numérique",
         "Recevez le certificat officiel en 24-48h"
+        "Garantie: Si nous ne le déposons pas, remboursement 100%"
       ]
     },
     howItWorks: {
@@ -410,7 +414,7 @@ es: {
       subtitleBold: " Keine Software herunterladen. Kein digitales Zertifikat. Wir reichen es für Sie ein.",
       cta: "Jetzt einreichen",
       priceFrom: "Ab",
-      trust1: "Ohne N2-Software", trust2: "Ohne digitales Zertifikat", trust3: "100% Legal", trust4: "24-48h"
+      trust1: "Ohne N2-Software", trust2: "Ohne digitales Zertifikat", trust3: "100% Legal", trust4: "24-48h", trust5: "100% Garantie"
     },
     warning: {
       title: "⚠️ Wenn Sie Formular N2 nicht vor dem 2. März einreichen:",
@@ -440,6 +444,7 @@ es: {
         "Senden Sie es uns und wir erledigen alles",
         "Kein digitales Zertifikat nötig",
         "Offizielle Bescheinigung in 24-48h erhalten"
+        "Garantie: Wenn wir es nicht einreichen, 100% Rückerstattung"
       ]
     },
     howItWorks: {
@@ -609,6 +614,7 @@ function Landing() {
               <div className="trust-item"><CheckCircle size={18} /><span>{t.hero.trust1}</span></div>
               <div className="trust-item"><Shield size={18} /><span>{t.hero.trust2}</span></div>
               <div className="trust-item"><Clock size={18} /><span>{t.hero.trust3}</span></div>
+                <div className="trust-item guarantee"><Shield size={18} /><span>{t.hero.trust5}</span></div>
             </div>
           </div>
           <div className="hero-visual">
