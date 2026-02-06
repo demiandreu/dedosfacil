@@ -241,6 +241,19 @@ const sendJustificante = async (orderId) => {
           })
         }))
 
+        const sendPaymentReminder = async (orderId) => {
+  try {
+    const response = await fetch(`/api/admin/send-payment-reminder/${orderId}`, {
+      method: 'POST'
+    })
+    const data = await response.json()
+    if (data.error) throw new Error(data.error)
+    alert(`✅ Recordatorio de pago enviado a ${data.email}`)
+  } catch (err) {
+    alert('Error: ' + err.message)
+  }
+}
+
         const response = await fetch(`/api/admin/send-justificante/${orderId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -887,6 +900,14 @@ const sendJustificante = async (orderId) => {
   )}
 </div>
                         </div>
+                        {order.status === 'pending' && (
+  <button
+    onClick={() => sendPaymentReminder(order.id)}
+    style={{ ...styles.btnPrimary, backgroundColor: '#f59e0b' }}
+  >
+    💳 Enviar recordatorio pago
+  </button>
+)}
                         
                         <div style={{ display: 'flex', gap: '8px' }}>
                         {order.status === 'completed' && (
