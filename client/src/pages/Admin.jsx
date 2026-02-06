@@ -221,7 +221,8 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
       alert('Error: ' + err.message)
     }
   }
-const sendJustificante = async (orderId) => {
+
+ const sendJustificante = async (orderId) => {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.pdf'
@@ -229,7 +230,6 @@ const sendJustificante = async (orderId) => {
     input.onchange = async (e) => {
       const files = Array.from(e.target.files)
       if (files.length === 0) return
-
       try {
         // Read all files as base64
         const pdfs = await Promise.all(files.map(file => {
@@ -240,20 +240,6 @@ const sendJustificante = async (orderId) => {
             reader.readAsDataURL(file)
           })
         }))
-
-        const sendPaymentReminder = async (orderId) => {
-  try {
-    const response = await fetch(`/api/admin/send-payment-reminder/${orderId}`, {
-      method: 'POST'
-    })
-    const data = await response.json()
-    if (data.error) throw new Error(data.error)
-    alert(`✅ Recordatorio de pago enviado a ${data.email}`)
-  } catch (err) {
-    alert('Error: ' + err.message)
-  }
-}
-
         const response = await fetch(`/api/admin/send-justificante/${orderId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -270,21 +256,35 @@ const sendJustificante = async (orderId) => {
     input.click()
   }
 
-  const updateNrua = async (orderId, newNrua) => {
-  try {
-    const response = await fetch(`/api/admin/update-nrua/${orderId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nrua: newNrua })
-    })
-    const data = await response.json()
-    if (data.error) throw new Error(data.error)
-    await fetchOrders()
-  } catch (err) {
-    alert('Error al actualizar NRUA: ' + err.message)
+  const sendPaymentReminder = async (orderId) => {
+    try {
+      const response = await fetch(`/api/admin/send-payment-reminder/${orderId}`, {
+        method: 'POST'
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      alert(`✅ Recordatorio de pago enviado a ${data.email}`)
+    } catch (err) {
+      alert('Error: ' + err.message)
+    }
   }
-}
-   const deleteOrder = async (orderId) => {
+
+  const updateNrua = async (orderId, newNrua) => {
+    try {
+      const response = await fetch(`/api/admin/update-nrua/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nrua: newNrua })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchOrders()
+    } catch (err) {
+      alert('Error al actualizar NRUA: ' + err.message)
+    }
+  }
+
+  const deleteOrder = async (orderId) => {
     try {
       const response = await fetch(`/api/admin/delete-order/${orderId}`, {
         method: 'DELETE'
@@ -296,8 +296,7 @@ const sendJustificante = async (orderId) => {
       alert('Error al eliminar: ' + err.message)
     }
   }
-
-
+  
   const filteredOrders = orders.filter(order => {
     if (filter === 'all') return true
     return order.status === filter
