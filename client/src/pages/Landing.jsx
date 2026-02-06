@@ -61,7 +61,7 @@ es: {
         "Descargas CSV de Airbnb/Booking (2 min)",
         "Nos lo envías y nosotros hacemos todo",
         "Sin certificado digital",
-        "Recibes justificante oficial en 24-48h"
+        "Recibes justificante oficial en 24-48h",
        "Garantía: Si no lo presentamos, te devolvemos el 100%"
 
       ]
@@ -188,7 +188,7 @@ es: {
         "Download CSV from Airbnb/Booking (2 min)",
         "Send it to us and we do everything",
         "No digital certificate needed",
-        "Receive official certificate in 24-48h"
+        "Receive official certificate in 24-48h",
         "Guarantee: If we don't submit it, 100% refund"
       ]
     },
@@ -315,7 +315,7 @@ es: {
         "Téléchargez le CSV d'Airbnb/Booking (2 min)",
         "Envoyez-le nous et nous faisons tout",
         "Sans certificat numérique",
-        "Recevez le certificat officiel en 24-48h"
+        "Recevez le certificat officiel en 24-48h",
         "Garantie: Si nous ne le déposons pas, remboursement 100%"
       ]
     },
@@ -442,7 +442,7 @@ es: {
         "CSV von Airbnb/Booking herunterladen (2 Min)",
         "Senden Sie es uns und wir erledigen alles",
         "Kein digitales Zertifikat nötig",
-        "Offizielle Bescheinigung in 24-48h erhalten"
+        "Offizielle Bescheinigung in 24-48h erhalten",
         "Garantie: Wenn wir es nicht einreichen, 100% Rückerstattung"
       ]
     },
