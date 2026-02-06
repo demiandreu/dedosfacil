@@ -123,7 +123,7 @@ es: {
       items: [
         { q: "¿Qué es el Modelo N2?", a: "Es el Depósito de Arrendamientos obligatorio. Si tienes un NRUA (licencia para alquilar en Airbnb, Booking, etc.), debes presentar cada año un informe con todas las estancias. El plazo para 2025 es el 2 de marzo de 2026." },
         { q: "¿Qué pasa si no presento el Modelo N2?", a: "Te revocan el NRUA automáticamente. Esto significa que no puedes seguir anunciando tu piso en ninguna plataforma. Pierdes tu fuente de ingresos." },
-        { q: "¿Es legal que lo hagáis vosotros?", a: "Sí, 100% legal. El artículo 10.4 del Real Decreto 1312/2024 permite que lo presente el titular o quien acredite la gestión del alquiler. Actuamos como gestores autorizados con tu autorización expresa." },
+         { q: "¿Es legal que lo hagáis vosotros?", a: "Sí, 100% legal. El artículo 10.4 del Real Decreto 1312/2024 permite que lo presente el titular o quien acredite la gestión del alquiler. Presentamos tu Modelo N2 a través de un profesional registrado en el Portal de Registradores de España. Actuamos como gestores autorizados con tu autorización expresa." },
         { q: "¿Qué datos necesitáis?", a: "Tu número NRUA completo (el código largo que empieza por ES de la Ventanilla Única) y el historial de reservas de 2025 (CSV de Airbnb o Booking)." },
         { q: "¿Y si no tuve alquileres en 2025?", a: "También hay que presentar el Modelo N2 marcando 'sin actividad'. Si no lo haces, te revocan el NRUA igualmente. Nosotros nos encargamos." }
       ]
@@ -249,7 +249,7 @@ es: {
       items: [
         { q: "What is Form N2?", a: "It's the mandatory Rental Declaration. If you have an NRUA (license to rent on Airbnb, Booking, etc.), you must submit an annual report with all stays. The deadline for 2025 is March 2nd, 2026." },
         { q: "What happens if I don't submit Form N2?", a: "Your NRUA is automatically revoked. This means you can't advertise your property on any platform. You lose your income source." },
-        { q: "Is it legal for you to do this?", a: "Yes, 100% legal. Article 10.4 of Royal Decree 1312/2024 allows submission by the owner or anyone who manages the rental. We act as authorized managers with your express authorization." },
+{ q: "Is it legal for you to do this?", a: "Yes, 100% legal. Article 10.4 of Royal Decree 1312/2024 allows submission by the owner or anyone who manages the rental. We submit your Form N2 through a professional registered with the Spanish Property Registrars Portal. We act as authorized managers with your express authorization." },
         { q: "What data do you need?", a: "Your complete NRUA number (the long code starting with ES from the Single Window) and the 2025 reservation history (CSV from Airbnb or Booking)." },
         { q: "What if I had no rentals in 2025?", a: "You still need to submit Form N2 marking 'no activity'. If you don't, your NRUA is revoked anyway. We take care of it." }
       ]
@@ -376,8 +376,7 @@ es: {
       items: [
         { q: "Qu'est-ce que le Formulaire N2?", a: "C'est le Dépôt de Locations obligatoire. Si vous avez un NRUA (licence pour louer sur Airbnb, Booking, etc.), vous devez soumettre un rapport annuel avec tous les séjours. La date limite pour 2025 est le 2 mars 2026." },
         { q: "Que se passe-t-il si je ne dépose pas le Formulaire N2?", a: "Votre NRUA est automatiquement révoqué. Cela signifie que vous ne pouvez plus publier votre propriété sur aucune plateforme. Vous perdez votre source de revenus." },
-        { q: "Est-ce légal que vous le fassiez?", a: "Oui, 100% légal. L'article 10.4 du Décret Royal 1312/2024 permet le dépôt par le propriétaire ou toute personne qui gère la location. Nous agissons comme gestionnaires autorisés avec votre autorisation expresse." },
-        { q: "Quelles données avez-vous besoin?", a: "Votre numéro NRUA complet (le long code commençant par ES du Guichet Unique) et l'historique des réservations 2025 (CSV d'Airbnb ou Booking)." },
+{ q: "Est-ce légal que vous le fassiez?", a: "Oui, 100% légal. L'article 10.4 du Décret Royal 1312/2024 permet le dépôt par le propriétaire ou toute personne qui gère la location. Nous déposons votre Formulaire N2 via un professionnel inscrit au Portail des Registraires d'Espagne. Nous agissons comme gestionnaires autorisés avec votre autorisation expresse." },        { q: "Quelles données avez-vous besoin?", a: "Votre numéro NRUA complet (le long code commençant par ES du Guichet Unique) et l'historique des réservations 2025 (CSV d'Airbnb ou Booking)." },
         { q: "Et si je n'ai pas eu de locations en 2025?", a: "Vous devez quand même déposer le Formulaire N2 en indiquant 'sans activité'. Sinon, votre NRUA est révoqué de toute façon. Nous nous en occupons." }
       ]
     },
@@ -503,8 +502,7 @@ es: {
       items: [
         { q: "Was ist Formular N2?", a: "Es ist die obligatorische Mietmeldung. Wenn Sie eine NRUA haben (Lizenz zur Vermietung auf Airbnb, Booking usw.), müssen Sie jährlich einen Bericht mit allen Aufenthalten einreichen. Die Frist für 2025 ist der 2. März 2026." },
         { q: "Was passiert, wenn ich Formular N2 nicht einreiche?", a: "Ihre NRUA wird automatisch widerrufen. Das bedeutet, Sie können Ihre Immobilie auf keiner Plattform mehr inserieren. Sie verlieren Ihre Einkommensquelle." },
-        { q: "Ist es legal, dass Sie das machen?", a: "Ja, 100% legal. Artikel 10.4 des Königlichen Dekrets 1312/2024 erlaubt die Einreichung durch den Eigentümer oder jeden, der die Vermietung verwaltet. Wir handeln als autorisierte Verwalter mit Ihrer ausdrücklichen Genehmigung." },
-        { q: "Welche Daten benötigen Sie?", a: "Ihre vollständige NRUA-Nummer (der lange Code, der mit ES beginnt, vom Einheitlichen Fenster) und den Buchungsverlauf 2025 (CSV von Airbnb oder Booking)." },
+{ q: "Ist es legal, dass Sie das machen?", a: "Ja, 100% legal. Artikel 10.4 des Königlichen Dekrets 1312/2024 erlaubt die Einreichung durch den Eigentümer oder jeden, der die Vermietung verwaltet. Wir reichen Ihr Formular N2 über einen im spanischen Registerportal eingetragenen Fachmann ein. Wir handeln als autorisierte Verwalter mit Ihrer ausdrücklichen Genehmigung." },        { q: "Welche Daten benötigen Sie?", a: "Ihre vollständige NRUA-Nummer (der lange Code, der mit ES beginnt, vom Einheitlichen Fenster) und den Buchungsverlauf 2025 (CSV von Airbnb oder Booking)." },
         { q: "Was, wenn ich 2025 keine Vermietungen hatte?", a: "Sie müssen trotzdem Formular N2 mit 'keine Aktivität' einreichen. Andernfalls wird Ihre NRUA trotzdem widerrufen. Wir kümmern uns darum." }
       ]
     },
