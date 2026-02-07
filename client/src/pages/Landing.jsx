@@ -103,7 +103,7 @@ es: {
     },
     pricing: {
       title: "Precios claros",
-      note: "* Tasas del Registro (27€/NRUA) no incluidas",
+      note: "* Tasas del Registro (27€/NRUA) incluidas",
    plans: [
         { name: "1 Propiedad", price: "79€", features: ["1 NRUA", "Presentación oficial", "Justificante", "Soporte email", "Entrega 48h"] },
         { name: "3 Propiedades", price: "199€", period: "ahorra 38€", features: ["Hasta 3 NRUA", "Presentación oficial", "Justificante", "Soporte prioritario", "Entrega 24h"], popular: true },
@@ -229,11 +229,11 @@ es: {
     },
     pricing: {
       title: "Clear pricing",
-      note: "* Registry fees (27€/NRUA) not included",
+      note: "* Registry fees (27€/NRUA) included",
       plans: [
-     { name: "1 Immobilie", price: "79€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "Lieferung 48h"] },
-        { name: "3 Immobilien", price: "199€", period: "sparen Sie 38€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
-       { name: "10 Immobilien", price: "629€", period: "sparen Sie 161€", features: ["Bis zu 10 NRUA", "Komplette Verwaltung", "Telefon-Support", "Prioritätslieferung"] }
+    { name: "1 Property", price: "79€", features: ["1 NRUA", "Official submission", "Certificate", "Email support", "Delivery 48h"] },
+{ name: "3 Properties", price: "199€", period: "save 38€", features: ["Up to 3 NRUA", "Official submission", "Certificate", "Priority support", "Delivery 24h"], popular: true },
+{ name: "10 Properties", price: "629€", period: "save 161€", features: ["Up to 10 NRUA", "Full management", "Phone support", "Priority delivery"] }
       ],
       select: "Select",
       popular: "Most popular"
@@ -356,7 +356,7 @@ es: {
     },
     pricing: {
       title: "Tarifs clairs",
-      note: "* Frais de Registre (27€/NRUA) non inclus",
+      note: "* Frais de Registre (27€/NRUA) inclus",
      plans: [
         { name: "1 Propriété", price: "79€", features: ["1 NRUA", "Dépôt officiel", "Certificat", "Support email", "Livraison 48h"] },
         { name: "3 Propriétés", price: "199€", period: "économisez 38€", features: ["Jusqu'à 3 NRUA", "Dépôt officiel", "Certificat", "Support prioritaire", "Livraison 24h"], popular: true },
@@ -482,7 +482,7 @@ es: {
     },
     pricing: {
       title: "Klare Preise",
-      note: "* Registergebühren (27€/NRUA) nicht enthalten",
+      note: "* Registergebühren (27€/NRUA) enthalten",
     plans: [
         { name: "1 Immobilie", price: "79€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "Lieferung 48h"] },
         { name: "3 Immobilien", price: "199€", period: "sparen Sie 38€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
@@ -711,7 +711,9 @@ function Landing() {
               </div>
             ))}
           </div>
-          <p className="pricing-note">{t.pricing.note}</p>
+          <div style={{background:'#d1fae5', border:'1px solid #10b981', borderRadius:'8px', padding:'12px 20px', textAlign:'center', marginTop:'20px', fontSize:'15px', fontWeight:'600', color:'#065f46'}}>
+            ✅ {t.pricing.note}
+          </div>
         </div>
       </section>
 
