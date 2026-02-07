@@ -274,143 +274,322 @@ if (parseInt(plan) === 1) {
   }
 });
 
-// Process CSV with Anthropic
+// =====================================================
+// PARSEO DIRECTO DE CSV/XLSX (sin Claude API)
+// =====================================================
+
+function parseFileToRows(buffer, originalName) {
+  const ext = (originalName || '').toLowerCase();
+  
+  if (ext.endsWith('.xlsx') || ext.endsWith('.xls')) {
+    const workbook = XLSX.read(buffer, { type: 'buffer', cellDates: true });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    return XLSX.utils.sheet_to_json(sheet, { defval: '' });
+  }
+  
+  // CSV parsing
+  const text = buffer.toString('utf-8');
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return [];
+  
+  // Detect separator
+  const firstLine = lines[0];
+  let sep = ',';
+  if (firstLine.split('\t').length > firstLine.split(',').length) sep = '\t';
+  else if (firstLine.split(';').length > firstLine.split(',').length) sep = ';';
+  
+  const headers = parseCsvLine(firstLine, sep);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = parseCsvLine(lines[i], sep);
+    const row = {};
+    headers.forEach((h, idx) => { row[h.trim()] = (values[idx] || '').trim(); });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function parseCsvLine(line, sep) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === sep && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function normalizeDate(val) {
+  if (!val) return null;
+  
+  // If Date object (from xlsx cellDates)
+  if (val instanceof Date) {
+    const d = val.getDate().toString().padStart(2, '0');
+    const m = (val.getMonth() + 1).toString().padStart(2, '0');
+    const y = val.getFullYear();
+    if (y < 2000 || y > 2100) return null;
+    return `${d}/${m}/${y}`;
+  }
+  
+  const s = String(val).trim();
+  if (!s) return null;
+  
+  // DD/MM/YYYY or DD-MM-YYYY
+  let match = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (match) {
+    const d = match[1].padStart(2, '0');
+    const m = match[2].padStart(2, '0');
+    return `${d}/${m}/${match[3]}`;
+  }
+  
+  // YYYY-MM-DD
+  match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+  
+  // "24 May 2025" or "24 mayo 2025"
+  const months = {
+    jan: '01', january: '01', ene: '01', enero: '01',
+    feb: '02', february: '02', febrero: '02',
+    mar: '03', march: '03', marzo: '03',
+    apr: '04', april: '04', abr: '04', abril: '04',
+    may: '05', mayo: '05', mai: '05',
+    jun: '06', june: '06', junio: '06',
+    jul: '07', july: '07', julio: '07',
+    aug: '08', august: '08', ago: '08', agosto: '08',
+    sep: '09', sept: '09', september: '09', septiembre: '09',
+    oct: '10', october: '10', octubre: '10',
+    nov: '11', november: '11', noviembre: '11',
+    dec: '12', december: '12', dic: '12', diciembre: '12'
+  };
+  
+  match = s.match(/^(\d{1,2})\s+(\w+)\s+(\d{4})$/i);
+  if (match) {
+    const monthKey = match[2].toLowerCase();
+    const m = months[monthKey];
+    if (m) return `${match[1].padStart(2, '0')}/${m}/${match[3]}`;
+  }
+  
+  // "May 24, 2025"
+  match = s.match(/^(\w+)\s+(\d{1,2}),?\s+(\d{4})$/i);
+  if (match) {
+    const monthKey = match[1].toLowerCase();
+    const m = months[monthKey];
+    if (m) return `${match[2].padStart(2, '0')}/${m}/${match[3]}`;
+  }
+  
+  return null;
+}
+
+function findColumn(headers, candidates) {
+  const lower = headers.map(h => h.toLowerCase().trim());
+  for (const c of candidates) {
+    const idx = lower.findIndex(h => h.includes(c.toLowerCase()));
+    if (idx >= 0) return headers[idx];
+  }
+  return null;
+}
+
+function isCancelled(row) {
+  const vals = Object.values(row).map(v => String(v).toLowerCase());
+  return vals.some(v => 
+    v === 'cancelada' || v === 'cancelled' || v === 'canceled' || 
+    v === 'cancel' || v === 'no_show' || v === 'no show' ||
+    v === 'annulée' || v === 'storniert'
+  );
+}
+
+function processAirbnb(rows) {
+  if (!rows.length) return null;
+  const headers = Object.keys(rows[0]);
+  
+  const checkInCol = findColumn(headers, ['fecha de inicio', 'start date', 'check-in', 'checkin', 'llegada', 'arrival']);
+  const checkOutCol = findColumn(headers, ['hasta', 'end date', 'check-out', 'checkout', 'salida', 'departure']);
+  const adultsCol = findColumn(headers, ['número de adultos', 'adults', 'adultos', 'number of adults']);
+  const childrenCol = findColumn(headers, ['número de niños', 'children', 'niños', 'number of children']);
+  const babiesCol = findColumn(headers, ['número de bebés', 'infants', 'bebés', 'number of infants']);
+  const guestsCol = findColumn(headers, ['huéspedes', 'guests', 'personas']);
+  const statusCol = findColumn(headers, ['estado', 'status', 'reservation status']);
+  
+  if (!checkInCol || !checkOutCol) return null;
+  
+  const estancias = [];
+  for (const row of rows) {
+    // Filter cancelled
+    if (statusCol) {
+      const status = String(row[statusCol]).toLowerCase();
+      if (status.includes('cancel') || status.includes('anulad')) continue;
+    }
+    if (isCancelled(row)) continue;
+    
+    const fechaEntrada = normalizeDate(row[checkInCol]);
+    const fechaSalida = normalizeDate(row[checkOutCol]);
+    if (!fechaEntrada || !fechaSalida) continue;
+    
+    let guests = 2;
+    if (adultsCol) {
+      const adults = parseInt(row[adultsCol]) || 0;
+      const children = childrenCol ? (parseInt(row[childrenCol]) || 0) : 0;
+      const babies = babiesCol ? (parseInt(row[babiesCol]) || 0) : 0;
+      guests = adults + children + babies;
+    } else if (guestsCol) {
+      guests = parseInt(row[guestsCol]) || 2;
+    }
+    if (guests < 1) guests = 2;
+    
+    estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'Airbnb' });
+  }
+  
+  return { estancias, total_estancias: estancias.length };
+}
+
+function processBooking(rows) {
+  if (!rows.length) return null;
+  const headers = Object.keys(rows[0]);
+  
+  const checkInCol = findColumn(headers, ['entrada', 'check-in', 'checkin', 'llegada', 'arrival', 'check in']);
+  const checkOutCol = findColumn(headers, ['salida', 'check-out', 'checkout', 'departure', 'check out']);
+  const guestsCol = findColumn(headers, ['personas', 'guests', 'huéspedes', 'people', 'pax', 'number of guests']);
+  const adultsCol = findColumn(headers, ['adultos', 'adults']);
+  const statusCol = findColumn(headers, ['estado', 'status', 'booking status']);
+  
+  if (!checkInCol || !checkOutCol) return null;
+  
+  const estancias = [];
+  for (const row of rows) {
+    if (statusCol) {
+      const status = String(row[statusCol]).toLowerCase();
+      if (status.includes('cancel') || status.includes('no_show') || status.includes('no show')) continue;
+    }
+    if (isCancelled(row)) continue;
+    
+    const fechaEntrada = normalizeDate(row[checkInCol]);
+    const fechaSalida = normalizeDate(row[checkOutCol]);
+    if (!fechaEntrada || !fechaSalida) continue;
+    
+    let guests = 2;
+    if (guestsCol) guests = parseInt(row[guestsCol]) || 2;
+    else if (adultsCol) guests = parseInt(row[adultsCol]) || 2;
+    if (guests < 1) guests = 2;
+    
+    estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'Booking' });
+  }
+  
+  return { estancias, total_estancias: estancias.length };
+}
+
+function processVrbo(rows) {
+  if (!rows.length) return null;
+  const headers = Object.keys(rows[0]);
+  
+  const checkInCol = findColumn(headers, ['check-in', 'checkin', 'entrada', 'arrival', 'start', 'llegada']);
+  const checkOutCol = findColumn(headers, ['check-out', 'checkout', 'salida', 'departure', 'end', 'hasta']);
+  const guestsCol = findColumn(headers, ['huéspedes', 'guests', 'personas', 'people', 'pax', 'adults']);
+  const statusCol = findColumn(headers, ['estado', 'status']);
+  
+  if (!checkInCol || !checkOutCol) return null;
+  
+  const estancias = [];
+  for (const row of rows) {
+    if (statusCol) {
+      const status = String(row[statusCol]).toLowerCase();
+      if (status.includes('cancel') || status.includes('decline') || status.includes('rechaz')) continue;
+    }
+    if (isCancelled(row)) continue;
+    
+    const fechaEntrada = normalizeDate(row[checkInCol]);
+    const fechaSalida = normalizeDate(row[checkOutCol]);
+    if (!fechaEntrada || !fechaSalida) continue;
+    
+    let guests = parseInt(row[guestsCol]) || 2;
+    if (guests < 1) guests = 2;
+    
+    estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'VRBO' });
+  }
+  
+  return { estancias, total_estancias: estancias.length };
+}
+
+function processGeneric(rows) {
+  if (!rows.length) return null;
+  const headers = Object.keys(rows[0]);
+  
+  const checkInCol = findColumn(headers, ['check-in', 'checkin', 'entrada', 'llegada', 'arrival', 'start', 'from', 'first night', 'inicio', 'fecha de inicio', 'fecha entrada']);
+  const checkOutCol = findColumn(headers, ['check-out', 'checkout', 'salida', 'departure', 'end', 'to', 'last night', 'hasta', 'fin', 'fecha de salida', 'fecha salida']);
+  const guestsCol = findColumn(headers, ['guests', 'huéspedes', 'personas', 'people', 'pax', 'adultos', 'adults', 'occupancy']);
+  const statusCol = findColumn(headers, ['estado', 'status']);
+  
+  if (!checkInCol || !checkOutCol) return null;
+  
+  const estancias = [];
+  for (const row of rows) {
+    if (statusCol) {
+      const status = String(row[statusCol]).toLowerCase();
+      if (status.includes('cancel')) continue;
+    }
+    if (isCancelled(row)) continue;
+    
+    const fechaEntrada = normalizeDate(row[checkInCol]);
+    const fechaSalida = normalizeDate(row[checkOutCol]);
+    if (!fechaEntrada || !fechaSalida) continue;
+    
+    let guests = parseInt(row[guestsCol]) || 2;
+    if (guests < 1) guests = 2;
+    
+    estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'Otro' });
+  }
+  
+  return { estancias, total_estancias: estancias.length };
+}
+
+// ENDPOINT
 app.post('/api/process-csv', upload.fields([
   { name: 'airbnb', maxCount: 1 },
   { name: 'booking', maxCount: 1 },
+  { name: 'vrbo', maxCount: 1 },
   { name: 'other', maxCount: 1 }
 ]), async (req, res) => {
   try {
     const files = req.files;
     let airbnbData = null;
     let bookingData = null;
+    let vrboData = null;
     let otherData = null;
 
-    // Process Airbnb CSV
-    if (files.airbnb && files.airbnb[0]) {
-      const airbnbContent = files.airbnb[0].buffer.toString('utf-8');
-      const airbnbResponse = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8192,
-        messages: [{
-          role: 'user',
-          content: `Analiza este CSV de Airbnb y extrae TODAS las estancias.
-
-FORMATO AIRBNB - Columnas conocidas:
-- "Fecha de inicio" = fecha de entrada (check-in)
-- "Hasta" = fecha de salida (check-out)  
-- "Número de adultos" + "Número de niños" + "Número de bebés" = SUMA para total huéspedes
-
-REGLAS:
-- Incluye TODAS las estancias del archivo
-- Ignora reservas con estado "Cancelada" o "Cancelled"
-- Calcula huéspedes = adultos + niños + bebés
-- Convierte todas las fechas a formato DD/MM/YYYY
-
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
-{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"Airbnb"}],"total_estancias":0}
-
-CSV:
-${airbnbContent}`
-        }]
-      });
-      
-      try {
-        let responseText = airbnbResponse.content[0].text;
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          airbnbData = JSON.parse(jsonMatch[0]);
-        }
-      } catch (e) {
-        console.error('Error parsing Airbnb response:', e.message);
-      }
+    if (files.airbnb?.[0]) {
+      const rows = parseFileToRows(files.airbnb[0].buffer, files.airbnb[0].originalname);
+      airbnbData = processAirbnb(rows);
     }
 
-    // Process Booking CSV/XLS
-    if (files.booking && files.booking[0]) {
-      const bookingContent = files.booking[0].buffer.toString('utf-8');
-      const bookingResponse = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8192,
-        messages: [{
-          role: 'user',
-          content: `Analiza este archivo de Booking.com y extrae TODAS las estancias.
-
-FORMATO BOOKING - Columnas conocidas:
-- "Entrada" o "Check-in" = fecha de entrada
-- "Salida" o "Checkout" = fecha de salida
-- "Personas" o "Guests" = número de huéspedes
-- Si no hay columna de personas, usa "Adultos" o pon 2 por defecto
-
-REGLAS:
-- Incluye TODAS las estancias del archivo
-- Ignora reservas con estado "cancelled", "cancelada", "no_show"
-- Las fechas pueden venir en formato "24 May 2025" o "24/05/2025", convierte a DD/MM/YYYY
-
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
-{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"Booking"}],"total_estancias":0}
-
-Archivo:
-${bookingContent}`
-        }]
-      });
-      
-      try {
-        let responseText = bookingResponse.content[0].text;
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          bookingData = JSON.parse(jsonMatch[0]);
-        }
-      } catch (e) {
-        console.error('Error parsing Booking response:', e.message);
-      }
+    if (files.booking?.[0]) {
+      const rows = parseFileToRows(files.booking[0].buffer, files.booking[0].originalname);
+      bookingData = processBooking(rows);
     }
 
-    // Process Other file (VRBO, Channel Managers, etc.)
-    if (files.other && files.other[0]) {
-      const otherContent = files.other[0].buffer.toString('utf-8');
-      const otherResponse = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8192,
-        messages: [{
-          role: 'user',
-          content: `Analiza este archivo de reservas y extrae TODAS las estancias.
+    if (files.vrbo?.[0]) {
+      const rows = parseFileToRows(files.vrbo[0].buffer, files.vrbo[0].originalname);
+      vrboData = processVrbo(rows);
+    }
 
-DETECTA AUTOMÁTICAMENTE las columnas buscando:
-- Fecha de entrada: "check-in", "entrada", "llegada", "arrival", "start", "from", "first night", "inicio"
-- Fecha de salida: "check-out", "salida", "departure", "end", "to", "last night", "hasta", "fin"
-- Número de huéspedes: "guests", "huéspedes", "personas", "people", "pax", "adultos", "adults", "occupancy"
-
-REGLAS:
-- Si hay columnas separadas de adultos/niños/bebés, SUMA todos para el total
-- Si no encuentras número de huéspedes, pon 2 por defecto
-- Ignora reservas canceladas (cualquier variación de "cancel")
-- Incluye TODAS las estancias del archivo
-- Detecta el formato de fecha y conviértelo a DD/MM/YYYY
-
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
-{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"Otro"}],"total_estancias":0}
-
-Archivo:
-${otherContent}`
-        }]
-      });
-      
-      try {
-        let responseText = otherResponse.content[0].text;
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          otherData = JSON.parse(jsonMatch[0]);
-        }
-      } catch (e) {
-        console.error('Error parsing Other response:', e.message);
-      }
+    if (files.other?.[0]) {
+      const rows = parseFileToRows(files.other[0].buffer, files.other[0].originalname);
+      otherData = processGeneric(rows);
     }
 
     res.json({
       success: true,
       airbnb: airbnbData,
       booking: bookingData,
+      vrbo: vrboData,
       other: otherData
     });
   } catch (error) {
