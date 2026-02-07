@@ -557,7 +557,7 @@ useEffect(() => {
   }
 
   const processAllFiles = async () => {
-    const hasFiles = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.other
+   const hasFiles = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.vrbo || uploadedFiles.other
     if (!hasFiles) return
     
     setIsProcessing(true)
