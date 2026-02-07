@@ -304,8 +304,21 @@ function parseFileToRows(buffer, originalName) {
           const testRow = rawData[i];
           if (Array.isArray(testRow)) {
             const testStr = testRow.map(c => String(c).toLowerCase()).join('|');
-            if (testStr.includes('check') || testStr.includes('fecha') || testStr.includes('night') || 
-                testStr.includes('arrival') || testStr.includes('entrada') || testStr.includes('anreise')) {
+            // Contar cuántas columnas reconocibles tiene esta fila (necesita mínimo 2)
+let colMatches = 0;
+for (const cell of testRow) {
+  const cl = String(cell).toLowerCase().trim();
+  if (cl === 'check-in' || cl === 'check in' || cl === 'checkin' || cl === 'arrival' || 
+      cl === 'entrada' || cl === 'first night' || cl === 'fecha de inicio' || cl === 'fecha de entrada' ||
+      cl === 'anreise' || cl === 'arrivée' || cl === 'arrivo' || cl === 'chegada' ||
+      cl === 'check-out' || cl === 'check out' || cl === 'checkout' || cl === 'departure' ||
+      cl === 'salida' || cl === 'fecha de salida' || cl === 'fecha de finalización' ||
+      cl === 'adults' || cl === 'adultos' || cl === 'guests' || cl === 'huéspedes' ||
+      cl === 'children' || cl === 'niños' || cl === 'menores') {
+    colMatches++;
+  }
+}
+if (colMatches >= 2) {
               // Esta fila es la de headers real
               const headers = testRow.map(c => String(c).trim());
               const dataRows = [];
