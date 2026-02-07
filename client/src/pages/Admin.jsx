@@ -163,7 +163,17 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
             <div class="data-row"><span class="label">Dirección IP:</span> <span class="value">${data.authorization_ip || 'No registrada'}</span></div>
           </div>
         </div>
-
+         ${data.gdpr_accepted ? `
+        <div class="section">
+          <div class="section-title">CONSENTIMIENTO PROTECCIÓN DE DATOS (RGPD)</div>
+          <div class="timestamp">
+            <div class="data-row"><span class="label">Consentimiento:</span> <span class="value">✅ Aceptado</span></div>
+            <div class="data-row"><span class="label">Fecha y hora:</span> <span class="value">${new Date(data.gdpr_timestamp).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></div>
+            <div class="data-row"><span class="label">Dirección IP:</span> <span class="value">${data.gdpr_ip || 'No registrada'}</span></div>
+            <div class="data-row"><span class="label">Texto aceptado:</span> <span class="value" style="font-size:11px;">Acepto el tratamiento de mis datos personales y de los datos contenidos en los archivos de reservas (Airbnb, Booking, etc.) por parte de Rental Connect Solutions Tmi, con la finalidad exclusiva de gestionar la presentación del Modelo N2 ante el Registro de la Propiedad.</span></div>
+          </div>
+        </div>
+        ` : ''}
         <div class="legal">
           <strong>DECLARACIONES:</strong><br>
           • El autorizante declara ser el titular registral del inmueble o tener poderes suficientes para otorgar esta autorización.<br>
