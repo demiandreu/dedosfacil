@@ -480,6 +480,7 @@ app.get('/api/admin/authorization/:orderId', async (req, res) => {
       `SELECT 
         s.name, s.nrua, s.address, s.province, s.phone,
         s.authorization_timestamp, s.authorization_ip,
+        s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
         o.email
        FROM submissions s 
        JOIN orders o ON o.id = s.order_id 
