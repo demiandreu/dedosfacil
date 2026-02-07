@@ -704,10 +704,22 @@ const STATUS_NAMES = [
 
 function findColumn(headers, candidates) {
   const lower = headers.map(h => h.toLowerCase().trim());
+  
+  // Primero buscar coincidencia exacta
   for (const c of candidates) {
-    const idx = lower.findIndex(h => h.includes(c.toLowerCase()));
+    const cl = c.toLowerCase();
+    const idx = lower.findIndex(h => h === cl);
     if (idx >= 0) return headers[idx];
   }
+  
+  // Luego buscar con includes, pero solo para candidatos de 4+ caracteres
+  for (const c of candidates) {
+    const cl = c.toLowerCase();
+    if (cl.length < 4) continue; // Ignorar "to", "ab", "von", "fin", "bis" etc.
+    const idx = lower.findIndex(h => h.includes(cl));
+    if (idx >= 0) return headers[idx];
+  }
+  
   return null;
 }
 
