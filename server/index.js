@@ -275,7 +275,8 @@ if (parseInt(plan) === 1) {
 });
 
 // =====================================================
-// PARSEO DIRECTO DE CSV/XLSX (sin Claude API)
+// PARSEO DIRECTO DE CSV/XLSX + FALLBACK A CLAUDE AI
+// Todos los idiomas europeos soportados
 // =====================================================
 
 function parseFileToRows(buffer, originalName) {
@@ -344,8 +345,8 @@ function normalizeDate(val) {
   const s = String(val).trim();
   if (!s) return null;
   
-  // DD/MM/YYYY or DD-MM-YYYY
-  let match = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+  let match = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
   if (match) {
     const d = match[1].padStart(2, '0');
     const m = match[2].padStart(2, '0');
@@ -356,22 +357,66 @@ function normalizeDate(val) {
   match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (match) return `${match[3]}/${match[2]}/${match[1]}`;
   
-  // "24 May 2025" or "24 mayo 2025"
+  // Month names in ALL European languages
   const months = {
-    jan: '01', january: '01', ene: '01', enero: '01',
-    feb: '02', february: '02', febrero: '02',
-    mar: '03', march: '03', marzo: '03',
-    apr: '04', april: '04', abr: '04', abril: '04',
-    may: '05', mayo: '05', mai: '05',
-    jun: '06', june: '06', junio: '06',
-    jul: '07', july: '07', julio: '07',
-    aug: '08', august: '08', ago: '08', agosto: '08',
-    sep: '09', sept: '09', september: '09', septiembre: '09',
-    oct: '10', october: '10', octubre: '10',
-    nov: '11', november: '11', noviembre: '11',
-    dec: '12', december: '12', dic: '12', diciembre: '12'
+    // English
+    jan: '01', january: '01', feb: '02', february: '02', mar: '03', march: '03',
+    apr: '04', april: '04', may: '05', jun: '06', june: '06',
+    jul: '07', july: '07', aug: '08', august: '08', sep: '09', sept: '09', september: '09',
+    oct: '10', october: '10', nov: '11', november: '11', dec: '12', december: '12',
+    // Spanish
+    ene: '01', enero: '01', febrero: '02', marzo: '03', abr: '04', abril: '04',
+    mayo: '05', junio: '06', julio: '07', ago: '08', agosto: '08',
+    septiembre: '09', octubre: '10', noviembre: '11', dic: '12', diciembre: '12',
+    // French
+    janvier: '01', fév: '02', février: '02', fevrier: '02', mars: '03', avril: '04',
+    mai: '05', juin: '06', juillet: '07', août: '08', aout: '08',
+    septembre: '09', octobre: '10', novembre: '11', décembre: '12', decembre: '12',
+    // German
+    januar: '01', jän: '01', jänner: '01', februar: '02', märz: '03', maerz: '03',
+    juni: '06', juli: '07', oktober: '10', dezember: '12', dez: '12',
+    // Italian
+    gennaio: '01', febbraio: '02', aprile: '04', maggio: '05',
+    giugno: '06', luglio: '07', settembre: '09',
+    ottobre: '10', dicembre: '12',
+    // Portuguese
+    janeiro: '01', fevereiro: '02', março: '03', marco: '03', maio: '05',
+    junho: '06', julho: '07', setembro: '09', outubro: '10', dezembro: '12',
+    // Dutch
+    januari: '01', februari: '02', maart: '03', mei: '05', augustus: '08',
+    // Swedish
+    maj: '05', augusti: '08',
+    // Norwegian / Danish
+    desember: '12',
+    // Polish
+    styczeń: '01', styczen: '01', luty: '02', marzec: '03', kwiecień: '04', kwiecien: '04',
+    czerwiec: '06', lipiec: '07', sierpień: '08', sierpien: '08',
+    wrzesień: '09', wrzesien: '09', październik: '10', pazdziernik: '10',
+    listopad: '11', grudzień: '12', grudzien: '12',
+    // Czech
+    leden: '01', únor: '02', unor: '02', březen: '03', brezen: '03',
+    duben: '04', květen: '05', kveten: '05', červen: '06', cerven: '06',
+    červenec: '07', cervenec: '07', srpen: '08', září: '09', zari: '09',
+    říjen: '10', rijen: '10', prosinec: '12',
+    // Romanian
+    ianuarie: '01', februarie: '02', martie: '03', aprilie: '04',
+    iunie: '06', iulie: '07', septembrie: '09',
+    // Finnish
+    tammikuu: '01', helmikuu: '02', maaliskuu: '03', huhtikuu: '04',
+    toukokuu: '05', kesäkuu: '06', kesakuu: '06', heinäkuu: '07', heinakuu: '07',
+    elokuu: '08', syyskuu: '09', lokakuu: '10', marraskuu: '11', joulukuu: '12',
+    // Hungarian
+    január: '01', február: '02', március: '03', május: '05', majus: '05',
+    június: '06', junius: '06', július: '07', julius: '07', augusztus: '08',
+    szeptember: '09', október: '10',
+    // Croatian / Serbian
+    siječanj: '01', sijecanj: '01', veljača: '02', veljaca: '02',
+    ožujak: '03', ozujak: '03', travanj: '04', svibanj: '05',
+    lipanj: '06', srpanj: '07', kolovoz: '08', rujan: '09',
+    studeni: '11', prosinac: '12',
   };
   
+  // "24 May 2025"
   match = s.match(/^(\d{1,2})\s+(\w+)\s+(\d{4})$/i);
   if (match) {
     const monthKey = match[2].toLowerCase();
@@ -387,8 +432,238 @@ function normalizeDate(val) {
     if (m) return `${match[2].padStart(2, '0')}/${m}/${match[3]}`;
   }
   
+  // "24. May 2025" (German format)
+  match = s.match(/^(\d{1,2})\.\s*(\w+)\s+(\d{4})$/i);
+  if (match) {
+    const monthKey = match[2].toLowerCase();
+    const m = months[monthKey];
+    if (m) return `${match[1].padStart(2, '0')}/${m}/${match[3]}`;
+  }
+  
   return null;
 }
+
+// =====================================================
+// COLUMN NAMES - ALL EUROPEAN LANGUAGES
+// =====================================================
+
+const CHECK_IN_NAMES = [
+  // English
+  'check-in', 'checkin', 'check in', 'arrival', 'start date', 'start', 'from',
+  // Spanish
+  'fecha de inicio', 'fecha de entrada', 'fecha entrada', 'entrada', 'llegada', 'inicio',
+  // French
+  'arrivée', 'arrivee', 'date d\'arrivée', 'date arrivee', 'début', 'debut',
+  // German
+  'anreise', 'ankunft', 'check-in datum', 'anreisedatum', 'von', 'ab',
+  // Italian
+  'arrivo', 'data arrivo', 'data di arrivo', 'ingresso',
+  // Portuguese
+  'chegada', 'data de chegada', 'data entrada',
+  // Dutch
+  'aankomst', 'inchecken', 'aankomstdatum',
+  // Swedish
+  'ankomst', 'incheckning', 'ankomstdatum',
+  // Norwegian / Danish
+  'innsjekk', 'ankomstdato',
+  // Finnish
+  'saapuminen', 'tulopäivä', 'tulopaiva',
+  // Polish
+  'przyjazd', 'zameldowanie', 'data przyjazdu',
+  // Czech
+  'příjezd', 'prijezd', 'datum příjezdu',
+  // Hungarian
+  'érkezés', 'erkezes', 'bejelentkezés',
+  // Romanian
+  'sosire', 'data sosirii',
+  // Croatian
+  'dolazak', 'prijava',
+  // Russian
+  'заезд', 'дата заезда', 'прибытие',
+  // Beds24 / Channel managers
+  'first night', 'first_night',
+];
+
+const CHECK_OUT_NAMES = [
+  // English
+  'check-out', 'checkout', 'check out', 'departure', 'end date', 'end', 'to', 'last night',
+  // Spanish
+  'fecha de finalización', 'fecha de finalizacion', 'fecha de salida', 'fecha salida', 'salida', 'hasta', 'fin',
+  // French
+  'départ', 'depart', 'date de départ', 'date depart', 'fin',
+  // German
+  'abreise', 'abreisedatum', 'check-out datum', 'bis',
+  // Italian
+  'partenza', 'data partenza', 'data di partenza', 'uscita',
+  // Portuguese
+  'saída', 'saida', 'data de saída', 'data saida', 'data de saida',
+  // Dutch
+  'vertrek', 'uitchecken', 'vertrekdatum',
+  // Swedish
+  'avresa', 'utcheckning', 'avresedatum',
+  // Norwegian / Danish
+  'avreise', 'utsjekk', 'avreisedato',
+  // Finnish
+  'lähtö', 'lahto', 'lähtöpäivä',
+  // Polish
+  'wyjazd', 'wymeldowanie', 'data wyjazdu',
+  // Czech
+  'odjezd', 'datum odjezdu',
+  // Hungarian
+  'távozás', 'tavozas', 'kijelentkezés',
+  // Romanian
+  'plecare', 'data plecarii',
+  // Croatian
+  'odlazak', 'odjava',
+  // Russian
+  'выезд', 'дата выезда', 'отъезд',
+];
+
+const ADULTS_NAMES = [
+  // English
+  'adults', 'adult', 'number of adults',
+  // Spanish
+  'adultos', 'n.º de adultos', 'nº de adultos', 'número de adultos', 'num adultos',
+  // French
+  'adultes', 'nombre d\'adultes',
+  // German
+  'erwachsene', 'anzahl erwachsene',
+  // Italian
+  'adulti', 'numero adulti',
+  // Portuguese
+  'adultos',
+  // Dutch
+  'volwassenen',
+  // Swedish
+  'vuxna', 'antal vuxna',
+  // Norwegian / Danish
+  'voksne',
+  // Finnish
+  'aikuiset',
+  // Polish
+  'dorośli', 'dorosli',
+  // Czech
+  'dospělí', 'dospeli',
+  // Hungarian
+  'felnőttek',
+  // Romanian
+  'adulți',
+  // Croatian
+  'odrasli',
+  // Russian
+  'взрослые',
+];
+
+const CHILDREN_NAMES = [
+  // English
+  'children', 'child', 'kids', 'number of children',
+  // Spanish
+  'niños', 'ninos', 'menores', 'n.º de niños', 'nº de niños', 'número de niños', 'num niños',
+  // French
+  'enfants', 'nombre d\'enfants',
+  // German
+  'kinder', 'anzahl kinder',
+  // Italian
+  'bambini', 'numero bambini',
+  // Portuguese
+  'crianças', 'criancas',
+  // Dutch
+  'kinderen',
+  // Swedish
+  'barn', 'antal barn',
+  // Norwegian / Danish
+  'børn', 'born',
+  // Finnish
+  'lapset',
+  // Polish
+  'dzieci',
+  // Czech
+  'děti', 'deti',
+  // Hungarian
+  'gyermekek',
+  // Romanian
+  'copii',
+  // Croatian
+  'djeca',
+  // Russian
+  'дети',
+];
+
+const BABIES_NAMES = [
+  // English
+  'infants', 'babies', 'number of infants',
+  // Spanish
+  'bebés', 'bebes', 'n.º de bebés', 'nº de bebés', 'número de bebés', 'num bebés',
+  // French
+  'bébés', 'nourrissons', 'nombre de bébés',
+  // German
+  'kleinkinder', 'säuglinge', 'anzahl kleinkinder',
+  // Italian
+  'neonati',
+  // Portuguese
+  'bebês', 'bebes',
+  // Dutch
+  'baby\'s',
+  // Swedish
+  'spädbarn',
+  // Norwegian
+  'spedbarn',
+  // Finnish
+  'vauvat',
+  // Polish
+  'niemowlęta', 'niemowleta',
+  // Czech
+  'kojenci',
+  // Hungarian
+  'csecsemők',
+  // Romanian
+  'bebeluși',
+  // Croatian
+  'dojenčad',
+  // Russian
+  'младенцы',
+];
+
+const GUESTS_NAMES = [
+  // English
+  'guests', 'people', 'occupancy', 'number of guests', 'pax',
+  // Spanish
+  'huéspedes', 'huespedes', 'personas',
+  // French
+  'voyageurs', 'personnes',
+  // German
+  'gäste', 'gaste', 'personen',
+  // Italian
+  'ospiti', 'persone',
+  // Portuguese
+  'hóspedes', 'hospedes', 'pessoas',
+  // Dutch
+  'gasten', 'personen',
+  // Swedish
+  'gäster', 'gaster', 'antal gäster',
+  // Norwegian / Danish
+  'gjester',
+  // Finnish
+  'vieraat',
+  // Polish
+  'goście', 'goscie',
+  // Czech
+  'hosté', 'hoste',
+  // Hungarian
+  'vendégek', 'vendegek',
+  // Romanian
+  'oaspeți', 'oaspeti',
+  // Croatian
+  'gosti',
+  // Russian
+  'гости',
+];
+
+const STATUS_NAMES = [
+  'status', 'estado', 'statut', 'stato',
+  'tillstånd', 'stav', 'állapot', 'stare', 'статус',
+  'reservation status', 'booking status',
+];
 
 function findColumn(headers, candidates) {
   const lower = headers.map(h => h.toLowerCase().trim());
@@ -404,30 +679,39 @@ function isCancelled(row) {
   return vals.some(v => 
     v === 'cancelada' || v === 'cancelled' || v === 'canceled' || 
     v === 'cancel' || v === 'no_show' || v === 'no show' ||
-    v === 'annulée' || v === 'storniert'
+    v === 'annulée' || v === 'annulee' || v === 'annulé' ||
+    v === 'storniert' || v === 'geannuleerd' ||
+    v === 'cancellato' || v === 'cancelado' ||
+    v === 'avbokad' || v === 'avbestilt' || v === 'peruutettu' ||
+    v === 'anulowane' || v === 'zrušeno' || v === 'zruseno' ||
+    v === 'lemondva' || v === 'anulat' || v === 'otkazano' ||
+    v === 'отменено'
   );
 }
+
+// =====================================================
+// PLATFORM-SPECIFIC PROCESSORS
+// =====================================================
 
 function processAirbnb(rows) {
   if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
   
-  const checkInCol = findColumn(headers, ['fecha de inicio', 'start date', 'check-in', 'checkin', 'llegada', 'arrival']);
-  const checkOutCol = findColumn(headers, ['fecha de finalización', 'fecha de finalizacion', 'hasta', 'end date', 'check-out', 'checkout', 'salida', 'departure']);
-  const adultsCol = findColumn(headers, ['n.º de adultos', 'nº de adultos', 'número de adultos', 'num adultos', 'adults', 'number of adults']);
-  const childrenCol = findColumn(headers, ['n.º de niños', 'nº de niños', 'número de niños', 'num niños', 'children', 'number of children']);
-  const babiesCol = findColumn(headers, ['n.º de bebés', 'nº de bebés', 'número de bebés', 'num bebés', 'infants', 'number of infants']);
-  const guestsCol = findColumn(headers, ['huéspedes', 'guests', 'personas']);
-  const statusCol = findColumn(headers, ['estado', 'status', 'reservation status']);
+  const checkInCol = findColumn(headers, CHECK_IN_NAMES);
+  const checkOutCol = findColumn(headers, CHECK_OUT_NAMES);
+  const adultsCol = findColumn(headers, ADULTS_NAMES);
+  const childrenCol = findColumn(headers, CHILDREN_NAMES);
+  const babiesCol = findColumn(headers, BABIES_NAMES);
+  const guestsCol = findColumn(headers, GUESTS_NAMES);
+  const statusCol = findColumn(headers, STATUS_NAMES);
   
   if (!checkInCol || !checkOutCol) return null;
   
   const estancias = [];
   for (const row of rows) {
-    // Filter cancelled
-  if (statusCol) {
+    if (statusCol) {
       const status = String(row[statusCol]).toLowerCase();
-      if (status.includes('cancel') || status.includes('anulad')) continue;
+      if (status.includes('cancel') || status.includes('anulad') || status.includes('annul') || status.includes('stornier')) continue;
     }
     if (isCancelled(row)) continue;
     
@@ -449,18 +733,19 @@ function processAirbnb(rows) {
     estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'Airbnb' });
   }
   
-  return { estancias, total_estancias: estancias.length };
+  return estancias.length > 0 ? { estancias, total_estancias: estancias.length } : null;
 }
 
 function processBooking(rows) {
   if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
   
-  const checkInCol = findColumn(headers, ['entrada', 'check-in', 'checkin', 'llegada', 'arrival', 'check in']);
-  const checkOutCol = findColumn(headers, ['salida', 'check-out', 'checkout', 'departure', 'check out']);
-  const guestsCol = findColumn(headers, ['personas', 'guests', 'huéspedes', 'people', 'pax', 'number of guests']);
-  const adultsCol = findColumn(headers, ['adultos', 'adults']);
-  const statusCol = findColumn(headers, ['estado', 'status', 'booking status']);
+  const checkInCol = findColumn(headers, CHECK_IN_NAMES);
+  const checkOutCol = findColumn(headers, CHECK_OUT_NAMES);
+  const guestsCol = findColumn(headers, GUESTS_NAMES);
+  const adultsCol = findColumn(headers, ADULTS_NAMES);
+  const childrenCol = findColumn(headers, CHILDREN_NAMES);
+  const statusCol = findColumn(headers, STATUS_NAMES);
   
   if (!checkInCol || !checkOutCol) return null;
   
@@ -468,7 +753,7 @@ function processBooking(rows) {
   for (const row of rows) {
     if (statusCol) {
       const status = String(row[statusCol]).toLowerCase();
-      if (status.includes('cancel') || status.includes('no_show') || status.includes('no show')) continue;
+      if (status.includes('cancel') || status.includes('no_show') || status.includes('no show') || status.includes('annul') || status.includes('stornier')) continue;
     }
     if (isCancelled(row)) continue;
     
@@ -477,26 +762,31 @@ function processBooking(rows) {
     if (!fechaEntrada || !fechaSalida) continue;
     
     let guests = 2;
-    if (guestsCol) guests = parseInt(row[guestsCol]) || 2;
-    else if (adultsCol) guests = parseInt(row[adultsCol]) || 2;
+    if (adultsCol) {
+      const adults = parseInt(row[adultsCol]) || 0;
+      const children = childrenCol ? (parseInt(row[childrenCol]) || 0) : 0;
+      guests = adults + children;
+    } else if (guestsCol) {
+      guests = parseInt(row[guestsCol]) || 2;
+    }
     if (guests < 1) guests = 2;
     
     estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'Booking' });
   }
   
-  return { estancias, total_estancias: estancias.length };
+  return estancias.length > 0 ? { estancias, total_estancias: estancias.length } : null;
 }
 
 function processVrbo(rows) {
   if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
   
-  const checkInCol = findColumn(headers, ['fecha de entrada', 'check-in', 'checkin', 'entrada', 'arrival', 'start']);
-  const checkOutCol = findColumn(headers, ['fecha de salida', 'check-out', 'checkout', 'salida', 'departure', 'end']);
-  const adultsCol = findColumn(headers, ['adultos', 'adults']);
-  const childrenCol = findColumn(headers, ['menores', 'children', 'niños', 'kids']);
-  const guestsCol = findColumn(headers, ['huéspedes', 'guests', 'personas', 'people', 'pax']);
-  const statusCol = findColumn(headers, ['estado', 'status']);
+  const checkInCol = findColumn(headers, CHECK_IN_NAMES);
+  const checkOutCol = findColumn(headers, CHECK_OUT_NAMES);
+  const adultsCol = findColumn(headers, ADULTS_NAMES);
+  const childrenCol = findColumn(headers, CHILDREN_NAMES);
+  const guestsCol = findColumn(headers, GUESTS_NAMES);
+  const statusCol = findColumn(headers, STATUS_NAMES);
   
   if (!checkInCol || !checkOutCol) return null;
   
@@ -504,7 +794,7 @@ function processVrbo(rows) {
   for (const row of rows) {
     if (statusCol) {
       const status = String(row[statusCol]).toLowerCase();
-      if (status.includes('cancel') || status.includes('rechaz') || status.includes('decline')) continue;
+      if (status.includes('cancel') || status.includes('rechaz') || status.includes('decline') || status.includes('annul') || status.includes('stornier')) continue;
     }
     if (isCancelled(row)) continue;
     
@@ -525,19 +815,19 @@ function processVrbo(rows) {
     estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'VRBO' });
   }
   
-  return { estancias, total_estancias: estancias.length };
+  return estancias.length > 0 ? { estancias, total_estancias: estancias.length } : null;
 }
 
 function processGeneric(rows) {
   if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
   
-  const checkInCol = findColumn(headers, ['first night', 'check-in', 'checkin', 'entrada', 'llegada', 'arrival', 'start', 'from', 'inicio', 'fecha de inicio', 'fecha entrada', 'fecha de entrada']);
-  const checkOutCol = findColumn(headers, ['check out', 'check-out', 'checkout', 'salida', 'departure', 'end', 'to', 'last night', 'hasta', 'fin', 'fecha de salida', 'fecha salida', 'fecha de finalización']);
-  const adultsCol = findColumn(headers, ['adults', 'adultos', 'adult']);
-  const childrenCol = findColumn(headers, ['children', 'menores', 'niños', 'kids', 'child']);
-  const guestsCol = findColumn(headers, ['guests', 'huéspedes', 'personas', 'people', 'pax', 'occupancy']);
-  const statusCol = findColumn(headers, ['estado', 'status']);
+  const checkInCol = findColumn(headers, CHECK_IN_NAMES);
+  const checkOutCol = findColumn(headers, CHECK_OUT_NAMES);
+  const adultsCol = findColumn(headers, ADULTS_NAMES);
+  const childrenCol = findColumn(headers, CHILDREN_NAMES);
+  const guestsCol = findColumn(headers, GUESTS_NAMES);
+  const statusCol = findColumn(headers, STATUS_NAMES);
   
   if (!checkInCol || !checkOutCol) return null;
   
@@ -545,7 +835,7 @@ function processGeneric(rows) {
   for (const row of rows) {
     if (statusCol) {
       const status = String(row[statusCol]).toLowerCase();
-      if (status.includes('cancel')) continue;
+      if (status.includes('cancel') || status.includes('annul') || status.includes('stornier')) continue;
     }
     if (isCancelled(row)) continue;
     
@@ -566,10 +856,65 @@ function processGeneric(rows) {
     estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'Otro' });
   }
   
-  return { estancias, total_estancias: estancias.length };
+  return estancias.length > 0 ? { estancias, total_estancias: estancias.length } : null;
 }
 
-// ENDPOINT
+// =====================================================
+// FALLBACK A CLAUDE AI (si el parseo directo falla)
+// =====================================================
+
+async function processWithClaude(fileContent, platform) {
+  try {
+    console.log(`⚠️ Fallback a Claude AI para archivo ${platform} (columnas no reconocidas)`);
+    
+    // Limitar contenido para no exceder tokens
+    const maxChars = 15000;
+    const truncated = fileContent.length > maxChars 
+      ? fileContent.substring(0, maxChars) + '\n... (truncado)' 
+      : fileContent;
+    
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8192,
+      messages: [{
+        role: 'user',
+        content: `Analiza este archivo de reservas y extrae TODAS las estancias.
+
+DETECTA AUTOMÁTICAMENTE las columnas buscando fechas de entrada/salida y número de huéspedes.
+
+REGLAS:
+- Si hay columnas separadas de adultos/niños/bebés, SUMA todos para el total
+- Si no encuentras número de huéspedes, pon 2 por defecto
+- Ignora reservas canceladas (cualquier variación de "cancel" en cualquier idioma)
+- Incluye TODAS las estancias del archivo
+- Convierte TODAS las fechas a formato DD/MM/YYYY
+
+IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
+{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"${platform}"}],"total_estancias":0}
+
+Archivo:
+${truncated}`
+      }]
+    });
+    
+    const responseText = response.content[0].text;
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const data = JSON.parse(jsonMatch[0]);
+      console.log(`✅ Claude AI extrajo ${data.estancias?.length || 0} estancias para ${platform}`);
+      return data;
+    }
+    return null;
+  } catch (error) {
+    console.error(`❌ Error en fallback Claude AI para ${platform}:`, error.message);
+    return null;
+  }
+}
+
+// =====================================================
+// ENDPOINT PRINCIPAL
+// =====================================================
+
 app.post('/api/process-csv', upload.fields([
   { name: 'airbnb', maxCount: 1 },
   { name: 'booking', maxCount: 1 },
@@ -583,24 +928,44 @@ app.post('/api/process-csv', upload.fields([
     let vrboData = null;
     let otherData = null;
 
+    // AIRBNB - parseo directo, fallback a Claude
     if (files.airbnb?.[0]) {
       const rows = parseFileToRows(files.airbnb[0].buffer, files.airbnb[0].originalname);
       airbnbData = processAirbnb(rows);
+      if (!airbnbData) {
+        const content = files.airbnb[0].buffer.toString('utf-8');
+        airbnbData = await processWithClaude(content, 'Airbnb');
+      }
     }
 
+    // BOOKING - parseo directo, fallback a Claude
     if (files.booking?.[0]) {
       const rows = parseFileToRows(files.booking[0].buffer, files.booking[0].originalname);
       bookingData = processBooking(rows);
+      if (!bookingData) {
+        const content = files.booking[0].buffer.toString('utf-8');
+        bookingData = await processWithClaude(content, 'Booking');
+      }
     }
 
+    // VRBO - parseo directo, fallback a Claude
     if (files.vrbo?.[0]) {
       const rows = parseFileToRows(files.vrbo[0].buffer, files.vrbo[0].originalname);
       vrboData = processVrbo(rows);
+      if (!vrboData) {
+        const content = files.vrbo[0].buffer.toString('utf-8');
+        vrboData = await processWithClaude(content, 'VRBO');
+      }
     }
 
+    // OTHER - parseo directo, fallback a Claude
     if (files.other?.[0]) {
       const rows = parseFileToRows(files.other[0].buffer, files.other[0].originalname);
       otherData = processGeneric(rows);
+      if (!otherData) {
+        const content = files.other[0].buffer.toString('utf-8');
+        otherData = await processWithClaude(content, 'Otro');
+      }
     }
 
     res.json({
@@ -1392,58 +1757,47 @@ app.post('/api/mi-cuenta/login', async (req, res) => {
 });
 
 // Process CSV (reuse existing logic but under mi-cuenta path)
+// Process CSV for mi-cuenta (reuses same logic as main endpoint)
 app.post('/api/mi-cuenta/process-csv', upload.fields([
   { name: 'airbnb', maxCount: 1 },
   { name: 'booking', maxCount: 1 },
+  { name: 'vrbo', maxCount: 1 },
   { name: 'other', maxCount: 1 }
 ]), async (req, res) => {
   try {
     const files = req.files;
-    let airbnbData = null, bookingData = null, otherData = null;
-
-    const processFile = async (content, platform, hints) => {
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8192,
-        messages: [{
-          role: 'user',
-          content: `Analiza este archivo de ${platform} y extrae TODAS las estancias.
-${hints}
-REGLAS:
-- Incluye TODAS las estancias del archivo
-- Ignora reservas canceladas
-- Convierte todas las fechas a formato DD/MM/YYYY
-IMPORTANTE: Devuelve ÚNICAMENTE un JSON válido, sin texto adicional, sin markdown, sin backticks:
-{"estancias":[{"fecha_entrada":"DD/MM/YYYY","fecha_salida":"DD/MM/YYYY","huespedes":2,"plataforma":"${platform}"}],"total_estancias":0}
-Archivo:
-${content}`
-        }]
-      });
-      const text = response.content[0].text;
-      const match = text.match(/\{[\s\S]*\}/);
-      return match ? JSON.parse(match[0]) : null;
-    };
+    let airbnbData = null, bookingData = null, vrboData = null, otherData = null;
 
     if (files.airbnb?.[0]) {
-      airbnbData = await processFile(
-        files.airbnb[0].buffer.toString('utf-8'), 'Airbnb',
-        '"Fecha de inicio" = check-in, "Hasta" = check-out, huéspedes = adultos + niños + bebés'
-      );
+      const rows = parseFileToRows(files.airbnb[0].buffer, files.airbnb[0].originalname);
+      airbnbData = processAirbnb(rows);
+      if (!airbnbData) {
+        airbnbData = await processWithClaude(files.airbnb[0].buffer.toString('utf-8'), 'Airbnb');
+      }
     }
     if (files.booking?.[0]) {
-      bookingData = await processFile(
-        files.booking[0].buffer.toString('utf-8'), 'Booking',
-        '"Entrada"/"Check-in" = check-in, "Salida"/"Checkout" = check-out'
-      );
+      const rows = parseFileToRows(files.booking[0].buffer, files.booking[0].originalname);
+      bookingData = processBooking(rows);
+      if (!bookingData) {
+        bookingData = await processWithClaude(files.booking[0].buffer.toString('utf-8'), 'Booking');
+      }
+    }
+    if (files.vrbo?.[0]) {
+      const rows = parseFileToRows(files.vrbo[0].buffer, files.vrbo[0].originalname);
+      vrboData = processVrbo(rows);
+      if (!vrboData) {
+        vrboData = await processWithClaude(files.vrbo[0].buffer.toString('utf-8'), 'VRBO');
+      }
     }
     if (files.other?.[0]) {
-      otherData = await processFile(
-        files.other[0].buffer.toString('utf-8'), 'Otro',
-        'Detecta automáticamente las columnas de entrada, salida, huéspedes'
-      );
+      const rows = parseFileToRows(files.other[0].buffer, files.other[0].originalname);
+      otherData = processGeneric(rows);
+      if (!otherData) {
+        otherData = await processWithClaude(files.other[0].buffer.toString('utf-8'), 'Otro');
+      }
     }
 
-    res.json({ success: true, airbnb: airbnbData, booking: bookingData, other: otherData });
+    res.json({ success: true, airbnb: airbnbData, booking: bookingData, vrbo: vrboData, other: otherData });
   } catch (error) {
     console.error('Mi cuenta process-csv error:', error);
     res.status(500).json({ error: 'Error al procesar archivos' });
