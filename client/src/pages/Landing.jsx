@@ -614,11 +614,12 @@ function Landing() {
                 <div className="trust-item guarantee"><Shield size={18} /><span>{t.hero.trust5}</span></div>
             </div>
           </div>
-          <div className="hero-visual">
-  <div className="video-container">
+        <div className="hero-visual">
+  <div className="video-container" style={{ maxWidth: '100%', overflow: 'hidden' }}>
     <iframe 
       width="100%" 
-      height="315" 
+      height="auto" 
+      style={{ borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', aspectRatio: '16/9', maxWidth: '100%' }}
       src="https://www.youtube.com/embed/ftETjWOIG5w" 
       title="Depósito de Arrendamientos - Registradores de España"
       frameBorder="0" 
