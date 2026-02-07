@@ -38,7 +38,7 @@ async function sendConfirmationEmail(email, orderData) {
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
       to: email,
-       bcc: 'support@dedosfacil.es',
+      bcc: ['support@dedosfacil.es', 'dedosfacil.es+b70c16ff1f@invite.trustpilot.com'],
       subject: `✅ Pedido DF-${orderData.orderId} confirmado - DedosFácil`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
