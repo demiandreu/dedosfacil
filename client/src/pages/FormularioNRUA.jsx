@@ -399,6 +399,7 @@ function FormularioNRUA() {
   const [selectedPlan, setSelectedPlan] = useState(1)
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [acceptAuthorization, setAcceptAuthorization] = useState(false)
+  const [acceptGdpr, setAcceptGdpr] = useState(false)
   const [manualMode, setManualMode] = useState(false)
   const [noActivity, setNoActivity] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState({
@@ -438,6 +439,7 @@ function FormularioNRUA() {
       if (!form.email.trim()) e.email = t.errors.required
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t.errors.invalidEmail
       if (!form.phone.trim()) e.phone = t.errors.required
+      if (!acceptGdpr) e.gdpr = t.errors.required
     }
     if (step === 2) {
       if (!form.nrua.trim()) e.nrua = t.errors.required
@@ -711,7 +713,12 @@ if (!acceptTerms || !acceptAuthorization) return
         },
         // Estancias extraídas
         stays: extractedStays,
-        noActivity: noActivity
+       noActivity: noActivity,
+        gdprConsent: {
+          accepted: acceptGdpr,
+          timestamp: new Date().toISOString(),
+          ip: null
+        }
       })
     })
   
@@ -824,6 +831,24 @@ if (!acceptTerms || !acceptAuthorization) return
                   </p>
                 )}
               </div>
+                  {/* GDPR Consent */}
+<div className="authorization-box" style={{marginTop: '16px'}}>
+  <label className="checkbox-label authorization">
+    <input 
+      type="checkbox" 
+      checked={acceptGdpr} 
+      onChange={e => setAcceptGdpr(e.target.checked)} 
+    />
+    <span>
+      {lang === 'es' ? 'Acepto el tratamiento de mis datos personales y de los datos contenidos en los archivos de reservas (Airbnb, Booking, etc.) por parte de Rental Connect Solutions Tmi, con la finalidad exclusiva de gestionar la presentación del Modelo N2 ante el Registro de la Propiedad. Ver ' :
+       lang === 'en' ? 'I accept the processing of my personal data and the data contained in booking files (Airbnb, Booking, etc.) by Rental Connect Solutions Tmi, solely for the purpose of submitting Form N2 to the Property Registry. See ' :
+       lang === 'fr' ? "J'accepte le traitement de mes données personnelles et des données contenues dans les fichiers de réservations (Airbnb, Booking, etc.) par Rental Connect Solutions Tmi, dans le seul but de déposer le Formulaire N2 au Registre de la Propriété. Voir " :
+       'Ich akzeptiere die Verarbeitung meiner personenbezogenen Daten und der in den Buchungsdateien (Airbnb, Booking, etc.) enthaltenen Daten durch Rental Connect Solutions Tmi, ausschließlich zum Zweck der Einreichung des Formulars N2 beim Grundbuchamt. Siehe '}
+      <a href="/privacidad">{t.step4.privacy}</a>
+    </span>
+  </label>
+  {errors.gdpr && <span className="error-msg" style={{marginLeft: '32px'}}>{errors.gdpr}</span>}
+</div>
                 </div>
               </div>
             </div>
