@@ -124,7 +124,7 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
     },
     step2: {
       title: "Property details",
-      : "Your tourist rental information",
+      subtitle: "Your tourist rental information",
      nrua: "NRUA Number (Single Window)",
 nruaPh: "ESFCTU0000430240001151320000...",
 nruaHelp: "The long number starting with 'ES' from the Digital Single Window. If you don't have it, apply at registradores.org",
