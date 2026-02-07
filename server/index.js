@@ -532,9 +532,11 @@ function processGeneric(rows) {
   if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
   
-  const checkInCol = findColumn(headers, ['check-in', 'checkin', 'entrada', 'llegada', 'arrival', 'start', 'from', 'first night', 'inicio', 'fecha de inicio', 'fecha entrada']);
-  const checkOutCol = findColumn(headers, ['check-out', 'checkout', 'salida', 'departure', 'end', 'to', 'last night', 'hasta', 'fin', 'fecha de salida', 'fecha salida']);
-  const guestsCol = findColumn(headers, ['guests', 'huéspedes', 'personas', 'people', 'pax', 'adultos', 'adults', 'occupancy']);
+  const checkInCol = findColumn(headers, ['first night', 'check-in', 'checkin', 'entrada', 'llegada', 'arrival', 'start', 'from', 'inicio', 'fecha de inicio', 'fecha entrada', 'fecha de entrada']);
+  const checkOutCol = findColumn(headers, ['check out', 'check-out', 'checkout', 'salida', 'departure', 'end', 'to', 'last night', 'hasta', 'fin', 'fecha de salida', 'fecha salida', 'fecha de finalización']);
+  const adultsCol = findColumn(headers, ['adults', 'adultos', 'adult']);
+  const childrenCol = findColumn(headers, ['children', 'menores', 'niños', 'kids', 'child']);
+  const guestsCol = findColumn(headers, ['guests', 'huéspedes', 'personas', 'people', 'pax', 'occupancy']);
   const statusCol = findColumn(headers, ['estado', 'status']);
   
   if (!checkInCol || !checkOutCol) return null;
@@ -551,7 +553,14 @@ function processGeneric(rows) {
     const fechaSalida = normalizeDate(row[checkOutCol]);
     if (!fechaEntrada || !fechaSalida) continue;
     
-    let guests = parseInt(row[guestsCol]) || 2;
+    let guests = 2;
+    if (adultsCol) {
+      const adults = parseInt(row[adultsCol]) || 0;
+      const children = childrenCol ? (parseInt(row[childrenCol]) || 0) : 0;
+      guests = adults + children;
+    } else if (guestsCol) {
+      guests = parseInt(row[guestsCol]) || 2;
+    }
     if (guests < 1) guests = 2;
     
     estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'Otro' });
