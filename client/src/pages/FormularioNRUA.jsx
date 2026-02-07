@@ -438,8 +438,47 @@ const [uploadedFiles, setUploadedFiles] = useState({
   })
   
   const t = translations[lang]
+  // Guardar progreso en localStorage
+useEffect(() => {
+  const dataToSave = {
+    step,
+    form,
+    selectedPlan,
+    noActivity,
+    manualMode,
+    extractedStays,
+    fileProcessed,
+    acceptTerms,
+    acceptAuthorization,
+    lang
+  };
+  localStorage.setItem('nrua_form_progress', JSON.stringify(dataToSave));
+}, [step, form, selectedPlan, noActivity, manualMode, extractedStays, fileProcessed, acceptTerms, acceptAuthorization, lang]);
 
-  useEffect(() => {
+// Restaurar progreso al cargar
+useEffect(() => {
+  try {
+    const saved = localStorage.getItem('nrua_form_progress');
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (data.form) setForm(data.form);
+      if (data.step) setStep(data.step);
+      if (data.selectedPlan) setSelectedPlan(data.selectedPlan);
+      if (data.noActivity) setNoActivity(data.noActivity);
+      if (data.manualMode) setManualMode(data.manualMode);
+      if (data.extractedStays?.length) setExtractedStays(data.extractedStays);
+      if (data.fileProcessed) setFileProcessed(data.fileProcessed);
+      if (data.acceptTerms) setAcceptTerms(data.acceptTerms);
+      if (data.acceptAuthorization) setAcceptAuthorization(data.acceptAuthorization);
+      if (data.lang) setLang(data.lang);
+    }
+  } catch (e) {
+    console.error('Error restoring form:', e);
+  }
+}, []);
+
+useEffect(() => {
+
     const browserLang = navigator.language.slice(0, 2)
     if (['es', 'en', 'fr', 'de'].includes(browserLang)) setLang(browserLang)
   }, [])
