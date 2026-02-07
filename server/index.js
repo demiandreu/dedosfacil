@@ -491,9 +491,11 @@ function processVrbo(rows) {
   if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
   
-  const checkInCol = findColumn(headers, ['check-in', 'checkin', 'entrada', 'arrival', 'start', 'llegada']);
-  const checkOutCol = findColumn(headers, ['check-out', 'checkout', 'salida', 'departure', 'end', 'hasta']);
-  const guestsCol = findColumn(headers, ['huéspedes', 'guests', 'personas', 'people', 'pax', 'adults']);
+  const checkInCol = findColumn(headers, ['fecha de entrada', 'check-in', 'checkin', 'entrada', 'arrival', 'start']);
+  const checkOutCol = findColumn(headers, ['fecha de salida', 'check-out', 'checkout', 'salida', 'departure', 'end']);
+  const adultsCol = findColumn(headers, ['adultos', 'adults']);
+  const childrenCol = findColumn(headers, ['menores', 'children', 'niños', 'kids']);
+  const guestsCol = findColumn(headers, ['huéspedes', 'guests', 'personas', 'people', 'pax']);
   const statusCol = findColumn(headers, ['estado', 'status']);
   
   if (!checkInCol || !checkOutCol) return null;
@@ -502,7 +504,7 @@ function processVrbo(rows) {
   for (const row of rows) {
     if (statusCol) {
       const status = String(row[statusCol]).toLowerCase();
-      if (status.includes('cancel') || status.includes('decline') || status.includes('rechaz')) continue;
+      if (status.includes('cancel') || status.includes('rechaz') || status.includes('decline')) continue;
     }
     if (isCancelled(row)) continue;
     
@@ -510,7 +512,14 @@ function processVrbo(rows) {
     const fechaSalida = normalizeDate(row[checkOutCol]);
     if (!fechaEntrada || !fechaSalida) continue;
     
-    let guests = parseInt(row[guestsCol]) || 2;
+    let guests = 2;
+    if (adultsCol) {
+      const adults = parseInt(row[adultsCol]) || 0;
+      const children = childrenCol ? (parseInt(row[childrenCol]) || 0) : 0;
+      guests = adults + children;
+    } else if (guestsCol) {
+      guests = parseInt(row[guestsCol]) || 2;
+    }
     if (guests < 1) guests = 2;
     
     estancias.push({ fecha_entrada: fechaEntrada, fecha_salida: fechaSalida, huespedes: guests, plataforma: 'VRBO' });
