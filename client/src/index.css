@@ -1084,7 +1084,9 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 640px) {
   .header .nav { display: none; }
-  .hero h1 { font-size: 32px; }
+  .hero h1 { font-size: 32px; word-break: break-word; }
+  .hero-subtitle { max-width: 100%; }
+  .hero-trust { flex-wrap: wrap; justify-content: center; gap: 12px; }
   .service-selector { flex-direction: column; }
   .warning-box { flex-direction: column; }
   .footer-content { grid-template-columns: 1fr; }
