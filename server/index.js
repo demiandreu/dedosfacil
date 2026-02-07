@@ -413,10 +413,10 @@ function processAirbnb(rows) {
   const headers = Object.keys(rows[0]);
   
   const checkInCol = findColumn(headers, ['fecha de inicio', 'start date', 'check-in', 'checkin', 'llegada', 'arrival']);
-  const checkOutCol = findColumn(headers, ['hasta', 'end date', 'check-out', 'checkout', 'salida', 'departure']);
-  const adultsCol = findColumn(headers, ['número de adultos', 'adults', 'adultos', 'number of adults']);
-  const childrenCol = findColumn(headers, ['número de niños', 'children', 'niños', 'number of children']);
-  const babiesCol = findColumn(headers, ['número de bebés', 'infants', 'bebés', 'number of infants']);
+  const checkOutCol = findColumn(headers, ['fecha de finalización', 'fecha de finalizacion', 'hasta', 'end date', 'check-out', 'checkout', 'salida', 'departure']);
+  const adultsCol = findColumn(headers, ['n.º de adultos', 'nº de adultos', 'número de adultos', 'num adultos', 'adults', 'number of adults']);
+  const childrenCol = findColumn(headers, ['n.º de niños', 'nº de niños', 'número de niños', 'num niños', 'children', 'number of children']);
+  const babiesCol = findColumn(headers, ['n.º de bebés', 'nº de bebés', 'número de bebés', 'num bebés', 'infants', 'number of infants']);
   const guestsCol = findColumn(headers, ['huéspedes', 'guests', 'personas']);
   const statusCol = findColumn(headers, ['estado', 'status', 'reservation status']);
   
@@ -425,7 +425,7 @@ function processAirbnb(rows) {
   const estancias = [];
   for (const row of rows) {
     // Filter cancelled
-    if (statusCol) {
+  if (statusCol) {
       const status = String(row[statusCol]).toLowerCase();
       if (status.includes('cancel') || status.includes('anulad')) continue;
     }
