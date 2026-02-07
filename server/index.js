@@ -696,6 +696,9 @@ function isCancelled(row) {
 function processAirbnb(rows) {
   if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
+  console.log('📋 Airbnb headers:', headers);
+console.log('📋 CheckIn found:', findColumn(headers, CHECK_IN_NAMES));
+console.log('📋 CheckOut found:', findColumn(headers, CHECK_OUT_NAMES));
   
   const checkInCol = findColumn(headers, CHECK_IN_NAMES);
   const checkOutCol = findColumn(headers, CHECK_OUT_NAMES);
