@@ -42,13 +42,17 @@ nruaPhotoDrag: "Arrastra o haz clic para subir imagen",
     },
     step3: {
       title: "Historial de reservas",
-      subtitle: "Sube tus archivos de Airbnb, Booking u otras plataformas",
+     subtitle: "Sube de 1 a 3 archivos a la vez (uno por plataforma). El sistema los combinará en un único informe. Revisa el resultado: si una reserva aparece en varias plataformas, elimina las duplicadas.",
      airbnbFile: "Archivo Airbnb",
 airbnbHelp: "Descárgalo desde Reservas completadas → Exportar",
 airbnbUrl: "https://es-l.airbnb.com/hosting/reservations/completed",
 bookingFile: "Archivo Booking",
 bookingHelp: "Descárgalo desde Reservas → Exportar a Excel",
 bookingUrl: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html",
+      vrboFile: "Archivo VRBO",
+vrboHelp: "Descárgalo desde Bandeja de entrada → Filtros → Descargar",
+vrboUrl: "https://www.vrbo.com/es-es/supply/inbox",
+otherFile: "Otro (Channel Manager...)",
 otherFile: "Otro (VRBO, Channel Manager...)",
 otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
       dragOrClick: "Arrastra o haz clic",
@@ -110,7 +114,7 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
     steps: ["Your info", "Property", "Bookings", "Payment"],
     step1: {
       title: "Contact details",
-      subtitle: "To send you the certificate",
+      : "To send you the certificate",
       name: "Full name",
       email: "Email",
       phone: "Phone (WhatsApp)",
@@ -120,7 +124,7 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
     },
     step2: {
       title: "Property details",
-      subtitle: "Your tourist rental information",
+      : "Your tourist rental information",
      nrua: "NRUA Number (Single Window)",
 nruaPh: "ESFCTU0000430240001151320000...",
 nruaHelp: "The long number starting with 'ES' from the Digital Single Window. If you don't have it, apply at registradores.org",
@@ -134,10 +138,14 @@ nruaPhotoDrag: "Drag or click to upload image",
     },
     step3: {
       title: "Booking history",
-      subtitle: "Upload your files from Airbnb, Booking or other platforms",
+      subtitle: "Upload 1 to 3 files at once (one per platform). The system will merge them into a single report. Review the result: if a booking appears on multiple platforms, delete the duplicates.",
      airbnbFile: "Airbnb file",
 airbnbHelp: "Download from Completed reservations → Export",
 airbnbUrl: "https://es-l.airbnb.com/hosting/reservations/completed",
+      vrboFile: "VRBO file",
+vrboHelp: "Download from Inbox → Filters → Download",
+vrboUrl: "https://www.vrbo.com/es-es/supply/inbox",
+otherFile: "Other (Channel Manager...)",
 bookingFile: "Booking file",
 bookingHelp: "Download from Reservations → Export to Excel",
 bookingUrl: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html",
@@ -226,13 +234,17 @@ nruaPhotoDrag: "Glisser ou cliquer pour télécharger",
     },
     step3: {
       title: "Historique des réservations",
-      subtitle: "Uploadez vos fichiers d'Airbnb, Booking ou autres",
+      subtitle: "Uploadez de 1 à 3 fichiers à la fois (un par plateforme). Le système les combinera en un seul rapport. Vérifiez le résultat : si une réservation apparaît sur plusieurs plateformes, supprimez les doublons.",
      airbnbFile: "Fichier Airbnb",
 airbnbHelp: "Téléchargez depuis Réservations terminées → Exporter",
 airbnbUrl: "https://es-l.airbnb.com/hosting/reservations/completed",
 bookingFile: "Fichier Booking",
 bookingHelp: "Téléchargez depuis Réservations → Exporter en Excel",
 bookingUrl: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html",
+      vrboFile: "Fichier VRBO",
+vrboHelp: "Téléchargez depuis Boîte de réception → Filtres → Télécharger",
+vrboUrl: "https://www.vrbo.com/es-es/supply/inbox",
+otherFile: "Autre (Channel Manager...)",
 otherFile: "Autre (VRBO, Channel Manager...)",
 otherHelp: "CSV ou Excel avec dates d'arrivée/départ et voyageurs",
       dragOrClick: "Glisser ou cliquer",
@@ -318,13 +330,17 @@ nruaPhotoDrag: "Ziehen oder klicken zum Hochladen",
     },
     step3: {
       title: "Buchungsverlauf",
-      subtitle: "Laden Sie Ihre Dateien von Airbnb, Booking oder anderen hoch",
+      subtitle: "Laden Sie 1 bis 3 Dateien gleichzeitig hoch (eine pro Plattform). Das System kombiniert sie zu einem Bericht. Prüfen Sie das Ergebnis: falls eine Buchung auf mehreren Plattformen erscheint, löschen Sie Duplikate.",
      airbnbFile: "Airbnb-Datei",
 airbnbHelp: "Von Abgeschlossene Buchungen → Exportieren herunterladen",
 airbnbUrl: "https://es-l.airbnb.com/hosting/reservations/completed",
 bookingFile: "Booking-Datei",
 bookingHelp: "Von Reservierungen → Als Excel exportieren herunterladen",
 bookingUrl: "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/search_reservations.html",
+      vrboFile: "VRBO-Datei",
+vrboHelp: "Von Posteingang → Filter → Herunterladen",
+vrboUrl: "https://www.vrbo.com/es-es/supply/inbox",
+otherFile: "Andere (Channel Manager...)",
 otherFile: "Andere (VRBO, Channel Manager...)",
 otherHelp: "CSV oder Excel mit Check-in/Check-out und Gästen",
       dragOrClick: "Ziehen oder klicken",
@@ -402,11 +418,12 @@ function FormularioNRUA() {
   const [acceptGdpr, setAcceptGdpr] = useState(false)
   const [manualMode, setManualMode] = useState(false)
   const [noActivity, setNoActivity] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState({
-    airbnb: null,
-    booking: null,
-    other: null
-  })
+const [uploadedFiles, setUploadedFiles] = useState({
+  airbnb: null,
+  booking: null,
+  vrbo: null,
+  other: null
+})
   const [nruaFile, setNruaFile] = useState(null)
   const [fileProcessed, setFileProcessed] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -515,6 +532,7 @@ function FormularioNRUA() {
       const formData = new FormData()
       if (uploadedFiles.airbnb) formData.append('airbnb', uploadedFiles.airbnb)
       if (uploadedFiles.booking) formData.append('booking', uploadedFiles.booking)
+      if (uploadedFiles.vrbo) formData.append('vrbo', uploadedFiles.vrbo)
       if (uploadedFiles.other) formData.append('other', uploadedFiles.other)
       
       const response = await fetch('/api/process-csv', {
@@ -544,6 +562,16 @@ if (data.booking?.estancias) {
     guests: s.huespedes?.toString() || '',
     purpose: '1',
     source: 'Booking'
+  }))]
+}
+
+        if (data.vrbo?.estancias) {
+  allStays = [...allStays, ...data.vrbo.estancias.map(s => ({
+    checkIn: s.fecha_entrada?.split('/').reverse().join('-') || '',
+    checkOut: s.fecha_salida?.split('/').reverse().join('-') || '',
+    guests: s.huespedes?.toString() || '',
+    purpose: '1',
+    source: 'VRBO'
   }))]
 }
 
@@ -591,7 +619,7 @@ allStays = allStays.map((stay, index) => {
   }
 
   const resetFiles = () => {
-    setUploadedFiles({ airbnb: null, booking: null, other: null })
+    setUploadedFiles({ airbnb: null, booking: null, vrbo: null, other: null })
     setFileProcessed(false)
     setExtractedStays([])
   }
@@ -736,7 +764,7 @@ if (!acceptTerms || !acceptAuthorization) return
 }
 
   const currentPlan = t.step4.plans.find(p => p.id === selectedPlan)
-  const hasAnyFile = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.other
+  const hasAnyFile = uploadedFiles.airbnb || uploadedFiles.booking || uploadedFiles.vrbo || uploadedFiles.other
 
   return (
     <div className="form-page">
@@ -1014,6 +1042,45 @@ if (!acceptTerms || !acceptAuthorization) return
   )}
 </div>
 
+{/* VRBO Upload */}
+<div className="upload-card-wrapper">
+  <div 
+    className={`upload-zone-mini ${uploadedFiles.vrbo ? 'has-file' : ''}`}
+    onDrop={handleFileDrop('vrbo')}
+    onDragOver={e => e.preventDefault()}
+    onClick={() => document.getElementById('vrboInput').click()}
+  >
+    <input type="file" id="vrboInput" accept=".csv,.xlsx,.xls" onChange={handleFileUpload('vrbo')} hidden />
+    <div className="upload-zone-content">
+      <span className="upload-icon" style={{fontSize: '24px', fontWeight: 'bold', color: '#0e2658'}}>Vrbo</span>
+      <strong>{t.step3.vrboFile}</strong>
+      {uploadedFiles.vrbo ? (
+        <div className="file-info">
+          <span className="file-name">{uploadedFiles.vrbo.name}</span>
+          <button className="btn-remove" onClick={(e) => { e.stopPropagation(); removeFile('vrbo'); }}>×</button>
+        </div>
+      ) : (
+        <span className="upload-hint">{t.step3.dragOrClick}</span>
+      )}
+    </div>
+  </div>
+  
+  {!uploadedFiles.vrbo && (
+    <details className="platform-help-details">
+      <summary>📥 {t.step3.vrboHelp}</summary>
+      <div className="help-content">
+        <p><strong>Paso 1:</strong> Ve a Bandeja de entrada → Filtros → Selecciona: Estancia reservada, Después de la estancia, Salida próxima, Estancia actual, Llegada hoy. Filtra fechas 1 ene – 31 dic 2025</p>
+        <img src="/images/vrboexplain1.png" alt="Filtrar reservas en VRBO" className="help-screenshot clickable" onClick={(e) => { e.stopPropagation(); setLightboxImage('/images/vrboexplain1.png'); }} />
+        <p><strong>Paso 2:</strong> Haz clic en "Descargar" (arriba a la derecha) → Confirma la descarga</p>
+        <img src="/images/vrboexplain2.png" alt="Descargar reservas en VRBO" className="help-screenshot clickable" onClick={(e) => { e.stopPropagation(); setLightboxImage('/images/vrboexplain2.png'); }} />
+        <a href="https://www.vrbo.com/es-es/supply/inbox" target="_blank" rel="noopener noreferrer" className="btn btn-small btn-outline">
+          🔗 Ir a mis reservas de VRBO
+        </a>
+      </div>
+    </details>
+  )}
+</div>
+
 {/* Other Upload */}
 <div 
   className={`upload-zone-mini ${uploadedFiles.other ? 'has-file' : ''}`}
@@ -1042,7 +1109,6 @@ if (!acceptTerms || !acceptAuthorization) return
     )}
   </div>
 </div>
-
             {/* Process Button */}
 {hasAnyFile && !fileProcessed && (
   <button 
