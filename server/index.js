@@ -282,10 +282,47 @@ if (parseInt(plan) === 1) {
 function parseFileToRows(buffer, originalName) {
   const ext = (originalName || '').toLowerCase();
   
-  if (ext.endsWith('.xlsx') || ext.endsWith('.xls')) {
+ if (ext.endsWith('.xlsx') || ext.endsWith('.xls')) {
     const workbook = XLSX.read(buffer, { type: 'buffer', cellDates: true });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    return XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    const allRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    
+    // Si la primera fila no tiene columnas reconocibles, buscar la fila de headers real
+    if (allRows.length > 0) {
+      const firstKeys = Object.keys(allRows[0]);
+      const hasDateCol = firstKeys.some(k => {
+        const kl = k.toLowerCase();
+        return kl.includes('check') || kl.includes('fecha') || kl.includes('arrival') || 
+               kl.includes('entrada') || kl.includes('night') || kl.includes('salida') ||
+               kl.includes('departure') || kl.includes('anreise') || kl.includes('arrivée');
+      });
+      
+      if (!hasDateCol) {
+        // Probar con sheet_to_json usando range desde diferentes filas
+        const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+        for (let i = 1; i < Math.min(rawData.length, 10); i++) {
+          const testRow = rawData[i];
+          if (Array.isArray(testRow)) {
+            const testStr = testRow.map(c => String(c).toLowerCase()).join('|');
+            if (testStr.includes('check') || testStr.includes('fecha') || testStr.includes('night') || 
+                testStr.includes('arrival') || testStr.includes('entrada') || testStr.includes('anreise')) {
+              // Esta fila es la de headers real
+              const headers = testRow.map(c => String(c).trim());
+              const dataRows = [];
+              for (let j = i + 1; j < rawData.length; j++) {
+                const row = {};
+                headers.forEach((h, idx) => { row[h] = rawData[j]?.[idx] ?? ''; });
+                dataRows.push(row);
+              }
+              console.log(`📋 XLSX: headers reales encontrados en fila ${i + 1}`);
+              return dataRows;
+            }
+          }
+        }
+      }
+    }
+    
+    return allRows;
   }
   
   // CSV parsing
