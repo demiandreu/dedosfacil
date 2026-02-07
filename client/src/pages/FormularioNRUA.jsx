@@ -114,7 +114,7 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
     steps: ["Your info", "Property", "Bookings", "Payment"],
     step1: {
       title: "Contact details",
-      : "To send you the certificate",
+      subtitle: "To send you the certificate",
       name: "Full name",
       email: "Email",
       phone: "Phone (WhatsApp)",
