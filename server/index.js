@@ -159,34 +159,34 @@ app.post('/api/create-checkout-session', async (req, res) => {
       );
       const orderId = orderResult.rows[0].id;
       
-       if (parseInt(plan) === 1) {
+if (parseInt(plan) === 1) {
       await pool.query(
         `INSERT INTO submissions 
          (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip, gdpr_accepted, gdpr_timestamp, gdpr_ip)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16 $17, $18, $19)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
         [
           orderId,
-  formData?.name || null,
-  null,
-  formData?.nrua || null,
-  formData?.address || null,
-  formData?.province || null,
-  formData?.phone || null,
-  files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
-  files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
-  files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
-  files?.nruaPhoto ? JSON.stringify({ name: files.nruaPhotoName, data: files.nruaPhoto }) : null,
-  files?.nruaPhotoName || null,
-  JSON.stringify(stays || []),
-  'completed',
-  new Date(),
-  req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-  gdprConsent?.accepted || false,
-  new Date(),
-  req.headers['x-forwarded-for'] || req.socket.remoteAddress
+          formData?.name || null,
+          null,
+          formData?.nrua || null,
+          formData?.address || null,
+          formData?.province || null,
+          formData?.phone || null,
+          files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
+          files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
+          files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
+          files?.nruaPhoto ? JSON.stringify({ name: files.nruaPhotoName, data: files.nruaPhoto }) : null,
+          files?.nruaPhotoName || null,
+          JSON.stringify(stays || []),
+          'completed',
+          new Date(),
+          req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+          gdprConsent?.accepted || false,
+          new Date(),
+          req.headers['x-forwarded-for'] || req.socket.remoteAddress
         ]
       );
-}
+    }
      await sendConfirmationEmail(email, {
   orderId: orderId,
   plan: priceData.properties,
@@ -209,31 +209,34 @@ app.post('/api/create-checkout-session', async (req, res) => {
     );
     const orderId = orderResult.rows[0].id;
 
-  if (parseInt(plan) === 1) {
-  await pool.query(
- `INSERT INTO submissions 
-    (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip) 
-   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
-  [
-    orderId,
-    formData?.name || null,
-    null,
-    formData?.nrua || null,
-    formData?.address || null,
-    formData?.province || null,
-    formData?.phone || null,
-    files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
-    files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
-    files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
-    files?.nruaPhoto ? JSON.stringify({ name: files.nruaPhotoName, data: files.nruaPhoto }) : null,
-          files?.nruaPhotoName || null,
-    JSON.stringify(stays || []),
-    'pending',
-    new Date(),
-    req.headers['x-forwarded-for'] || req.socket.remoteAddress
-  ]
-);
-}
+if (parseInt(plan) === 1) {
+    await pool.query(
+      `INSERT INTO submissions 
+         (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip, gdpr_accepted, gdpr_timestamp, gdpr_ip)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+      [
+        orderId,
+        formData?.name || null,
+        null,
+        formData?.nrua || null,
+        formData?.address || null,
+        formData?.province || null,
+        formData?.phone || null,
+        files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
+        files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
+        files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
+        files?.nruaPhoto ? JSON.stringify({ name: files.nruaPhotoName, data: files.nruaPhoto }) : null,
+        files?.nruaPhotoName || null,
+        JSON.stringify(stays || []),
+        'pending',
+        new Date(),
+        req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+        gdprConsent?.accepted || false,
+        new Date(),
+        req.headers['x-forwarded-for'] || req.socket.remoteAddress
+      ]
+    );
+  }
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
