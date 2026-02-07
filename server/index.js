@@ -7,6 +7,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import pg from 'pg';
 import multer from 'multer';
 import { Resend } from 'resend';  
+import XLSX from 'xlsx';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
