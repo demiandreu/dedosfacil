@@ -10,12 +10,14 @@ import Privacidad from './pages/Privacidad'
 import Cookies from './pages/Cookies'
 import Factura from './pages/Factura'
 import Valoracion from './pages/Valoracion'
+import SolicitarNRUA from './pages/SolicitarNRUA'
 
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/solicitar-nrua" element={<SolicitarNRUA />} />
         <Route path="/valoracion" element={<Valoracion />} />
         <Route path="/factura/:orderId" element={<Factura />} />
         <Route path="/" element={<Landing />} />
