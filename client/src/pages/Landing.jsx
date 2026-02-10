@@ -584,11 +584,17 @@ function Landing() {
             <span className="logo-icon">DF</span>
             <span className="logo-text">DedosFácil</span>
           </div>
-          <nav className="nav">
-            <a href="#como-funciona">{t.nav.howItWorks}</a>
-            <a href="#precios">{t.nav.pricing}</a>
-            <a href="#faq">{t.nav.faq}</a>
-          </nav>
+         <nav className="nav">
+  <a href="#como-funciona">{t.nav.howItWorks}</a>
+  <a href="#precios">{t.nav.pricing}</a>
+  <a href="#faq">{t.nav.faq}</a>
+  <a href="/solicitar-nrua" className="nav-nrua-link">
+    {lang === 'es' ? 'Obtener NRUA' :
+     lang === 'en' ? 'Get NRUA' :
+     lang === 'fr' ? 'Obtenir NRUA' :
+     'NRUA erhalten'}
+  </a>
+</nav>
           <a href="/formulario" className="btn btn-primary">{t.nav.startNow}</a>
         </div>
       </header>
