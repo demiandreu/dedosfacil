@@ -2123,3 +2123,67 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 8px;
   text-align: center;
 }
+/* === NO NRUA Section === */
+.no-nrua-section {
+  padding: 60px 0;
+  background: #F8FAFC;
+}
+
+.no-nrua-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.no-nrua-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.no-nrua-content h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: #1E293B;
+}
+
+.no-nrua-content p {
+  margin: 0 0 16px;
+  color: #64748B;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.no-nrua-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 20px;
+}
+
+.no-nrua-features span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #059669;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .no-nrua-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
+  }
+  .no-nrua-features {
+    justify-content: center;
+  }
+}
