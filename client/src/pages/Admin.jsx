@@ -9,6 +9,8 @@ const Admin = () => {
   const [adminPassword, setAdminPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(null)
+  const [activeTab, setActiveTab] = useState('n2')
+const [nruaRequests, setNruaRequests] = useState([])
 
   const ADMIN_PASSWORD = 'dedos2026'
 
@@ -42,11 +44,22 @@ const Admin = () => {
     }
   }
 
-  useEffect(() => {
+ useEffect(() => {
     if (isAuthenticated) {
       fetchOrders()
+      fetchNruaRequests()
     }
   }, [isAuthenticated])
+
+  const fetchNruaRequests = async () => {
+    try {
+      const response = await fetch('/api/admin/nrua-requests')
+      const data = await response.json()
+      if (!data.error) setNruaRequests(data)
+    } catch (err) {
+      console.error('Error fetching NRUA requests:', err)
+    }
+  }
 
   const downloadFile = async (orderId, fileType) => {
     try {
@@ -645,7 +658,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
       <div style={styles.header}>
         <h1 style={styles.headerTitle}>📋 Panel Admin - DedosFácil</h1>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <button onClick={fetchOrders} style={styles.refreshBtn}>
+          <button onClick={() => { fetchOrders(); fetchNruaRequests() }} style={styles.refreshBtn}>
             🔄 Actualizar
           </button>
           <button 
@@ -684,6 +697,33 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
           </div>
         </div>
 
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: '0', marginBottom: '20px', borderBottom: '2px solid #e5e7eb' }}>
+          <button
+            onClick={() => setActiveTab('n2')}
+            style={{
+              padding: '12px 24px', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600',
+              borderBottom: activeTab === 'n2' ? '3px solid #f97316' : '3px solid transparent',
+              color: activeTab === 'n2' ? '#f97316' : '#6b7280',
+              background: 'none'
+            }}
+          >
+            📄 Modelo N2 ({orders.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('nrua')}
+            style={{
+              padding: '12px 24px', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600',
+              borderBottom: activeTab === 'nrua' ? '3px solid #3B82F6' : '3px solid transparent',
+              color: activeTab === 'nrua' ? '#3B82F6' : '#6b7280',
+              background: 'none'
+            }}
+          >
+            🔑 Solicitudes NRUA ({nruaRequests.length})
+          </button>
+        </div>
+        
+{activeTab === 'n2' && (<>
         {/* Filters */}
         <div style={styles.filterBar}>
           {[
@@ -964,6 +1004,164 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
             )}
           </div>
         )}
+        </>)}
+
+        {/* NRUA Requests Tab */}
+        {activeTab === 'nrua' && (
+          <div>
+            {nruaRequests.length === 0 ? (
+              <div style={{ ...styles.orderCard, padding: '32px', textAlign: 'center', color: '#6b7280' }}>
+                No hay solicitudes NRUA
+              </div>
+            ) : (
+              nruaRequests.map(req => (
+                <div key={req.id} style={styles.orderCard}>
+                  <div
+                    style={styles.orderHeader}
+                    onClick={() => setExpandedOrder(expandedOrder === `nrua-${req.id}` ? null : `nrua-${req.id}`)}
+                  >
+                    <div style={styles.orderHeaderLeft}>
+                      <span style={styles.orderId}>#{req.order_id}</span>
+                      <span style={{
+                        ...styles.badge,
+                        ...(req.status === 'completed' ? styles.badgeCompleted : req.status === 'enviado' ? styles.badgeEnviado : styles.badgePending)
+                      }}>
+                        {req.status === 'pending' ? 'Pendiente' : req.status === 'completed' ? 'Pagado' : req.status === 'enviado' ? 'Enviado' : req.status}
+                      </span>
+                      <span style={{ ...styles.badge, backgroundColor: '#DBEAFE', color: '#1E40AF' }}>NRUA</span>
+                      <span style={styles.orderEmail}>{req.email}</span>
+                    </div>
+                    <div style={styles.orderHeaderRight}>
+                      <span style={styles.orderDate}>
+                        {new Date(req.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span style={{ ...styles.orderAmount, color: '#3B82F6' }}>149€</span>
+                      <span>{expandedOrder === `nrua-${req.id}` ? '▲' : '▼'}</span>
+                    </div>
+                  </div>
+
+                  {expandedOrder === `nrua-${req.id}` && (
+                    <div style={styles.orderDetails}>
+                      <div style={styles.detailsGrid}>
+                        {/* Solicitante */}
+                        <div>
+                          <h3 style={styles.sectionTitle}>👤 Solicitante</h3>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Tipo: </span>
+                            <span style={styles.detailValue}>{req.person_type === 'physical' ? 'Persona física' : 'Persona jurídica'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Nombre: </span>
+                            <span style={styles.detailValue}>
+                              {req.person_type === 'physical' ? `${req.name || ''} ${req.surname || ''}` : req.company_name || '-'}
+                            </span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>{req.id_type || 'NIE'}: </span>
+                            <span style={{ ...styles.detailValue, fontFamily: 'monospace' }}>{req.id_number || '-'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Email: </span>
+                            <span style={styles.detailValue}>{req.email || '-'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Teléfono: </span>
+                            <span style={styles.detailValue}>{req.phone || '-'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Dirección: </span>
+                            <span style={styles.detailValue}>{req.address || '-'}, {req.postal_code || ''} {req.municipality || ''}, {req.province || ''}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>País: </span>
+                            <span style={styles.detailValue}>{req.country || '-'}</span>
+                          </p>
+                        </div>
+
+                        {/* Propiedad */}
+                        <div>
+                          <h3 style={styles.sectionTitle}>🏠 Propiedad</h3>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Dirección: </span>
+                            <span style={styles.detailValue}>{req.property_address || '-'}{req.property_extra ? `, ${req.property_extra}` : ''}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Municipio: </span>
+                            <span style={styles.detailValue}>{req.property_municipality || '-'}, {req.property_province || '-'} ({req.property_postal_code || '-'})</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Ref. Catastral: </span>
+                            <span style={{ ...styles.detailValue, fontFamily: 'monospace' }}>{req.catastral_ref || '-'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>CRU: </span>
+                            <span style={{ ...styles.detailValue, fontFamily: 'monospace' }}>{req.cru || 'No proporcionado'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Tipo: </span>
+                            <span style={styles.detailValue}>{req.unit_type === 'complete' ? 'Finca completa' : 'Habitación'} / {req.category === 'tourist' ? 'Turístico' : 'No turístico'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Residencia: </span>
+                            <span style={styles.detailValue}>{req.residence_type === 'primary' ? 'Principal' : req.residence_type === 'secondary' ? 'Secundaria' : 'Otros'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Máx. huéspedes: </span>
+                            <span style={styles.detailValue}>{req.max_guests || '-'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Equipamiento UE: </span>
+                            <span style={styles.detailValue}>{req.equipped === 'yes' ? '✅ Sí' : '❌ No'}</span>
+                          </p>
+                          <p style={styles.detailRow}>
+                            <span style={styles.detailLabel}>Licencia turística: </span>
+                            <span style={styles.detailValue}>
+                              {req.has_license === 'yes' ? `✅ ${req.license_number || '-'}` : '❌ No tiene'}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Autorización */}
+                      <div style={{ marginTop: '20px', padding: '16px', backgroundColor: '#F0F4FF', borderRadius: '8px', border: '1px solid #BFDBFE' }}>
+                        <h3 style={{ margin: '0 0 8px', fontSize: '14px', color: '#1E40AF' }}>📋 Autorización</h3>
+                        <p style={{ margin: '4px 0', fontSize: '13px', color: '#374151' }}>
+                          ✅ Aceptada: {req.authorization_timestamp ? new Date(req.authorization_timestamp).toLocaleString('es-ES') : '-'}
+                        </p>
+                        <p style={{ margin: '4px 0', fontSize: '13px', color: '#374151' }}>
+                          IP: {req.authorization_ip || '-'} | GDPR: {req.gdpr_accepted ? '✅' : '❌'} | Idioma: {req.lang || '-'}
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div style={{ ...styles.actionsBar, marginTop: '16px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {req.status === 'completed' && (
+                            <button
+                              onClick={() => updateNruaStatus(req.id, 'enviado')}
+                              style={styles.btnSuccess}
+                            >
+                              ✅ Marcar como Enviado
+                            </button>
+                          )}
+                          {req.status === 'enviado' && (
+                            <button
+                              onClick={() => updateNruaStatus(req.id, 'completed')}
+                              style={styles.btnSecondary}
+                            >
+                              Desmarcar Enviado
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   )
