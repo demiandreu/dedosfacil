@@ -1990,3 +1990,136 @@ h1, h2, h3, h4, h5, h6 {
   color: #B45309;
   text-decoration: underline;
 }
+/* === SOLICITAR NRUA - Estilos adicionales === */
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.radio-group {
+  display: flex;
+  gap: 20px;
+  margin-top: 6px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.radio-label input[type="radio"] {
+  accent-color: #3B82F6;
+}
+
+/* Authorization Document */
+.authorization-document {
+  border: 1px solid #D1D5DB;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.auth-doc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: #F0F4FF;
+  border-bottom: 1px solid #D1D5DB;
+  color: #1E40AF;
+  font-weight: 600;
+}
+
+.auth-doc-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.auth-doc-body {
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.auth-details-title {
+  margin-top: 16px;
+}
+
+.auth-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 16px;
+}
+
+.auth-items-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  color: #374151;
+}
+
+.auth-items-list li svg {
+  color: #10B981;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.auth-signatory {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #D1D5DB;
+  font-size: 13px;
+  color: #6B7280;
+}
+
+.auth-signatory p {
+  margin: 4px 0;
+}
+
+/* GDPR Section */
+.gdpr-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.gdpr-section h4 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: #374151;
+}
+
+/* N2 Upsell */
+.n2-upsell-box {
+  background: #F0FDF4;
+  border: 1px solid #86EFAC;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  font-size: 14px;
+  color: #065F46;
+}
+
+.n2-upsell-box p {
+  margin: 0;
+}
+
+.summary-includes {
+  font-size: 13px;
+  color: #6B7280;
+  margin-top: 8px;
+  text-align: center;
+}
