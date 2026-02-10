@@ -112,8 +112,13 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
   if (updateResult.rows.length > 0) {
     const order = updateResult.rows[0];
     
+    // Update submissions OR nrua_requests depending on service type
     await pool.query(
       'UPDATE submissions SET status = $1 WHERE order_id = $2',
+      ['completed', order.id]
+    );
+    await pool.query(
+      'UPDATE nrua_requests SET status = $1 WHERE order_id = $2',
       ['completed', order.id]
     );
     
@@ -274,6 +279,174 @@ if (parseInt(plan) === 1) {
   }
 });
 
+
+// ============================================
+// SOLICITAR NRUA - Checkout 149€
+// ============================================
+
+app.post('/api/create-checkout-nrua', async (req, res) => {
+  try {
+    const { form, personType, hasLicense, lang } = req.body;
+    const email = form.email;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email obligatorio' });
+    }
+
+    const amount = 14900; // 149€
+
+    // Email de prueba que salta Stripe
+    if (email === 'demiandreu@gmail.com') {
+      const orderResult = await pool.query(
+        'INSERT INTO orders (email, plan, properties_count, amount, status, service_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+        [email, 'nrua', 1, amount, 'completed', 'nrua_request']
+      );
+      const orderId = orderResult.rows[0].id;
+
+      await pool.query(
+        `INSERT INTO nrua_requests 
+         (order_id, person_type, name, surname, company_name, id_type, id_number,
+          country, address, postal_code, province, municipality, email, phone,
+          property_address, property_extra, property_postal_code, property_province, property_municipality,
+          catastral_ref, cru, unit_type, category, residence_type, max_guests, equipped,
+          has_license, license_number, authorization_accepted, authorization_timestamp, authorization_ip,
+          gdpr_accepted, status, lang)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34)`,
+        [
+          orderId, personType,
+          form.name || null, form.surname || null, form.companyName || null,
+          form.idType || null, form.idNumber || null,
+          form.country || null, form.address || null, form.postalCode || null,
+          form.province || null, form.municipality || null,
+          email, form.phone || null,
+          form.propertyAddress || null, form.propertyExtra || null,
+          form.propertyPostalCode || null, form.propertyProvince || null, form.propertyMunicipality || null,
+          form.catastralRef || null, form.cru || null,
+          form.unitType || null, form.category || null, form.residenceType || null,
+          form.maxGuests ? parseInt(form.maxGuests) : null, form.equipped || null,
+          hasLicense || null, form.licenseNumber || null,
+          true, new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+          true, 'completed', lang
+        ]
+      );
+
+      await sendNruaConfirmationEmail(email, { orderId, amount: amount / 100 });
+      return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&service=nrua`, orderId });
+    }
+
+    // Create order
+    const orderResult = await pool.query(
+      'INSERT INTO orders (email, plan, properties_count, amount, status, service_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      [email, 'nrua', 1, amount, 'pending', 'nrua_request']
+    );
+    const orderId = orderResult.rows[0].id;
+
+    // Save NRUA request data
+    await pool.query(
+      `INSERT INTO nrua_requests 
+       (order_id, person_type, name, surname, company_name, id_type, id_number,
+        country, address, postal_code, province, municipality, email, phone,
+        property_address, property_extra, property_postal_code, property_province, property_municipality,
+        catastral_ref, cru, unit_type, category, residence_type, max_guests, equipped,
+        has_license, license_number, authorization_accepted, authorization_timestamp, authorization_ip,
+        gdpr_accepted, status, lang)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34)`,
+      [
+        orderId, personType,
+        form.name || null, form.surname || null, form.companyName || null,
+        form.idType || null, form.idNumber || null,
+        form.country || null, form.address || null, form.postalCode || null,
+        form.province || null, form.municipality || null,
+        email, form.phone || null,
+        form.propertyAddress || null, form.propertyExtra || null,
+        form.propertyPostalCode || null, form.propertyProvince || null, form.propertyMunicipality || null,
+        form.catastralRef || null, form.cru || null,
+        form.unitType || null, form.category || null, form.residenceType || null,
+        form.maxGuests ? parseInt(form.maxGuests) : null, form.equipped || null,
+        hasLicense || null, form.licenseNumber || null,
+        true, new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+        true, 'pending', lang
+      ]
+    );
+
+    // Create Stripe session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: 'DedosFácil - Solicitud NRUA',
+            description: 'Gestión de solicitud del Número de Registro de Alquiler ante el Registro de la Propiedad',
+          },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${req.headers.origin}/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}&service=nrua`,
+      cancel_url: `${req.headers.origin}/solicitar-nrua`,
+      customer_email: email,
+      metadata: { orderId: orderId.toString(), serviceType: 'nrua_request' }
+    });
+
+    await pool.query(
+      'UPDATE orders SET stripe_session_id = $1 WHERE id = $2',
+      [session.id, orderId]
+    );
+
+    res.json({ url: session.url, orderId });
+  } catch (error) {
+    console.error('NRUA Checkout error:', error);
+    res.status(500).json({ error: 'Error al crear sesión de pago' });
+  }
+});
+
+// Email de confirmación NRUA
+async function sendNruaConfirmationEmail(email, orderData) {
+  try {
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: email,
+      bcc: ['support@dedosfacil.es'],
+      subject: `✅ Solicitud NRUA DF-${orderData.orderId} confirmada - DedosFácil`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #10b981;">✅ ¡Solicitud de NRUA recibida!</h2>
+            <p>Gracias por confiar en DedosFácil. Hemos recibido tu solicitud de número NRUA.</p>
+            <div style="background: #1e3a5f; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <span style="font-size: 14px;">Tu número de referencia</span><br>
+              <strong style="font-size: 28px;">DF-${orderData.orderId}</strong>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0;">Resumen:</h3>
+              <p><strong>Servicio:</strong> Solicitud de número NRUA</p>
+              <p><strong>Importe:</strong> ${orderData.amount}€</p>
+            </div>
+            <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+              <h3 style="margin-top: 0; color: #166534;">¿Qué pasa ahora?</h3>
+              <ol style="color: #166534;">
+                <li>Nuestra gestora tramitará tu solicitud ante el Registro de la Propiedad</li>
+                <li>En 5-10 días laborables recibirás tu número NRUA por email</li>
+                <li>Con tu NRUA podrás presentar el Modelo N2 desde 79€</li>
+              </ol>
+            </div>
+            <p style="color: #666; font-size: 14px; margin-top: 20px;">
+              ¿Dudas? Escríbenos a support@dedosfacil.es indicando tu referencia DF-${orderData.orderId}
+            </p>
+          </div>
+        </div>
+      `
+    });
+    console.log('NRUA confirmation email sent to:', email);
+  } catch (error) {
+    console.error('Error sending NRUA email:', error);
+  }
+}
 // =====================================================
 // PARSEO DIRECTO DE CSV/XLSX + FALLBACK A CLAUDE AI
 // Todos los idiomas europeos soportados
