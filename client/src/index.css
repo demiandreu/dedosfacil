@@ -1946,3 +1946,47 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   margin-top: 12px;
 }
+.nrua-cta-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: #FFF8F0;
+  border: 1px solid #F0C888;
+  border-radius: 10px;
+  border-left: 4px solid #F59E0B;
+}
+
+.nrua-cta-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.nrua-cta-content strong {
+  display: block;
+  color: #92400E;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.nrua-cta-content p {
+  color: #78716C;
+  font-size: 13px;
+  margin: 0 0 6px 0;
+}
+
+.nrua-cta-link {
+  display: inline-block;
+  color: #D97706;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nrua-cta-link:hover {
+  color: #B45309;
+  text-decoration: underline;
+}
