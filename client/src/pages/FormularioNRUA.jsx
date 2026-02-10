@@ -926,12 +926,37 @@ if (!acceptTerms || !acceptAuthorization) return
                 <p>{t.step2.subtitle}</p>
               </div>
               <div className="form-fields">
-                <div className={`form-group ${errors.nrua ? 'error' : ''}`}>
-                  <label>{t.step2.nrua} *</label>
-                  <input value={form.nrua} onChange={e => updateForm('nrua', e.target.value)} placeholder={t.step2.nruaPh} />
-                 <span className="help-text">{t.step2.nruaHelp}</span>
-                  {errors.nrua && <span className="error-msg">{errors.nrua}</span>}
-                </div>
+              <div className={`form-group ${errors.nrua ? 'error' : ''}`}>
+  <label>{t.step2.nrua} *</label>
+  <input value={form.nrua} onChange={e => updateForm('nrua', e.target.value)} placeholder={t.step2.nruaPh} />
+  <span className="help-text">{t.step2.nruaHelp}</span>
+  {errors.nrua && <span className="error-msg">{errors.nrua}</span>}
+  
+  {/* CTA: No tiene NRUA */}
+  <div className="nrua-cta-box">
+    <span className="nrua-cta-icon">⚠️</span>
+    <div className="nrua-cta-content">
+      <strong>
+        {lang === 'es' ? '¿No tienes tu número NRUA?' :
+         lang === 'en' ? "Don't have your NRUA number?" :
+         lang === 'fr' ? "Vous n'avez pas votre numéro NRUA ?" :
+         'Haben Sie keine NRUA-Nummer?'}
+      </strong>
+      <p>
+        {lang === 'es' ? 'No te preocupes. Te ayudamos a obtenerlo.' :
+         lang === 'en' ? "Don't worry. We help you get it." :
+         lang === 'fr' ? 'Pas de souci. Nous vous aidons à l\'obtenir.' :
+         'Kein Problem. Wir helfen Ihnen, sie zu erhalten.'}
+      </p>
+      <a href="/solicitar-nrua" className="nrua-cta-link">
+        {lang === 'es' ? 'Solicitar NRUA — 149€ →' :
+         lang === 'en' ? 'Request NRUA — €149 →' :
+         lang === 'fr' ? 'Demander NRUA — 149€ →' :
+         'NRUA beantragen — 149€ →'}
+      </a>
+    </div>
+  </div>
+</div>
 
                 {/* NRUA Photo Upload */}
                 <div className="form-group">
