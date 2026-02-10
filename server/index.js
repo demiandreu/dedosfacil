@@ -330,7 +330,7 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
         ]
       );
 
-      await sendNruaConfirmationEmail(email, { orderId, amount: amount / 100 });
+     await sendNruaConfirmationEmail(email, { orderId, amount: amount / 100, form, ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress });
       return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&service=nrua`, orderId });
     }
 
@@ -430,10 +430,25 @@ async function sendNruaConfirmationEmail(email, orderData) {
             <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
               <h3 style="margin-top: 0; color: #166534;">¿Qué pasa ahora?</h3>
               <ol style="color: #166534;">
-                <li>Nuestra gestora tramitará tu solicitud ante el Registro de la Propiedad</li>
+                <li>Nuestra gestora, Dña. Sheshina Irina, tramitará tu solicitud ante el Registro de la Propiedad</li>
                 <li>En 5-10 días laborables recibirás tu número NRUA por email</li>
                 <li>Con tu NRUA podrás presentar el Modelo N2 desde 79€</li>
               </ol>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin: 20px 0;">
+              <h3 style="margin-top: 0;">📄 Documento de Autorización</h3>
+              <p style="font-size: 14px; line-height: 1.6;">
+                Yo, <strong>${form.name || ''} ${form.surname || form.companyName || ''}</strong>, 
+                con ${form.idType || 'NIE'} nº <strong>${form.idNumber || ''}</strong>, 
+                autorizo a <strong>Dña. Sheshina Irina</strong>, con NIE nº <strong>Y6189281H</strong>,
+                para que, en mi nombre y representación, presente la solicitud de asignación 
+                del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad 
+                correspondiente, conforme al Reglamento (UE) 2024/1028.
+              </p>
+              <p style="font-size: 12px; color: #666;">
+                Fecha: ${new Date().toLocaleDateString('es-ES')} | 
+                IP: ${req.headers['x-forwarded-for'] || 'N/A'}
+              </p>
             </div>
             <p style="color: #666; font-size: 14px; margin-top: 20px;">
               ¿Dudas? Escríbenos a support@dedosfacil.es indicando tu referencia DF-${orderData.orderId}
