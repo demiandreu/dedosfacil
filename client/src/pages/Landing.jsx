@@ -776,6 +776,41 @@ function Landing() {
         </div>
       </section>
 
+      {/* No NRUA? */}
+      <section className="no-nrua-section">
+        <div className="container">
+          <div className="no-nrua-card">
+            <div className="no-nrua-icon">🔑</div>
+            <div className="no-nrua-content">
+              <h3>
+                {lang === 'es' ? '¿No tienes número NRUA?' :
+                 lang === 'en' ? "Don't have an NRUA number?" :
+                 lang === 'fr' ? "Vous n'avez pas de numéro NRUA ?" :
+                 'Keine NRUA-Nummer?'}
+              </h3>
+              <p>
+                {lang === 'es' ? 'Sin el NRUA no puedes presentar el Modelo N2. Te ayudamos a obtenerlo — gestionamos toda la solicitud ante el Registro de la Propiedad por ti.' :
+                 lang === 'en' ? "Without the NRUA you can't submit Form N2. We help you get it — we handle the entire application at the Property Registry for you." :
+                 lang === 'fr' ? "Sans le NRUA vous ne pouvez pas déposer le N2. Nous vous aidons — nous gérons toute la demande au Registre pour vous." :
+                 'Ohne NRUA können Sie kein N2 einreichen. Wir helfen Ihnen — wir bearbeiten den gesamten Antrag beim Grundbuchamt.'}
+              </p>
+              <div className="no-nrua-features">
+                <span><CheckCircle size={16} /> {lang === 'es' ? 'Gestión completa' : lang === 'en' ? 'Full management' : lang === 'fr' ? 'Gestion complète' : 'Komplette Verwaltung'}</span>
+                <span><CheckCircle size={16} /> {lang === 'es' ? 'Sin desplazamientos' : lang === 'en' ? 'No travel needed' : lang === 'fr' ? 'Sans déplacement' : 'Keine Reisen'}</span>
+                <span><CheckCircle size={16} /> {lang === 'es' ? '5-10 días laborables' : lang === 'en' ? '5-10 business days' : lang === 'fr' ? '5-10 jours ouvrables' : '5-10 Werktage'}</span>
+              </div>
+              <a href="/solicitar-nrua" className="btn btn-primary">
+                {lang === 'es' ? 'Solicitar NRUA — 149€' :
+                 lang === 'en' ? 'Request NRUA — €149' :
+                 lang === 'fr' ? 'Demander NRUA — 149€' :
+                 'NRUA beantragen — 149€'}
+                <ArrowRight size={18} />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Final */}
       <section className="cta-final urgent" id="empezar">
         <div className="container">
