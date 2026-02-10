@@ -1348,6 +1348,7 @@ app.get('/api/admin/orders', async (req, res) => {
         COALESCE(jsonb_array_length(s.extracted_stays), 0) as stays_count
       FROM orders o
       LEFT JOIN submissions s ON s.order_id = o.id
+      WHERE (o.service_type IS NULL OR o.service_type = 'n2')
       ORDER BY o.id DESC
     `);
     
@@ -1357,7 +1358,6 @@ app.get('/api/admin/orders', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener pedidos' });
   }
 });
-
 // Download file (airbnb, booking, or other)
 app.get('/api/admin/download/:orderId/:fileType', async (req, res) => {
   try {
@@ -2147,6 +2147,28 @@ app.post('/api/mi-cuenta/add-property', upload.fields([
   } catch (error) {
     console.error('Add property error:', error);
     res.status(500).json({ error: 'Error al añadir propiedad' });
+  }
+});
+
+app.get('/api/admin/nrua-requests', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM nrua_requests ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Admin NRUA requests error:', error);
+    res.status(500).json({ error: 'Error al cargar solicitudes NRUA' });
+  }
+});
+
+app.post('/api/admin/nrua-status/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    await pool.query('UPDATE nrua_requests SET status = $1 WHERE id = $2', [status, id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Update NRUA status error:', error);
+    res.status(500).json({ error: 'Error al actualizar estado' });
   }
 });
 
