@@ -438,8 +438,8 @@ async function sendNruaConfirmationEmail(email, orderData) {
             <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin: 20px 0;">
               <h3 style="margin-top: 0;">📄 Documento de Autorización</h3>
               <p style="font-size: 14px; line-height: 1.6;">
-                Yo, <strong>${form.name || ''} ${form.surname || form.companyName || ''}</strong>, 
-                con ${form.idType || 'NIE'} nº <strong>${form.idNumber || ''}</strong>, 
+                Yo, <strong>${orderData.form.name || ''} ${orderData.form.surname || orderData.form.companyName || ''}</strong>, 
+                con ${orderData.form.idType || 'NIE'} nº <strong>${orderData.form.idNumber || ''}</strong>,
                 autorizo a <strong>Dña. Sheshina Irina</strong>, con NIE nº <strong>Y6189281H</strong>,
                 para que, en mi nombre y representación, presente la solicitud de asignación 
                 del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad 
@@ -447,7 +447,7 @@ async function sendNruaConfirmationEmail(email, orderData) {
               </p>
               <p style="font-size: 12px; color: #666;">
                 Fecha: ${new Date().toLocaleDateString('es-ES')} | 
-                IP: ${req.headers['x-forwarded-for'] || 'N/A'}
+                IP: ${orderData.ip || 'N/A'}
               </p>
             </div>
             <p style="color: #666; font-size: 14px; margin-top: 20px;">
