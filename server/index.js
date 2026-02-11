@@ -1745,8 +1745,7 @@ app.post('/api/admin/update-status/:orderId', async (req, res) => {
 app.delete('/api/admin/delete-order/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
-    await pool.query('DELETE FROM affiliate_referrals WHERE order_id = $1', [id]);
-    await pool.query('DELETE FROM affiliate_referrals WHERE order_id = $1', [id]);
+  await pool.query('DELETE FROM affiliate_referrals WHERE order_id = $1', [orderId]);
     // Primero eliminar submissions relacionadas
     await pool.query('DELETE FROM submissions WHERE order_id = $1', [orderId]);
     
