@@ -28,9 +28,9 @@ const pool = new pg.Pool({
 
 // Price mapping
 const PRICES = {
-  '1': { amount: 7900, properties: 1, name: 'DedosFácil - 1 Propiedad' },
-  '3': { amount: 22900, properties: 3, name: 'DedosFácil - 3 Propiedades' },
-  '10': { amount: 54900, properties: 10, name: 'DedosFácil - 10 Propiedades' }
+  '1': { amount: 9900, properties: 1, name: 'DedosFácil - 1 Propiedad' },
+  '3': { amount: 25900, properties: 3, name: 'DedosFácil - 3 Propiedades' },
+  '10': { amount: 79900, properties: 10, name: 'DedosFácil - 10 Propiedades' },
 };
 
 // Enviar email de confirmación
