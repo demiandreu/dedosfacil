@@ -145,9 +145,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Create Stripe checkout session
 
-// Create Stripe checkout session
 // Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
@@ -291,6 +289,20 @@ let affiliate = null;
   } catch (error) {
     console.error('Checkout error:', error);
     res.status(500).json({ error: 'Error al crear sesión de pago' });
+  }
+});
+
+app.delete('/api/admin/nrua-requests/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT order_id FROM nrua_requests WHERE id = $1', [id]);
+    const orderId = result.rows[0]?.order_id;
+    await pool.query('DELETE FROM affiliate_referrals WHERE order_id = $1', [orderId]);
+    await pool.query('DELETE FROM nrua_requests WHERE id = $1', [id]);
+    if (orderId) await pool.query('DELETE FROM orders WHERE id = $1', [orderId]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 // ============================================
