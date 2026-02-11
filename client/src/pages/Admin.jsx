@@ -1331,6 +1331,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                       <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Referidos</th>
                       <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Ventas</th>
                       <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Comisión total</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Actividad</th>
                       <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Estado</th>
                       <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Acciones</th>
                     </tr>
@@ -1350,6 +1351,11 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                         <td style={{ padding: '12px 10px' }}>{aff.total_referrals || 0}</td>
                         <td style={{ padding: '12px 10px', color: '#10b981', fontWeight: '600' }}>{aff.completed_referrals || 0}</td>
                         <td style={{ padding: '12px 10px', color: '#f59e0b', fontWeight: '600' }}>{((aff.total_commission || 0) / 100).toFixed(0)}€</td>
+                        <td style={{ padding: '12px 10px', fontSize: '12px' }}>
+  <div>🖱️ {aff.link_clicks || 0} clics</div>
+  <div>🔑 {aff.login_count || 0} logins</div>
+  {aff.last_login && <div style={{ color: '#6b7280' }}>Último: {new Date(aff.last_login).toLocaleDateString('es-ES')}</div>}
+</td>
                         <td style={{ padding: '12px 10px' }}>
                           <span style={{
                             padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '500',
