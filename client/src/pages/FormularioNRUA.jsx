@@ -785,7 +785,6 @@ if (!acceptTerms || !acceptAuthorization) return
         affiliateCode: localStorage.getItem('dedosfacil-ref') || null
       })
       })
-    })
   
     const data = await response.json()
     
