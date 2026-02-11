@@ -2216,7 +2216,7 @@ app.post('/api/affiliate/login', async (req, res) => {
        ORDER BY ar.created_at DESC`,
       [aff.id]
     );
-
+    await pool.query('UPDATE affiliates SET last_login = NOW(), login_count = login_count + 1 WHERE id = $1', [affiliate.id]);
     res.json({
       affiliate: { id: aff.id, name: aff.name, email: aff.email, code: aff.code, discount_percent: aff.discount_percent, commission_percent: aff.commission_percent },
       referrals: referrals.rows
