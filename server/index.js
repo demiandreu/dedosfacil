@@ -159,7 +159,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const priceData = PRICES[plan];
 
     // Lookup affiliate discount
-    let affiliate = null;
+let affiliate = null;
     let finalAmount = priceData.amount;
     let discountAmount = 0;
     if (affiliateCode) {
@@ -169,7 +169,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
       );
       if (affResult.rows.length > 0) {
         affiliate = affResult.rows[0];
-        discountAmount = Math.round(priceData.amount * affiliate.discount_percent / 100);
+        const discountPercent = req.body.affiliateDiscount === 10 || req.body.affiliateDiscount === 20 ? req.body.affiliateDiscount : affiliate.discount_percent;
+        discountAmount = Math.round(priceData.amount * discountPercent / 100);
         finalAmount = priceData.amount - discountAmount;
         console.log(`🎟️ Affiliate ${affiliate.code}: ${affiliate.discount_percent}% off = -${discountAmount/100}€`);
       }
@@ -317,8 +318,9 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
         [affiliateCode.toUpperCase()]
       );
       if (affResult.rows.length > 0) {
-        affiliate = affResult.rows[0];
-        discountAmount = Math.round(baseAmount * affiliate.discount_percent / 100);
+       affiliate = affResult.rows[0];
+        const discountPercent = req.body.affiliateDiscount === 10 || req.body.affiliateDiscount === 20 ? req.body.affiliateDiscount : affiliate.discount_percent;
+        discountAmount = Math.round(baseAmount * discountPercent / 100);
         finalAmount = baseAmount - discountAmount;
         console.log(`🎟️ Affiliate NRUA ${affiliate.code}: ${affiliate.discount_percent}% off`);
       }
@@ -2160,8 +2162,8 @@ app.get('/api/affiliate/validate/:code', async (req, res) => {
       'SELECT code, discount_percent FROM affiliates WHERE code = $1 AND active = true',
       [req.params.code.toUpperCase()]
     );
-    if (result.rows.length === 0) return res.json({ valid: false });
-    res.json({ valid: true, discount: result.rows[0].discount_percent });
+  if (result.rows.length === 0) return res.json({ valid: false });
+    res.json({ valid: true, defaultDiscount: result.rows[0].discount_percent, code: result.rows[0].code });
   } catch (error) {
     res.status(500).json({ valid: false });
   }
