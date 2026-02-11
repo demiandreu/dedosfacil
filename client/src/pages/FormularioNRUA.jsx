@@ -426,7 +426,8 @@ const [uploadedFiles, setUploadedFiles] = useState({
   const [extractedStays, setExtractedStays] = useState([])
   const [errors, setErrors] = useState({})
   const [lightboxImage, setLightboxImage] = useState(null)
-  
+  const [affiliateDiscount, setAffiliateDiscount] = useState(null)
+  const [affiliateCode, setAffiliateCode] = useState(null)
   const [form, setForm] = useState({
     name: '', email: '', phone: '',
     nrua: '', address: '', province: '',
@@ -434,7 +435,24 @@ const [uploadedFiles, setUploadedFiles] = useState({
   })
   
   const t = translations[lang]
-  // Guardar progreso en localStorage
+
+useEffect(() => {
+  const code = localStorage.getItem('dedosfacil-ref')
+  const urlDiscount = localStorage.getItem('dedosfacil-ref-discount')
+  if (code) {
+    fetch(`/api/affiliate/validate/${code}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.valid) {
+          const disc = urlDiscount === '10' || urlDiscount === '20' ? parseInt(urlDiscount) : data.defaultDiscount
+          setAffiliateDiscount(disc)
+          setAffiliateCode(code)
+        }
+      })
+      .catch(() => {})
+  }
+}, [])
+  
 useEffect(() => {
   const dataToSave = {
     step,
@@ -782,7 +800,8 @@ if (!acceptTerms || !acceptAuthorization) return
           timestamp: new Date().toISOString(),
           ip: null
        },
-        affiliateCode: localStorage.getItem('dedosfacil-ref') || null
+        affiliateCode: affiliateCode || null,
+        affiliateDiscount: affiliateDiscount || null
       })
       })
   
