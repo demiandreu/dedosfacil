@@ -699,6 +699,21 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     return status
   }
 
+    const filteredNrua = nruaRequests.filter(req => {
+  if (!nruaSearch) return true
+  const q = nruaSearch.toLowerCase()
+  return (
+    (req.email || '').toLowerCase().includes(q) ||
+    (req.name || '').toLowerCase().includes(q) ||
+    (req.surname || '').toLowerCase().includes(q) ||
+    (req.catastral_ref || '').toLowerCase().includes(q) ||
+    (req.cru || '').toLowerCase().includes(q) ||
+    (req.property_address || '').toLowerCase().includes(q) ||
+    (req.property_municipality || '').toLowerCase().includes(q) ||
+    (req.id_number || '').toLowerCase().includes(q) ||
+    String(req.order_id || '').includes(q)
+  )
+
   return (
     <div style={styles.page}>
       {/* Header */}
@@ -781,20 +796,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
           </button>
         </div>
 
-        const filteredNrua = nruaRequests.filter(req => {
-  if (!nruaSearch) return true
-  const q = nruaSearch.toLowerCase()
-  return (
-    (req.email || '').toLowerCase().includes(q) ||
-    (req.name || '').toLowerCase().includes(q) ||
-    (req.surname || '').toLowerCase().includes(q) ||
-    (req.catastral_ref || '').toLowerCase().includes(q) ||
-    (req.cru || '').toLowerCase().includes(q) ||
-    (req.property_address || '').toLowerCase().includes(q) ||
-    (req.property_municipality || '').toLowerCase().includes(q) ||
-    (req.id_number || '').toLowerCase().includes(q) ||
-    String(req.order_id || '').includes(q)
-  )
+      
 })
         
 {activeTab === 'n2' && (<>
