@@ -11,6 +11,9 @@ const Admin = () => {
   const [updatingStatus, setUpdatingStatus] = useState(null)
   const [activeTab, setActiveTab] = useState('n2')
 const [nruaRequests, setNruaRequests] = useState([])
+  const [affiliates, setAffiliates] = useState([])
+const [newAffiliate, setNewAffiliate] = useState({ name: '', email: '', code: '', password: '', discount_percent: 10, commission_percent: 10 })
+const [showAffForm, setShowAffForm] = useState(false)
 
   const ADMIN_PASSWORD = 'dedos2026'
 
@@ -44,10 +47,11 @@ const [nruaRequests, setNruaRequests] = useState([])
     }
   }
 
- useEffect(() => {
+useEffect(() => {
     if (isAuthenticated) {
       fetchOrders()
       fetchNruaRequests()
+      fetchAffiliates()
     }
   }, [isAuthenticated])
 
@@ -61,6 +65,48 @@ const [nruaRequests, setNruaRequests] = useState([])
     }
   }
 
+  const fetchAffiliates = async () => {
+    try {
+      const res = await fetch('/api/admin/affiliates')
+      const data = await res.json()
+      if (!data.error) setAffiliates(data)
+    } catch (err) { console.error('Error fetching affiliates:', err) }
+  }
+
+  const createAffiliate = async () => {
+    if (!newAffiliate.name || !newAffiliate.email || !newAffiliate.code || !newAffiliate.password) {
+      alert('Rellena todos los campos')
+      return
+    }
+    try {
+      const res = await fetch('/api/admin/affiliates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newAffiliate)
+      })
+      const data = await res.json()
+      if (data.error) { alert(data.error); return }
+      setNewAffiliate({ name: '', email: '', code: '', password: '', discount_percent: 10, commission_percent: 10 })
+      setShowAffForm(false)
+      fetchAffiliates()
+    } catch (err) { alert('Error al crear afiliado') }
+  }
+
+  const toggleAffiliate = async (id) => {
+    try {
+      await fetch(`/api/admin/affiliates/${id}/toggle`, { method: 'POST' })
+      fetchAffiliates()
+    } catch (err) { console.error(err) }
+  }
+
+  const deleteAffiliate = async (id) => {
+    if (!window.confirm('¿Eliminar afiliado y todos sus referidos?')) return
+    try {
+      await fetch(`/api/admin/affiliates/${id}`, { method: 'DELETE' })
+      fetchAffiliates()
+    } catch (err) { console.error(err) }
+  }
+  
   const downloadFile = async (orderId, fileType) => {
     try {
       const response = await fetch(`/api/admin/download/${orderId}/${fileType}`)
@@ -719,7 +765,18 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
               background: 'none'
             }}
           >
-            🔑 Solicitudes NRUA ({nruaRequests.length})
+         🔑 Solicitudes NRUA ({nruaRequests.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('affiliates')}
+            style={{
+              padding: '12px 24px', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600',
+              borderBottom: activeTab === 'affiliates' ? '3px solid #10b981' : '3px solid transparent',
+              color: activeTab === 'affiliates' ? '#10b981' : '#6b7280',
+              background: 'none'
+            }}
+          >
+            🤝 Afiliados ({affiliates.length})
           </button>
         </div>
         
@@ -1005,6 +1062,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
           </div>
         )}
         </>)}
+        
 
         {/* NRUA Requests Tab */}
         {activeTab === 'nrua' && (
@@ -1162,6 +1220,104 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
           </div>
         )}
 
+        {activeTab === 'affiliates' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0 }}>🤝 Gestión de Afiliados</h3>
+              <button
+                onClick={() => setShowAffForm(!showAffForm)}
+                style={{ padding: '10px 20px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
+              >
+                {showAffForm ? '✕ Cerrar' : '+ Nuevo afiliado'}
+              </button>
+            </div>
+
+            {showAffForm && (
+              <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+                <h4 style={{ margin: '0 0 16px' }}>Crear nuevo afiliado</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <input placeholder="Nombre" value={newAffiliate.name} onChange={e => setNewAffiliate(p => ({ ...p, name: e.target.value }))} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db' }} />
+                  <input placeholder="Email" value={newAffiliate.email} onChange={e => setNewAffiliate(p => ({ ...p, email: e.target.value }))} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db' }} />
+                  <input placeholder="Código (ej: MARIA10)" value={newAffiliate.code} onChange={e => setNewAffiliate(p => ({ ...p, code: e.target.value.toUpperCase() }))} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db' }} />
+                  <input placeholder="Contraseña" value={newAffiliate.password} onChange={e => setNewAffiliate(p => ({ ...p, password: e.target.value }))} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db' }} />
+                  <div>
+                    <label style={{ fontSize: '13px', color: '#6b7280' }}>Comisión %</label>
+                    <input type="number" value={newAffiliate.commission_percent} onChange={e => setNewAffiliate(p => ({ ...p, commission_percent: parseInt(e.target.value) }))} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db', width: '100%' }} />
+                  </div>
+                  <div>
+                    <button onClick={createAffiliate} style={{ padding: '10px 24px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', marginTop: '18px' }}>
+                      ✅ Crear afiliado
+                    </button>
+                  </div>
+                </div>
+                <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>El afiliado podrá compartir dos enlaces: uno con 10% y otro con 20% de descuento.</p>
+              </div>
+            )}
+
+            {affiliates.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#9ca3af', padding: '40px' }}>No hay afiliados registrados.</p>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Nombre</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Código</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Comisión</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Referidos</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Ventas</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Comisión total</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Estado</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#6b7280', fontSize: '12px', textTransform: 'uppercase' }}>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {affiliates.map(aff => (
+                      <tr key={aff.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                        <td style={{ padding: '12px 10px' }}>
+                          <div><strong>{aff.name}</strong></div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>{aff.email}</div>
+                        </td>
+                        <td style={{ padding: '12px 10px' }}>
+                          <code style={{ backgroundColor: '#f3f4f6', padding: '2px 8px', borderRadius: '4px' }}>{aff.code}</code>
+                        </td>
+                        <td style={{ padding: '12px 10px' }}>{aff.commission_percent}%</td>
+                        <td style={{ padding: '12px 10px' }}>{aff.total_referrals || 0}</td>
+                        <td style={{ padding: '12px 10px', color: '#10b981', fontWeight: '600' }}>{aff.completed_referrals || 0}</td>
+                        <td style={{ padding: '12px 10px', color: '#f59e0b', fontWeight: '600' }}>{((aff.total_commission || 0) / 100).toFixed(0)}€</td>
+                        <td style={{ padding: '12px 10px' }}>
+                          <span style={{
+                            padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '500',
+                            backgroundColor: aff.active ? '#D1FAE5' : '#FEE2E2',
+                            color: aff.active ? '#065F46' : '#991B1B'
+                          }}>
+                            {aff.active ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 10px' }}>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => toggleAffiliate(aff.id)}
+                              style={{ padding: '4px 12px', border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', background: 'white' }}
+                            >
+                              {aff.active ? '⏸️ Desactivar' : '▶️ Activar'}
+                            </button>
+                            <button
+                              onClick={() => deleteAffiliate(aff.id)}
+                              style={{ padding: '4px 12px', border: '1px solid #fca5a5', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', background: '#FEF2F2', color: '#DC2626' }}
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
