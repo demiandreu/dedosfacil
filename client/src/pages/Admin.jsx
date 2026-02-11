@@ -15,6 +15,7 @@ const [nruaRequests, setNruaRequests] = useState([])
 const [newAffiliate, setNewAffiliate] = useState({ name: '', email: '', code: '', password: '', discount_percent: 10, commission_percent: 10 })
 const [showAffForm, setShowAffForm] = useState(false)
   const [nruaSearch, setNruaSearch] = useState('')
+  const [n2Search, setN2Search] = useState('')
 
   const ADMIN_PASSWORD = 'dedos2026'
 
@@ -699,6 +700,20 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     return status
   }
 
+  const filteredN2 = filteredOrders.filter(order => {
+  if (!n2Search) return true
+  const q = n2Search.toLowerCase()
+  return (
+    (order.email || '').toLowerCase().includes(q) ||
+    (order.name || '').toLowerCase().includes(q) ||
+    (order.nrua || '').toLowerCase().includes(q) ||
+    (order.address || '').toLowerCase().includes(q) ||
+    (order.province || '').toLowerCase().includes(q) ||
+    (order.phone || '').toLowerCase().includes(q) ||
+    String(order.id || '').includes(q)
+  )
+})
+
     const filteredNrua = nruaRequests.filter(req => {
   if (!nruaSearch) return true
   const q = nruaSearch.toLowerCase()
@@ -819,7 +834,16 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
             </button>
           ))}
         </div>
-
+        <div style={{ marginBottom: '16px' }}>
+          <input
+            type="text"
+            placeholder="🔍 Buscar por email, nombre, NRUA, dirección, teléfono, nº pedido..."
+            value={n2Search}
+            onChange={e => setN2Search(e.target.value)}
+            style={{ width: '100%', padding: '12px 16px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' }}
+          />
+          {n2Search && <p style={{ fontSize: '13px', color: '#6b7280', margin: '8px 0 0' }}>{filteredN2.length} resultado(s)</p>}
+        </div>
         {/* Error */}
         {error && (
           <div style={{ backgroundColor: '#fee2e2', color: '#dc2626', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
@@ -835,12 +859,12 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
         ) : (
           /* Orders list */
           <div>
-            {filteredOrders.length === 0 ? (
+           {filteredN2.length === 0 ? (
               <div style={{ ...styles.orderCard, padding: '32px', textAlign: 'center', color: '#6b7280' }}>
                 No hay pedidos {filter !== 'all' ? 'con este filtro' : ''}
               </div>
             ) : (
-              filteredOrders.map(order => (
+             filteredN2.map(order => (
                 <div key={order.id} style={styles.orderCard}>
                   {/* Order header */}
                   <div 
