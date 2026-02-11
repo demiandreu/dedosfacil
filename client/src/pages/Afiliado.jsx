@@ -89,23 +89,40 @@ const Afiliado = () => {
       <div style={s.container}>
         {/* Link */}
         <div style={s.linkBox}>
-          <p style={{ margin: '0 0 8px', fontWeight: '600', color: '#1E40AF' }}>🔗 Tu enlace de afiliado</p>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <input
-              style={{ ...s.input, marginBottom: 0, flex: 1, fontFamily: 'monospace', fontSize: '14px' }}
-              readOnly
-              value={`https://dedosfacil.es/?ref=${affiliate.code}`}
-              onClick={e => { e.target.select(); navigator.clipboard.writeText(e.target.value) }}
-            />
-            <button
-              onClick={() => { navigator.clipboard.writeText(`https://dedosfacil.es/?ref=${affiliate.code}`); alert('✅ Enlace copiado') }}
-              style={{ ...s.btn, width: 'auto', padding: '12px 20px', whiteSpace: 'nowrap' }}
-            >
-              📋 Copiar
-            </button>
+          <p style={{ margin: '0 0 12px', fontWeight: '600', color: '#1E40AF' }}>🔗 Tus enlaces de afiliado</p>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151' }}>Enlace con 10% descuento:</label>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+              <input
+                style={{ ...s.input, marginBottom: 0, flex: 1, fontFamily: 'monospace', fontSize: '13px' }}
+                readOnly
+                value={`https://dedosfacil.es/?ref=${affiliate.code}&d=10`}
+                onClick={e => { e.target.select(); navigator.clipboard.writeText(e.target.value) }}
+              />
+              <button onClick={() => { navigator.clipboard.writeText(`https://dedosfacil.es/?ref=${affiliate.code}&d=10`); alert('✅ Enlace 10% copiado') }} style={{ ...s.btn, width: 'auto', padding: '10px 16px', whiteSpace: 'nowrap', fontSize: '14px' }}>
+                📋
+              </button>
+            </div>
           </div>
-          <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#6b7280' }}>
-            Descuento para tus clientes: <strong>{affiliate.discount_percent}%</strong> · Tu comisión: <strong>{affiliate.commission_percent}%</strong>
+
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151' }}>Enlace con 20% descuento:</label>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+              <input
+                style={{ ...s.input, marginBottom: 0, flex: 1, fontFamily: 'monospace', fontSize: '13px' }}
+                readOnly
+                value={`https://dedosfacil.es/?ref=${affiliate.code}&d=20`}
+                onClick={e => { e.target.select(); navigator.clipboard.writeText(e.target.value) }}
+              />
+              <button onClick={() => { navigator.clipboard.writeText(`https://dedosfacil.es/?ref=${affiliate.code}&d=20`); alert('✅ Enlace 20% copiado') }} style={{ ...s.btn, width: 'auto', padding: '10px 16px', whiteSpace: 'nowrap', fontSize: '14px' }}>
+                📋
+              </button>
+            </div>
+          </div>
+
+          <p style={{ margin: '12px 0 0', fontSize: '13px', color: '#6b7280' }}>
+            Tu comisión: <strong>{affiliate.commission_percent}%</strong> sobre cada venta
           </p>
         </div>
 
