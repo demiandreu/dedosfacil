@@ -540,6 +540,11 @@ useEffect(() => {
         localStorage.setItem('dedosfacil-ref-discount', discount)
       }
       console.log('🎟️ Affiliate code saved:', ref.toUpperCase(), 'discount:', discount || 'default')
+      fetch('/api/affiliate/track-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: ref.toUpperCase() })
+      }).catch(() => {})
     }
   }, [])
 
