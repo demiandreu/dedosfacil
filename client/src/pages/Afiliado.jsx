@@ -7,6 +7,8 @@ const Afiliado = () => {
   const [affiliate, setAffiliate] = useState(null)
   const [referrals, setReferrals] = useState([])
   const [error, setError] = useState('')
+  const [paymentInfo, setPaymentInfo] = useState('')
+const [savingPayment, setSavingPayment] = useState(false)
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -22,6 +24,7 @@ const Afiliado = () => {
       setAffiliate(data.affiliate)
       setReferrals(data.referrals)
       setIsAuthenticated(true)
+      setPaymentInfo(data.affiliate.payment_info || '')
     } catch (err) {
       setError('Error de conexión')
     }
