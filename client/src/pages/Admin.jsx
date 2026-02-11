@@ -711,8 +711,9 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     (req.property_address || '').toLowerCase().includes(q) ||
     (req.property_municipality || '').toLowerCase().includes(q) ||
     (req.id_number || '').toLowerCase().includes(q) ||
-    String(req.order_id || '').includes(q)
+   String(req.order_id || '').includes(q)
   )
+})
 
   return (
     <div style={styles.page}>
@@ -796,8 +797,6 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
           </button>
         </div>
 
-      
-})
         
 {activeTab === 'n2' && (<>
         {/* Filters */}
@@ -1096,7 +1095,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
               />
               {nruaSearch && <p style={{ fontSize: '13px', color: '#6b7280', margin: '8px 0 0' }}>{filteredNrua.length} resultado(s)</p>}
             </div>
-            {filteredNrua.length === 0 ?
+            {filteredNrua.length === 0 ? (
               <div style={{ ...styles.orderCard, padding: '32px', textAlign: 'center', color: '#6b7280' }}>
                 No hay solicitudes NRUA
               </div>
