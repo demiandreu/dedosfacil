@@ -369,7 +369,6 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
       }
 
       await sendNruaConfirmationEmail(email, { orderId, amount: finalAmount / 100, form, ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress });
-      return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&service=nrua`, orderId });
     }
 
     const orderResult = await pool.query(
