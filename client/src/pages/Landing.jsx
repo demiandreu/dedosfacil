@@ -530,12 +530,16 @@ function Landing() {
   const t = translations[lang]
   const [reviews, setReviews] = useState([])
 
-  useEffect(() => {
+useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const ref = params.get('ref')
+    const discount = params.get('d')
     if (ref) {
       localStorage.setItem('dedosfacil-ref', ref.toUpperCase())
-      console.log('🎟️ Affiliate code saved:', ref.toUpperCase())
+      if (discount === '10' || discount === '20') {
+        localStorage.setItem('dedosfacil-ref-discount', discount)
+      }
+      console.log('🎟️ Affiliate code saved:', ref.toUpperCase(), 'discount:', discount || 'default')
     }
   }, [])
 
