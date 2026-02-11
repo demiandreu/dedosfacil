@@ -121,6 +121,8 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       'UPDATE nrua_requests SET status = $1 WHERE order_id = $2',
       ['completed', order.id]
     );
+    // Update affiliate referral status
+    await pool.query('UPDATE affiliate_referrals SET status = $1 WHERE order_id = $2', ['completed', order.id]);
     
     // Enviar email...
     await sendConfirmationEmail(session.customer_email, {
@@ -146,103 +148,120 @@ app.get('/api/health', (req, res) => {
 // Create Stripe checkout session
 
 // Create Stripe checkout session
+// Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
-    const { plan, email, formData, files, stays, noActivity, gdprConsent } = req.body;
-      console.log('📦 Checkout request received:');
+    const { plan, email, formData, files, stays, noActivity, gdprConsent, affiliateCode } = req.body;
+    console.log('📦 Checkout request received:');
     console.log('- Email:', email);
     console.log('- Plan:', plan);
-    console.log('- FormData:', formData ? 'YES' : 'NO');
-    console.log('- Files:', files ? 'YES' : 'NO');
-    console.log('- Stays:', stays?.length || 0);
+    console.log('- Affiliate:', affiliateCode || 'none');
     const priceData = PRICES[plan];
+
+    // Lookup affiliate discount
+    let affiliate = null;
+    let finalAmount = priceData.amount;
+    let discountAmount = 0;
+    if (affiliateCode) {
+      const affResult = await pool.query(
+        'SELECT * FROM affiliates WHERE code = $1 AND active = true',
+        [affiliateCode.toUpperCase()]
+      );
+      if (affResult.rows.length > 0) {
+        affiliate = affResult.rows[0];
+        discountAmount = Math.round(priceData.amount * affiliate.discount_percent / 100);
+        finalAmount = priceData.amount - discountAmount;
+        console.log(`🎟️ Affiliate ${affiliate.code}: ${affiliate.discount_percent}% off = -${discountAmount/100}€`);
+      }
+    }
 
     // Email de prueba que salta Stripe
     if (email === 'demiandreu@gmail.com') {
       const orderResult = await pool.query(
-        'INSERT INTO orders (email, plan, properties_count, amount, status) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-        [email, plan, priceData.properties, priceData.amount, 'completed']
+        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount]
       );
       const orderId = orderResult.rows[0].id;
       
-if (parseInt(plan) === 1) {
-      await pool.query(
-        `INSERT INTO submissions 
-         (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip, gdpr_accepted, gdpr_timestamp, gdpr_ip)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
-        [
-          orderId,
-          formData?.name || null,
-          null,
-          formData?.nrua || null,
-          formData?.address || null,
-          formData?.province || null,
-          formData?.phone || null,
-          files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
-          files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
-          files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
-          files?.nruaPhoto ? JSON.stringify({ name: files.nruaPhotoName, data: files.nruaPhoto }) : null,
-          files?.nruaPhotoName || null,
-          JSON.stringify(stays || []),
-          'completed',
-          new Date(),
-          req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-          gdprConsent?.accepted || false,
-          new Date(),
-          req.headers['x-forwarded-for'] || req.socket.remoteAddress
-        ]
-      );
+      if (parseInt(plan) === 1) {
+        await pool.query(
+          `INSERT INTO submissions 
+           (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip, gdpr_accepted, gdpr_timestamp, gdpr_ip)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+          [
+            orderId,
+            formData?.name || null, null, formData?.nrua || null,
+            formData?.address || null, formData?.province || null, formData?.phone || null,
+            files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
+            files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
+            files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
+            files?.nruaPhoto ? JSON.stringify({ name: files.nruaPhotoName, data: files.nruaPhoto }) : null,
+            files?.nruaPhotoName || null,
+            JSON.stringify(stays || []), 'completed',
+            new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+            gdprConsent?.accepted || false, new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress
+          ]
+        );
+      }
+
+      // Register affiliate referral
+      if (affiliate) {
+        const commissionAmount = Math.round(finalAmount * affiliate.commission_percent / 100);
+        await pool.query(
+          'INSERT INTO affiliate_referrals (affiliate_id, order_id, service_type, original_amount, discount_amount, commission_amount, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+          [affiliate.id, orderId, 'n2', priceData.amount, discountAmount, commissionAmount, 'completed']
+        );
+      }
+
+      await sendConfirmationEmail(email, { orderId, plan: priceData.properties, amount: finalAmount / 100 });
+      if (parseInt(plan) > 1) {
+        return res.json({ url: `${req.headers.origin}/mi-cuenta?email=${encodeURIComponent(email)}&order_id=${orderId}`, orderId });
+      } else {
+        return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&test=true`, orderId });
+      }
     }
-     await sendConfirmationEmail(email, {
-  orderId: orderId,
-  plan: priceData.properties,
-  amount: priceData.amount / 100
-});
-     if (parseInt(plan) > 1) {
-  return res.json({ url: `${req.headers.origin}/mi-cuenta?email=${encodeURIComponent(email)}&order_id=${orderId}`, orderId });
-} else {
-  return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&test=true`, orderId });
-}
-    }
+
     if (!priceData) {
       return res.status(400).json({ error: 'Plan no válido' });
     }
 
     // Create order in database
     const orderResult = await pool.query(
-      'INSERT INTO orders (email, plan, properties_count, amount, status) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [email, plan, priceData.properties, priceData.amount, 'pending']
+      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount]
     );
     const orderId = orderResult.rows[0].id;
 
-if (parseInt(plan) === 1) {
-    await pool.query(
-      `INSERT INTO submissions 
-         (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip, gdpr_accepted, gdpr_timestamp, gdpr_ip)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
-      [
-        orderId,
-        formData?.name || null,
-        null,
-        formData?.nrua || null,
-        formData?.address || null,
-        formData?.province || null,
-        formData?.phone || null,
-        files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
-        files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
-        files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
-        files?.nruaPhoto ? JSON.stringify({ name: files.nruaPhotoName, data: files.nruaPhoto }) : null,
-        files?.nruaPhotoName || null,
-        JSON.stringify(stays || []),
-        'pending',
-        new Date(),
-        req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-        gdprConsent?.accepted || false,
-        new Date(),
-        req.headers['x-forwarded-for'] || req.socket.remoteAddress
-      ]
-    );
-  }
+    if (parseInt(plan) === 1) {
+      await pool.query(
+        `INSERT INTO submissions 
+           (order_id, name, nif, nrua, address, province, phone, airbnb_file, booking_file, other_file, nrua_photo_base64, nrua_photo_name, extracted_stays, status, authorization_timestamp, authorization_ip, gdpr_accepted, gdpr_timestamp, gdpr_ip)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+        [
+          orderId,
+          formData?.name || null, null, formData?.nrua || null,
+          formData?.address || null, formData?.province || null, formData?.phone || null,
+          files?.airbnb ? JSON.stringify({ name: files.airbnbName, data: files.airbnb }) : null,
+          files?.booking ? JSON.stringify({ name: files.bookingName, data: files.booking }) : null,
+          files?.other ? JSON.stringify({ name: files.otherName, data: files.other }) : null,
+          files?.nruaPhoto ? JSON.stringify({ name: files.nruaPhotoName, data: files.nruaPhoto }) : null,
+          files?.nruaPhotoName || null,
+          JSON.stringify(stays || []), 'pending',
+          new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+          gdprConsent?.accepted || false, new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        ]
+      );
+    }
+
+    // Register pending affiliate referral
+    if (affiliate) {
+      const commissionAmount = Math.round(finalAmount * affiliate.commission_percent / 100);
+      await pool.query(
+        'INSERT INTO affiliate_referrals (affiliate_id, order_id, service_type, original_amount, discount_amount, commission_amount, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [affiliate.id, orderId, 'n2', priceData.amount, discountAmount, commissionAmount, 'pending']
+      );
+    }
+
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -251,55 +270,64 @@ if (parseInt(plan) === 1) {
           currency: 'eur',
           product_data: {
             name: priceData.name,
-            description: 'Presentación NRUA ante el Registro de la Propiedad',
+            description: affiliate ? `Presentación NRUA - Descuento ${affiliate.discount_percent}%` : 'Presentación NRUA ante el Registro de la Propiedad',
           },
-          unit_amount: priceData.amount,
+          unit_amount: finalAmount,
         },
         quantity: 1,
       }],
       mode: 'payment',
       success_url: parseInt(plan) > 1 
-  ? `${req.headers.origin}/mi-cuenta?email=${encodeURIComponent(email)}&order_id=${orderId}`
-  : `${req.headers.origin}/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
+        ? `${req.headers.origin}/mi-cuenta?email=${encodeURIComponent(email)}&order_id=${orderId}`
+        : `${req.headers.origin}/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
       cancel_url: `${req.headers.origin}/formulario`,
       customer_email: email,
-      metadata: { orderId: orderId.toString() }
+      metadata: { orderId: orderId.toString(), affiliateCode: affiliate?.code || '' }
     });
 
-    // Update order with session ID
-    await pool.query(
-      'UPDATE orders SET stripe_session_id = $1 WHERE id = $2',
-      [session.id, orderId]
-    );
-
+    await pool.query('UPDATE orders SET stripe_session_id = $1 WHERE id = $2', [session.id, orderId]);
     res.json({ url: session.url, orderId });
   } catch (error) {
     console.error('Checkout error:', error);
     res.status(500).json({ error: 'Error al crear sesión de pago' });
   }
 });
-
-
 // ============================================
 // SOLICITAR NRUA - Checkout 149€
 // ============================================
 
 app.post('/api/create-checkout-nrua', async (req, res) => {
   try {
-    const { form, personType, hasLicense, lang } = req.body;
+    const { form, personType, hasLicense, lang, affiliateCode } = req.body;
     const email = form.email;
 
     if (!email) {
       return res.status(400).json({ error: 'Email obligatorio' });
     }
 
-    const amount = 14900; // 149€
+    const baseAmount = 14900;
 
-    // Email de prueba que salta Stripe
+    // Lookup affiliate
+    let affiliate = null;
+    let finalAmount = baseAmount;
+    let discountAmount = 0;
+    if (affiliateCode) {
+      const affResult = await pool.query(
+        'SELECT * FROM affiliates WHERE code = $1 AND active = true',
+        [affiliateCode.toUpperCase()]
+      );
+      if (affResult.rows.length > 0) {
+        affiliate = affResult.rows[0];
+        discountAmount = Math.round(baseAmount * affiliate.discount_percent / 100);
+        finalAmount = baseAmount - discountAmount;
+        console.log(`🎟️ Affiliate NRUA ${affiliate.code}: ${affiliate.discount_percent}% off`);
+      }
+    }
+
     if (email === 'demiandreu@gmail.com') {
       const orderResult = await pool.query(
-        'INSERT INTO orders (email, plan, properties_count, amount, status, service_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-        [email, 'nrua', 1, amount, 'completed', 'nrua_request']
+        'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
+        [email, 'nrua', 1, finalAmount, 'completed', 'nrua_request', affiliate?.code || null, discountAmount]
       );
       const orderId = orderResult.rows[0].id;
 
@@ -330,18 +358,24 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
         ]
       );
 
-     await sendNruaConfirmationEmail(email, { orderId, amount: amount / 100, form, ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress });
+      if (affiliate) {
+        const commissionAmount = Math.round(finalAmount * affiliate.commission_percent / 100);
+        await pool.query(
+          'INSERT INTO affiliate_referrals (affiliate_id, order_id, service_type, original_amount, discount_amount, commission_amount, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+          [affiliate.id, orderId, 'nrua', baseAmount, discountAmount, commissionAmount, 'completed']
+        );
+      }
+
+      await sendNruaConfirmationEmail(email, { orderId, amount: finalAmount / 100, form, ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress });
       return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&service=nrua`, orderId });
     }
 
-    // Create order
     const orderResult = await pool.query(
-      'INSERT INTO orders (email, plan, properties_count, amount, status, service_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [email, 'nrua', 1, amount, 'pending', 'nrua_request']
+      'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
+      [email, 'nrua', 1, finalAmount, 'pending', 'nrua_request', affiliate?.code || null, discountAmount]
     );
     const orderId = orderResult.rows[0].id;
 
-    // Save NRUA request data
     await pool.query(
       `INSERT INTO nrua_requests 
        (order_id, person_type, name, surname, company_name, id_type, id_number,
@@ -369,7 +403,14 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
       ]
     );
 
-    // Create Stripe session
+    if (affiliate) {
+      const commissionAmount = Math.round(finalAmount * affiliate.commission_percent / 100);
+      await pool.query(
+        'INSERT INTO affiliate_referrals (affiliate_id, order_id, service_type, original_amount, discount_amount, commission_amount, status) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [affiliate.id, orderId, 'nrua', baseAmount, discountAmount, commissionAmount, 'pending']
+      );
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
@@ -377,9 +418,9 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
           currency: 'eur',
           product_data: {
             name: 'DedosFácil - Solicitud NRUA',
-            description: 'Gestión de solicitud del Número de Registro de Alquiler ante el Registro de la Propiedad',
+            description: affiliate ? `Solicitud NRUA - Descuento ${affiliate.discount_percent}%` : 'Gestión de solicitud del Número de Registro de Alquiler',
           },
-          unit_amount: amount,
+          unit_amount: finalAmount,
         },
         quantity: 1,
       }],
@@ -387,14 +428,10 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
       success_url: `${req.headers.origin}/exito?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}&service=nrua`,
       cancel_url: `${req.headers.origin}/solicitar-nrua`,
       customer_email: email,
-      metadata: { orderId: orderId.toString(), serviceType: 'nrua_request' }
+      metadata: { orderId: orderId.toString(), serviceType: 'nrua_request', affiliateCode: affiliate?.code || '' }
     });
 
-    await pool.query(
-      'UPDATE orders SET stripe_session_id = $1 WHERE id = $2',
-      [session.id, orderId]
-    );
-
+    await pool.query('UPDATE orders SET stripe_session_id = $1 WHERE id = $2', [session.id, orderId]);
     res.json({ url: session.url, orderId });
   } catch (error) {
     console.error('NRUA Checkout error:', error);
@@ -402,66 +439,6 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
   }
 });
 
-// Email de confirmación NRUA
-async function sendNruaConfirmationEmail(email, orderData) {
-  try {
-    await resend.emails.send({
-      from: 'DedosFácil <noreply@dedosfacil.es>',
-      to: email,
-      bcc: ['support@dedosfacil.es'],
-      subject: `✅ Solicitud NRUA DF-${orderData.orderId} confirmada - DedosFácil`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0;">DedosFácil</h1>
-          </div>
-          <div style="padding: 30px; background: #f8fafc;">
-            <h2 style="color: #10b981;">✅ ¡Solicitud de NRUA recibida!</h2>
-            <p>Gracias por confiar en DedosFácil. Hemos recibido tu solicitud de número NRUA.</p>
-            <div style="background: #1e3a5f; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
-              <span style="font-size: 14px;">Tu número de referencia</span><br>
-              <strong style="font-size: 28px;">DF-${orderData.orderId}</strong>
-            </div>
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="margin-top: 0;">Resumen:</h3>
-              <p><strong>Servicio:</strong> Solicitud de número NRUA</p>
-              <p><strong>Importe:</strong> ${orderData.amount}€</p>
-            </div>
-            <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
-              <h3 style="margin-top: 0; color: #166534;">¿Qué pasa ahora?</h3>
-              <ol style="color: #166534;">
-                <li>Nuestra gestora, Dña. Sheshina Irina, tramitará tu solicitud ante el Registro de la Propiedad</li>
-                <li>En 5-10 días laborables recibirás tu número NRUA por email</li>
-                <li>Con tu NRUA podrás presentar el Modelo N2 desde 79€</li>
-              </ol>
-            </div>
-            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin: 20px 0;">
-              <h3 style="margin-top: 0;">📄 Documento de Autorización</h3>
-              <p style="font-size: 14px; line-height: 1.6;">
-                Yo, <strong>${orderData.form.name || ''} ${orderData.form.surname || orderData.form.companyName || ''}</strong>, 
-                con ${orderData.form.idType || 'NIE'} nº <strong>${orderData.form.idNumber || ''}</strong>,
-                autorizo a <strong>Dña. Sheshina Irina</strong>, con NIE nº <strong>Y6189281H</strong>,
-                para que, en mi nombre y representación, presente la solicitud de asignación 
-                del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad 
-                correspondiente, conforme al Reglamento (UE) 2024/1028.
-              </p>
-              <p style="font-size: 12px; color: #666;">
-                Fecha: ${new Date().toLocaleDateString('es-ES')} | 
-                IP: ${orderData.ip || 'N/A'}
-              </p>
-            </div>
-            <p style="color: #666; font-size: 14px; margin-top: 20px;">
-              ¿Dudas? Escríbenos a support@dedosfacil.es indicando tu referencia DF-${orderData.orderId}
-            </p>
-          </div>
-        </div>
-      `
-    });
-    console.log('NRUA confirmation email sent to:', email);
-  } catch (error) {
-    console.error('Error sending NRUA email:', error);
-  }
-}
 // =====================================================
 // PARSEO DIRECTO DE CSV/XLSX + FALLBACK A CLAUDE AI
 // Todos los idiomas europeos soportados
@@ -2169,6 +2146,118 @@ app.post('/api/admin/nrua-status/:id', async (req, res) => {
   } catch (error) {
     console.error('Update NRUA status error:', error);
     res.status(500).json({ error: 'Error al actualizar estado' });
+  }
+});
+
+// ============================================
+// AFFILIATE ENDPOINTS
+// ============================================
+
+// Validate affiliate code (public)
+app.get('/api/affiliate/validate/:code', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT code, discount_percent FROM affiliates WHERE code = $1 AND active = true',
+      [req.params.code.toUpperCase()]
+    );
+    if (result.rows.length === 0) return res.json({ valid: false });
+    res.json({ valid: true, discount: result.rows[0].discount_percent });
+  } catch (error) {
+    res.status(500).json({ valid: false });
+  }
+});
+
+// Affiliate login
+app.post('/api/affiliate/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await pool.query(
+      'SELECT * FROM affiliates WHERE LOWER(email) = LOWER($1) AND active = true',
+      [email]
+    );
+    if (result.rows.length === 0) return res.status(401).json({ error: 'Credenciales incorrectas' });
+    
+    const aff = result.rows[0];
+    if (aff.password_hash !== password) return res.status(401).json({ error: 'Credenciales incorrectas' });
+
+    // Get referrals
+    const referrals = await pool.query(
+      `SELECT ar.*, o.email as customer_email, o.created_at as order_date
+       FROM affiliate_referrals ar
+       JOIN orders o ON o.id = ar.order_id
+       WHERE ar.affiliate_id = $1
+       ORDER BY ar.created_at DESC`,
+      [aff.id]
+    );
+
+    res.json({
+      affiliate: { id: aff.id, name: aff.name, email: aff.email, code: aff.code, discount_percent: aff.discount_percent, commission_percent: aff.commission_percent },
+      referrals: referrals.rows
+    });
+  } catch (error) {
+    console.error('Affiliate login error:', error);
+    res.status(500).json({ error: 'Error de conexión' });
+  }
+});
+
+// ============================================
+// ADMIN - AFFILIATES
+// ============================================
+
+// List affiliates
+app.get('/api/admin/affiliates', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT a.*, 
+        (SELECT COUNT(*) FROM affiliate_referrals WHERE affiliate_id = a.id) as total_referrals,
+        (SELECT COUNT(*) FROM affiliate_referrals WHERE affiliate_id = a.id AND status = 'completed') as completed_referrals,
+        (SELECT COALESCE(SUM(commission_amount), 0) FROM affiliate_referrals WHERE affiliate_id = a.id AND status = 'completed') as total_commission
+      FROM affiliates a ORDER BY a.created_at DESC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Admin affiliates error:', error);
+    res.status(500).json({ error: 'Error al cargar afiliados' });
+  }
+});
+
+// Create affiliate
+app.post('/api/admin/affiliates', async (req, res) => {
+  try {
+    const { name, email, code, password, discount_percent, commission_percent } = req.body;
+    const result = await pool.query(
+      'INSERT INTO affiliates (name, email, code, password_hash, discount_percent, commission_percent) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+      [name, email, code.toUpperCase(), password, discount_percent || 10, commission_percent || 10]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    if (error.code === '23505') return res.status(400).json({ error: 'Código o email ya existe' });
+    console.error('Create affiliate error:', error);
+    res.status(500).json({ error: 'Error al crear afiliado' });
+  }
+});
+
+// Toggle affiliate active
+app.post('/api/admin/affiliates/:id/toggle', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'UPDATE affiliates SET active = NOT active WHERE id = $1 RETURNING *',
+      [req.params.id]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar afiliado' });
+  }
+});
+
+// Delete affiliate
+app.delete('/api/admin/affiliates/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM affiliate_referrals WHERE affiliate_id = $1', [req.params.id]);
+    await pool.query('DELETE FROM affiliates WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar afiliado' });
   }
 });
 
