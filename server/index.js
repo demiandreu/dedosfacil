@@ -319,6 +319,18 @@ app.post('/api/affiliate/payment-info', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post('/api/affiliate/track-click', async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (code) {
+      await pool.query('UPDATE affiliates SET link_clicks = link_clicks + 1 WHERE code = $1 AND active = true', [code.toUpperCase()]);
+    }
+    res.json({ ok: true });
+  } catch (error) {
+    res.json({ ok: false });
+  }
+});
 // ============================================
 // SOLICITAR NRUA - Checkout 149€
 // ============================================
