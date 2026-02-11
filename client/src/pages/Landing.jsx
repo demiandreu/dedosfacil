@@ -531,6 +531,15 @@ function Landing() {
   const [reviews, setReviews] = useState([])
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get('ref')
+    if (ref) {
+      localStorage.setItem('dedosfacil-ref', ref.toUpperCase())
+      console.log('🎟️ Affiliate code saved:', ref.toUpperCase())
+    }
+  }, [])
+
+  useEffect(() => {
     fetch('/api/reviews')
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setReviews(data) })
