@@ -305,6 +305,20 @@ app.delete('/api/admin/nrua-requests/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post('/api/affiliate/payment-info', async (req, res) => {
+  try {
+    const { email, password, paymentInfo } = req.body;
+    const result = await pool.query('SELECT * FROM affiliates WHERE email = $1', [email]);
+    if (result.rows.length === 0) return res.status(401).json({ error: 'No encontrado' });
+    const affiliate = result.rows[0];
+    if (password !== affiliate.password_hash) return res.status(401).json({ error: 'Contraseña incorrecta' });
+    await pool.query('UPDATE affiliates SET payment_info = $1 WHERE id = $2', [paymentInfo, affiliate.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 // ============================================
 // SOLICITAR NRUA - Checkout 149€
 // ============================================
