@@ -148,6 +148,39 @@ const [savingPayment, setSavingPayment] = useState(false)
             <p style={s.statLabel}>Comisión acumulada</p>
           </div>
         </div>
+        {/* Payment Info */}
+        <div style={s.card}>
+          <h3 style={{ margin: '0 0 12px' }}>💰 Datos de pago</h3>
+          <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+            Indica cómo prefieres recibir tus comisiones (transferencia, PayPal, Bizum, crypto, etc.)
+          </p>
+          <textarea
+            value={paymentInfo}
+            onChange={e => setPaymentInfo(e.target.value)}
+            placeholder="Ej: IBAN ES12 3456 7890 1234 5678 / PayPal: mi@email.com / BTC: bc1q..."
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '14px', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
+          />
+          <button
+            onClick={async () => {
+              setSavingPayment(true)
+              try {
+                const res = await fetch('/api/affiliate/payment-info', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email, password, paymentInfo })
+                })
+                const data = await res.json()
+                if (data.success) alert('✅ Datos de pago guardados')
+                else alert('Error al guardar')
+              } catch (err) { alert('Error de conexión') }
+              setSavingPayment(false)
+            }}
+            style={{ ...s.btn, width: 'auto', padding: '10px 20px', marginTop: '8px' }}
+            disabled={savingPayment}
+          >
+            {savingPayment ? '⏳ Guardando...' : '💾 Guardar datos de pago'}
+          </button>
+        </div>
 
         {/* Referrals table */}
         <div style={s.card}>
