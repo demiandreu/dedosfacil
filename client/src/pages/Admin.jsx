@@ -14,6 +14,7 @@ const [nruaRequests, setNruaRequests] = useState([])
   const [affiliates, setAffiliates] = useState([])
 const [newAffiliate, setNewAffiliate] = useState({ name: '', email: '', code: '', password: '', discount_percent: 10, commission_percent: 10 })
 const [showAffForm, setShowAffForm] = useState(false)
+  const [nruaSearch, setNruaSearch] = useState('')
 
   const ADMIN_PASSWORD = 'dedos2026'
 
@@ -779,6 +780,22 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
             🤝 Afiliados ({affiliates.length})
           </button>
         </div>
+
+        const filteredNrua = nruaRequests.filter(req => {
+  if (!nruaSearch) return true
+  const q = nruaSearch.toLowerCase()
+  return (
+    (req.email || '').toLowerCase().includes(q) ||
+    (req.name || '').toLowerCase().includes(q) ||
+    (req.surname || '').toLowerCase().includes(q) ||
+    (req.catastral_ref || '').toLowerCase().includes(q) ||
+    (req.cru || '').toLowerCase().includes(q) ||
+    (req.property_address || '').toLowerCase().includes(q) ||
+    (req.property_municipality || '').toLowerCase().includes(q) ||
+    (req.id_number || '').toLowerCase().includes(q) ||
+    String(req.order_id || '').includes(q)
+  )
+})
         
 {activeTab === 'n2' && (<>
         {/* Filters */}
@@ -1067,12 +1084,22 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
         {/* NRUA Requests Tab */}
         {activeTab === 'nrua' && (
           <div>
-            {nruaRequests.length === 0 ? (
+            <div style={{ marginBottom: '16px' }}>
+              <input
+                type="text"
+                placeholder="🔍 Buscar por email, nombre, CRU, referencia catastral, dirección, NIF/NIE, nº pedido..."
+                value={nruaSearch}
+                onChange={e => setNruaSearch(e.target.value)}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' }}
+              />
+              {nruaSearch && <p style={{ fontSize: '13px', color: '#6b7280', margin: '8px 0 0' }}>{filteredNrua.length} resultado(s)</p>}
+            </div>
+            {filteredNrua.length === 0 ?
               <div style={{ ...styles.orderCard, padding: '32px', textAlign: 'center', color: '#6b7280' }}>
                 No hay solicitudes NRUA
               </div>
             ) : (
-              nruaRequests.map(req => (
+              filteredNrua.map(req => (
                 <div key={req.id} style={styles.orderCard}>
                   <div
                     style={styles.orderHeader}
@@ -1289,6 +1316,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                         <td style={{ padding: '12px 10px' }}>
                           <div><strong>{aff.name}</strong></div>
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>{aff.email}</div>
+                          {aff.payment_info && <div style={{ fontSize: '11px', color: '#10b981', marginTop: '2px' }}>💰 {aff.payment_info}</div>}
                         </td>
                         <td style={{ padding: '12px 10px' }}>
                           <code style={{ backgroundColor: '#f3f4f6', padding: '2px 8px', borderRadius: '4px' }}>{aff.code}</code>
