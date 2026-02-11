@@ -93,9 +93,9 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
       summary: "Resumen de tu pedido",
       plan: "Plan seleccionado",
      plans: [
-        { id: 1, name: "1 Propiedad", price: 79, priceStr: "79€" },
-  { id: 3, name: "3 Propiedades", price: 199, priceStr: "199€", popular: true },
-  { id: 10, name: "10 Propiedades", price: 629, priceStr: "629€" }
+        { id: 1, name: "1 Propiedad", price: 99, priceStr: "99€" },
+        { id: 3, name: "3 Propiedades", price: 259, priceStr: "259€", popular: true },
+        { id: 10, name: "10 Propiedades", price: 799, priceStr: "799€" }
       ],
       termsLabel: "Acepto los",
       terms: "términos y condiciones",
@@ -188,9 +188,9 @@ otherHelp: "CSV or Excel with check-in/check-out dates and guests",
       summary: "Order summary",
       plan: "Selected plan",
     plans: [
-  { id: 1, name: "1 Property", price: 79, priceStr: "€79" },
-  { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
-  { id: 10, name: "10 Properties", price: 629, priceStr: "€629" }
+  { id: 1, name: "1 Property", price: 99, priceStr: "€99" },
+        { id: 3, name: "3 Properties", price: 259, priceStr: "€259", popular: true },
+        { id: 10, name: "10 Properties", price: 799, priceStr: "€799" }
       ],
       termsLabel: "I accept the",
       terms: "terms and conditions",
@@ -283,9 +283,9 @@ otherHelp: "CSV ou Excel avec dates d'arrivée/départ et voyageurs",
       summary: "Résumé de votre commande",
       plan: "Plan sélectionné",
     plans: [
-    { id: 1, name: "1 Property", price: 79, priceStr: "€79" },
-  { id: 3, name: "3 Properties", price: 199, priceStr: "€199", popular: true },
-  { id: 10, name: "10 Properties", price: 629, priceStr: "€629" }
+    { id: 1, name: "1 Propriété", price: 99, priceStr: "99€" },
+        { id: 3, name: "3 Propriétés", price: 259, priceStr: "259€", popular: true },
+        { id: 10, name: "10 Propriétés", price: 799, priceStr: "799€" }
       ],
       termsLabel: "J'accepte les",
       terms: "conditions générales",
@@ -378,9 +378,9 @@ otherHelp: "CSV oder Excel mit Check-in/Check-out und Gästen",
       summary: "Ihre Bestellübersicht",
       plan: "Ausgewählter Plan",
      plans: [
-        { id: 1, name: "1 Immobilie", price: 79, priceStr: "79€" },
-  { id: 3, name: "3 Immobilien", price: 199, priceStr: "199€", popular: true },
-  { id: 10, name: "10 Immobilien", price: 629, priceStr: "629€" }
+        { id: 1, name: "1 Immobilie", price: 99, priceStr: "99€" },
+        { id: 3, name: "3 Immobilien", price: 259, priceStr: "259€", popular: true },
+        { id: 10, name: "10 Immobilien", price: 799, priceStr: "799€" }
       ],
       termsLabel: "Ich akzeptiere die",
       terms: "Nutzungsbedingungen",
@@ -1381,7 +1381,20 @@ if (!acceptTerms || !acceptAuthorization) return
                              `Sie fügen ${selectedPlan} Immobilien nach der Zahlung hinzu`}</strong>
                   </div>
                 )}
-                <div className="summary-row total"><span>Total:</span><strong>{currentPlan?.priceStr}</strong></div>
+                {affiliateDiscount && (
+                  <div className="summary-row" style={{color: '#10b981'}}>
+                    <span>🎟️ Descuento afiliado ({affiliateDiscount}%):</span>
+                    <strong>-{Math.round(currentPlan?.price * affiliateDiscount / 100)}€</strong>
+                  </div>
+                )}
+                <div className="summary-row total">
+                  <span>Total:</span>
+                  <strong>
+                    {affiliateDiscount ? (
+                      <>{<span style={{textDecoration: 'line-through', color: '#9ca3af', marginRight: '8px'}}>{currentPlan?.priceStr}</span>}{Math.round(currentPlan?.price * (100 - affiliateDiscount) / 100)}€</>
+                    ) : currentPlan?.priceStr}
+                  </strong>
+                </div>
               </div>
 
               {/* Authorization Checkbox */}
@@ -1404,8 +1417,8 @@ if (!acceptTerms || !acceptAuthorization) return
               </label>
 
               {/* Pay Button */}
-              <button className="btn btn-primary btn-large btn-pay" onClick={handlePay} disabled={!acceptTerms || !acceptAuthorization}>
-                {t.step4.payBtn} {currentPlan?.priceStr}
+            <button className="btn btn-primary btn-large btn-pay" onClick={handlePay} disabled={!acceptTerms || !acceptAuthorization}>
+                {t.step4.payBtn} {affiliateDiscount ? `${Math.round(currentPlan?.price * (100 - affiliateDiscount) / 100)}€` : currentPlan?.priceStr}
                 <ArrowRight size={20} />
               </button>
 
