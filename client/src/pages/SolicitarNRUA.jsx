@@ -570,6 +570,7 @@ function SolicitarNRUA() {
   const [errors, setErrors] = useState({})
   const [personType, setPersonType] = useState('physical')
   const [hasLicense, setHasLicense] = useState('yes')
+  const [affiliateDiscount, setAffiliateDiscount] = useState(null)
 
   const [form, setForm] = useState({
     name: '', surname: '', companyName: '',
@@ -586,6 +587,22 @@ function SolicitarNRUA() {
   })
 
   const t = translations[lang]
+
+  useEffect(() => {
+  const code = localStorage.getItem('dedosfacil-ref')
+  const urlDiscount = localStorage.getItem('dedosfacil-ref-discount')
+  if (code) {
+    fetch(`/api/affiliate/validate/${code}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.valid) {
+          const disc = urlDiscount === '10' || urlDiscount === '20' ? parseInt(urlDiscount) : data.defaultDiscount
+          setAffiliateDiscount(disc)
+        }
+      })
+      .catch(() => {})
+  }
+}, [])
 
   useEffect(() => {
     const saved = localStorage.getItem('dedosfacil-lang')
@@ -1135,9 +1152,19 @@ function SolicitarNRUA() {
                   <span>{t.step4.representative}:</span>
                   <strong>{t.step4.representativeName}</strong>
                 </div>
+                {affiliateDiscount && (
+                  <div className="summary-row" style={{color: '#10b981'}}>
+                    <span>🎟️ Descuento afiliado ({affiliateDiscount}%):</span>
+                    <strong>-{Math.round(149 * affiliateDiscount / 100)}€</strong>
+                  </div>
+                )}
                 <div className="summary-row total">
                   <span>{t.step4.total}:</span>
-                  <strong>{t.step4.price}</strong>
+                  <strong>
+                    {affiliateDiscount ? (
+                      <><span style={{textDecoration: 'line-through', color: '#9ca3af', marginRight: '8px'}}>{t.step4.price}</span>{Math.round(149 * (100 - affiliateDiscount) / 100)}€</>
+                    ) : t.step4.price}
+                  </strong>
                 </div>
                 <p className="summary-includes">{t.step4.includes}</p>
               </div>
@@ -1154,8 +1181,8 @@ function SolicitarNRUA() {
               </label>
 
               {/* Pay Button */}
-              <button className="btn btn-primary btn-large btn-pay" onClick={handlePay} disabled={!acceptTerms}>
-                {t.step4.payBtn}
+             <button className="btn btn-primary btn-large btn-pay" onClick={handlePay} disabled={!acceptTerms}>
+                {affiliateDiscount ? `${lang === 'de' ? '' : lang === 'en' ? 'Pay' : lang === 'fr' ? 'Payer' : 'Pagar'} ${Math.round(149 * (100 - affiliateDiscount) / 100)}€` : t.step4.payBtn}
                 <ArrowRight size={20} />
               </button>
 
