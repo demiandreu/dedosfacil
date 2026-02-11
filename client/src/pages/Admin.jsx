@@ -1210,6 +1210,18 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                               Desmarcar Enviado
                             </button>
                           )}
+                          <button
+                      onClick={async () => {
+                        if (!window.confirm('¿Eliminar esta solicitud NRUA?')) return
+                        try {
+                          await fetch(`/api/admin/nrua-requests/${req.id}`, { method: 'DELETE' })
+                          fetchNruaRequests()
+                        } catch (err) { console.error(err) }
+                      }}
+                      style={{ padding: '6px 12px', backgroundColor: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+                    >
+                      🗑️ Eliminar
+                    </button>
                         </div>
                       </div>
                     </div>
