@@ -665,7 +665,9 @@ function SolicitarNRUA() {
           form,
           personType,
           hasLicense,
-          lang
+          lang,
+          affiliateCode: localStorage.getItem('dedosfacil-ref') || null,
+          affiliateDiscount: parseInt(localStorage.getItem('dedosfacil-ref-discount')) || null
         })
       })
       const data = await res.json()
