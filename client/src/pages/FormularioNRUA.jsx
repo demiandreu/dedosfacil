@@ -781,7 +781,9 @@ if (!acceptTerms || !acceptAuthorization) return
           accepted: acceptGdpr,
           timestamp: new Date().toISOString(),
           ip: null
-        }
+       },
+        affiliateCode: localStorage.getItem('dedosfacil-ref') || null
+      })
       })
     })
   
