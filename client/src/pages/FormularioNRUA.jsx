@@ -86,7 +86,9 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
       defaultGuests: "Huéspedes por defecto:",
       defaultPurpose: "Finalidad por defecto:",
       downloadCsv: "Descargar CSV para N2",
-      downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro"
+      downloadCsvHelp: "Importa este archivo en la aplicación N2 del Registro",
+      dateAdjusted: "reserva(s) tenían fecha de salida en 2026. Se ajustó automáticamente al 31/12/2025.",
+      dateAdjustedTag: "Salida ajustada"
     },
     step4: {
       title: "Resumen y pago",
@@ -181,7 +183,9 @@ otherHelp: "CSV or Excel with check-in/check-out dates and guests",
       defaultGuests: "Default guests:",
       defaultPurpose: "Default purpose:",
       downloadCsv: "Download CSV for N2",
-      downloadCsvHelp: "Import this file in the Registry's N2 application"
+      downloadCsvHelp: "Import this file in the Registry's N2 application",
+      dateAdjusted: "booking(s) had a check-out date in 2026. Automatically adjusted to 31/12/2025.",
+      dateAdjustedTag: "Check-out adjusted"
     },
     step4: {
       title: "Summary and payment",
@@ -276,7 +280,9 @@ otherHelp: "CSV ou Excel avec dates d'arrivée/départ et voyageurs",
       defaultGuests: "Voyageurs par défaut:",
       defaultPurpose: "Finalité par défaut:",
       downloadCsv: "Télécharger CSV pour N2",
-      downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre"
+      downloadCsvHelp: "Importez ce fichier dans l'application N2 du Registre",
+      dateAdjusted: "réservation(s) avaient une date de départ en 2026. Ajustée automatiquement au 31/12/2025.",
+      dateAdjustedTag: "Départ ajusté"
     },
     step4: {
       title: "Résumé et paiement",
@@ -371,7 +377,9 @@ otherHelp: "CSV oder Excel mit Check-in/Check-out und Gästen",
       defaultGuests: "Standard-Gäste:",
       defaultPurpose: "Standard-Zweck:",
    downloadCsv: "CSV für N2 herunterladen",
-      downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers"
+      downloadCsvHelp: "Importieren Sie diese Datei in die N2-Anwendung des Registers",
+      dateAdjusted: "Buchung(en) hatten ein Check-out-Datum in 2026. Automatisch auf 31/12/2025 angepasst.",
+      dateAdjustedTag: "Check-out angepasst"
     },
     step4: {
       title: "Zusammenfassung und Zahlung",
@@ -424,6 +432,7 @@ const [uploadedFiles, setUploadedFiles] = useState({
   const [fileProcessed, setFileProcessed] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [extractedStays, setExtractedStays] = useState([])
+  const [dateAdjustedCount, setDateAdjustedCount] = useState(0)
   const [errors, setErrors] = useState({})
   const [lightboxImage, setLightboxImage] = useState(null)
   const [affiliateDiscount, setAffiliateDiscount] = useState(null)
@@ -640,6 +649,19 @@ if (data.other?.estancias) {
         
         allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
         
+        // Detectar y corregir estancias con salida en 2026+
+        let adjustedCount = 0
+        allStays = allStays.map(stay => {
+          if (!stay.checkOut) return stay
+          const checkOutYear = new Date(stay.checkOut).getFullYear()
+          if (checkOutYear > 2025) {
+            adjustedCount++
+            return { ...stay, checkOut: '2025-12-31', originalCheckOut: stay.checkOut, dateAdjusted: true }
+          }
+          return stay
+        })
+        setDateAdjustedCount(adjustedCount)
+
        // Detectar duplicados y solapamientos
 allStays = allStays.map((stay, index) => {
   const isDuplicate = allStays.some((other, otherIndex) => 
@@ -675,6 +697,7 @@ allStays = allStays.map((stay, index) => {
     setUploadedFiles({ airbnb: null, booking: null, vrbo: null, other: null })
     setFileProcessed(false)
     setExtractedStays([])
+    setDateAdjustedCount(0)
   }
 
   const updateStay = (index, field, value) => {
@@ -1215,6 +1238,25 @@ if (!acceptTerms || !acceptAuthorization) return
                   </div>
                   <p className="stays-instructions">{t.step3.reviewInstructions}</p>
 
+                  {/* Banner de aviso de fechas ajustadas */}
+                  {dateAdjustedCount > 0 && (
+                    <div className="date-adjusted-banner" style={{
+                      background: '#fef3c7',
+                      border: '1px solid #f59e0b',
+                      borderRadius: '8px',
+                      padding: '12px 16px',
+                      marginBottom: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      fontSize: '14px',
+                      color: '#92400e'
+                    }}>
+                      <AlertCircle size={18} style={{ flexShrink: 0 }} />
+                      <span><strong>{dateAdjustedCount}</strong> {t.step3.dateAdjusted}</span>
+                    </div>
+                  )}
+
                   {/* Aplicar a todos */}
                   <div className="apply-to-all">
                     <div className="apply-group">
@@ -1262,17 +1304,34 @@ if (!acceptTerms || !acceptAuthorization) return
                       <span></span>
                     </div>
                     {extractedStays.map((stay, i) => (
-                     <div key={i} className={`stays-table-row ${stay.isDuplicate ? 'duplicate-warning' : ''} ${stay.isOverlapping ? 'overlap-warning' : ''}`}>
+                     <div key={i} className={`stays-table-row ${stay.isDuplicate ? 'duplicate-warning' : ''} ${stay.isOverlapping ? 'overlap-warning' : ''} ${stay.dateAdjusted ? 'date-adjusted-row' : ''}`}>
                         <input 
                           type="date" 
                           value={stay.checkIn} 
                           onChange={e => updateStay(i, 'checkIn', e.target.value)}
                         />
-                        <input 
-                          type="date" 
-                          value={stay.checkOut} 
-                          onChange={e => updateStay(i, 'checkOut', e.target.value)}
-                        />
+                        <div style={{ position: 'relative' }}>
+                          <input 
+                            type="date" 
+                            value={stay.checkOut} 
+                            onChange={e => updateStay(i, 'checkOut', e.target.value)}
+                            style={stay.dateAdjusted ? { borderColor: '#f59e0b', background: '#fffbeb' } : {}}
+                          />
+                          {stay.dateAdjusted && (
+                            <span style={{
+                              position: 'absolute',
+                              top: '-8px',
+                              right: '-4px',
+                              background: '#f59e0b',
+                              color: '#fff',
+                              fontSize: '10px',
+                              padding: '1px 6px',
+                              borderRadius: '4px',
+                              fontWeight: 'bold',
+                              whiteSpace: 'nowrap'
+                            }}>{t.step3.dateAdjustedTag}</span>
+                          )}
+                        </div>
                         <input 
                           type="number" 
                           min="1" 
