@@ -1114,7 +1114,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                                   <th style={styles.tableCell}>Huéspedes</th>
                                   <th style={styles.tableCell}>Finalidad</th>
                                   <th style={styles.tableCell}>Fuente</th>
-                                  {isEditing && <th style={styles.tableCell}></th>}
+                                  {editingStays[order.id] && <th style={styles.tableCell}></th>}
                                 </tr>
                               </thead>
                               <tbody>
