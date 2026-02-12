@@ -445,6 +445,34 @@ const [uploadedFiles, setUploadedFiles] = useState({
   
   const t = translations[lang]
 
+  // Determinar el año del ejercicio (2025 por defecto, o basado en las estancias existentes)
+  const getFilingYear = () => {
+    if (extractedStays.length > 0) {
+      const years = extractedStays
+        .filter(s => s.checkIn)
+        .map(s => new Date(s.checkIn).getFullYear())
+        .filter(y => !isNaN(y))
+      if (years.length > 0) return Math.max(...years)
+    }
+    return 2025
+  }
+
+  // Ajustar fecha de salida si cae en año posterior al ejercicio
+  const adjustCheckoutDate = (stay) => {
+    if (!stay.checkOut) return stay
+    const filingYear = getFilingYear()
+    const checkOutDate = new Date(stay.checkOut)
+    if (checkOutDate.getFullYear() > filingYear) {
+      return { 
+        ...stay, 
+        checkOut: `${filingYear}-12-31`, 
+        originalCheckOut: stay.originalCheckOut || stay.checkOut, 
+        dateAdjusted: true 
+      }
+    }
+    return stay
+  }
+
 useEffect(() => {
   const code = localStorage.getItem('dedosfacil-ref')
   const urlDiscount = localStorage.getItem('dedosfacil-ref-discount')
@@ -489,7 +517,24 @@ useEffect(() => {
       if (data.selectedPlan) setSelectedPlan(data.selectedPlan);
       if (data.noActivity) setNoActivity(data.noActivity);
       if (data.manualMode) setManualMode(data.manualMode);
-      if (data.extractedStays?.length) setExtractedStays(data.extractedStays);
+      if (data.extractedStays?.length) {
+        // Ajustar fechas de salida que caen en año posterior al ejercicio
+        const filingYear = 2025
+        const adjustedStays = data.extractedStays.map(stay => {
+          if (!stay.checkOut) return stay
+          const checkOutDate = new Date(stay.checkOut)
+          if (checkOutDate.getFullYear() > filingYear) {
+            return { 
+              ...stay, 
+              checkOut: `${filingYear}-12-31`, 
+              originalCheckOut: stay.originalCheckOut || stay.checkOut, 
+              dateAdjusted: true 
+            }
+          }
+          return stay
+        })
+        setExtractedStays(adjustedStays)
+      }
       if (data.fileProcessed) setFileProcessed(data.fileProcessed);
       if (data.acceptTerms) setAcceptTerms(data.acceptTerms);
       if (data.acceptAuthorization) setAcceptAuthorization(data.acceptAuthorization);
@@ -534,6 +579,15 @@ useEffect(() => {
           const missingPurpose = extractedStays.some(s => !s.purpose)
           if (missingGuests || missingPurpose) {
             e.stays = 'Completa huéspedes y finalidad para todas las estancias'
+          }
+          // Verificar y corregir fechas de salida que excedan el año del ejercicio
+          const filingYear = getFilingYear()
+          const hasInvalidDates = extractedStays.some(s => {
+            if (!s.checkOut) return false
+            return new Date(s.checkOut).getFullYear() > filingYear
+          })
+          if (hasInvalidDates) {
+            setExtractedStays(prev => prev.map(stay => adjustCheckoutDate(stay)))
           }
         }
       }
@@ -649,14 +703,21 @@ if (data.other?.estancias) {
         
         allStays.sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn))
         
-        // Detectar y corregir estancias con salida en 2026+
+        // Determinar el año del ejercicio basado en las fechas de entrada
+        const checkInYears = allStays
+          .filter(s => s.checkIn)
+          .map(s => new Date(s.checkIn).getFullYear())
+          .filter(y => !isNaN(y))
+        const filingYear = checkInYears.length > 0 ? Math.max(...checkInYears) : 2025
+
+        // Detectar y corregir estancias con salida posterior al año del ejercicio
         let adjustedCount = 0
         allStays = allStays.map(stay => {
           if (!stay.checkOut) return stay
           const checkOutYear = new Date(stay.checkOut).getFullYear()
-          if (checkOutYear > 2025) {
+          if (checkOutYear > filingYear) {
             adjustedCount++
-            return { ...stay, checkOut: '2025-12-31', originalCheckOut: stay.checkOut, dateAdjusted: true }
+            return { ...stay, checkOut: `${filingYear}-12-31`, originalCheckOut: stay.checkOut, dateAdjusted: true }
           }
           return stay
         })
@@ -704,6 +765,10 @@ allStays = allStays.map((stay, index) => {
     setExtractedStays(prev => {
       const updated = [...prev]
       updated[index] = { ...updated[index], [field]: value }
+      // Si se cambió la fecha de salida, verificar que no exceda el año del ejercicio
+      if (field === 'checkOut') {
+        updated[index] = adjustCheckoutDate(updated[index])
+      }
       return updated
     })
     if (errors.stays) setErrors(prev => ({ ...prev, stays: null }))
