@@ -599,13 +599,18 @@ function normalizeDate(val) {
   const s = String(val).trim();
   if (!s) return null;
   
-  // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
-  let match = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
-  if (match) {
-    const d = match[1].padStart(2, '0');
-    const m = match[2].padStart(2, '0');
-    return `${d}/${m}/${match[3]}`;
-  }
+
+// DD/MM/YYYY or MM/DD/YYYY or DD-MM-YYYY or DD.MM.YYYY
+let match = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
+if (match) {
+    let d = parseInt(match[1]);
+    let m = parseInt(match[2]);
+    // If second number > 12, it must be MM/DD/YYYY (US format like Airbnb)
+    if (m > 12 && d <= 12) {
+      [d, m] = [m, d];
+    }
+    return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${match[3]}`;
+}
   
   // YYYY-MM-DD
   match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
