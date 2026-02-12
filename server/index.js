@@ -1520,6 +1520,24 @@ app.post('/api/admin/update-nrua/:orderId', async (req, res) => {
   }
 });
 
+// Update stays from admin
+app.post('/api/admin/update-stays/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { stays } = req.body;
+    
+    await pool.query(
+      'UPDATE submissions SET extracted_stays = $1 WHERE order_id = $2',
+      [JSON.stringify(stays), orderId]
+    );
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Update stays error:', error);
+    res.status(500).json({ error: 'Error al actualizar estancias' });
+  }
+});
+
 // Upload justificante and send email with everything
 
 app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '50mb' }), async (req, res) => {
