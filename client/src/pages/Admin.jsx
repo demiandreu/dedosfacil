@@ -16,6 +16,7 @@ const [newAffiliate, setNewAffiliate] = useState({ name: '', email: '', code: ''
 const [showAffForm, setShowAffForm] = useState(false)
   const [nruaSearch, setNruaSearch] = useState('')
   const [n2Search, setN2Search] = useState('')
+  const [editingStays, setEditingStays] = useState({}) // { orderId: [...stays] }
 
   const ADMIN_PASSWORD = 'dedos2026'
 
@@ -353,6 +354,74 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     } catch (err) {
       alert('Error al actualizar NRUA: ' + err.message)
     }
+  }
+
+  // Editar estancias
+  const startEditingStays = (orderId, stays) => {
+    setEditingStays(prev => ({ ...prev, [orderId]: JSON.parse(JSON.stringify(stays)) }))
+  }
+
+  const updateEditingStay = (orderId, idx, field, value) => {
+    setEditingStays(prev => {
+      const updated = { ...prev }
+      updated[orderId] = [...updated[orderId]]
+      updated[orderId][idx] = { ...updated[orderId][idx], [field]: value }
+      return updated
+    })
+  }
+
+  const saveStays = async (orderId) => {
+    try {
+      const response = await fetch(`/api/admin/update-stays/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stays: editingStays[orderId] })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      setEditingStays(prev => {
+        const updated = { ...prev }
+        delete updated[orderId]
+        return updated
+      })
+      await fetchOrders()
+      alert('✅ Estancias guardadas')
+    } catch (err) {
+      alert('Error al guardar estancias: ' + err.message)
+    }
+  }
+
+  const cancelEditingStays = (orderId) => {
+    setEditingStays(prev => {
+      const updated = { ...prev }
+      delete updated[orderId]
+      return updated
+    })
+  }
+
+  // Detectar si la fecha de salida cae en año distinto al de las entradas
+  const isCheckoutYearInvalid = (stay, allStays) => {
+    const checkOut = stay.fecha_salida || stay.checkOut
+    const checkIn = stay.fecha_entrada || stay.checkIn
+    if (!checkOut || !checkIn) return false
+    // Parse dates - handle both DD/MM/YYYY and YYYY-MM-DD
+    const parseYear = (dateStr) => {
+      if (!dateStr) return null
+      if (dateStr.includes('/')) {
+        const parts = dateStr.split('/')
+        return parts.length === 3 ? parseInt(parts[2]) : null
+      }
+      if (dateStr.includes('-')) {
+        const parts = dateStr.split('-')
+        // Could be YYYY-MM-DD or DD-MM-YYYY
+        return parts[0].length === 4 ? parseInt(parts[0]) : parseInt(parts[2])
+      }
+      return null
+    }
+    const checkInYear = parseYear(checkIn)
+    const checkOutYear = parseYear(checkOut)
+    if (!checkInYear || !checkOutYear) return false
+    return checkOutYear > checkInYear
   }
 
   const deleteOrder = async (orderId) => {
@@ -1001,11 +1070,37 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                       {/* Stays */}
                       {order.stays_count > 0 && (
                         <div style={{ marginTop: '24px' }}>
-                          <h3 style={styles.sectionTitle}>🏠 Estancias extraídas ({order.stays_count})</h3>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <h3 style={styles.sectionTitle}>🏠 Estancias extraídas ({order.stays_count})</h3>
+                            {!editingStays[order.id] ? (
+                              <button 
+                                onClick={() => startEditingStays(order.id, order.extracted_stays || [])}
+                                style={{ padding: '6px 14px', backgroundColor: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}
+                              >
+                                ✏️ Editar estancias
+                              </button>
+                            ) : (
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                  onClick={() => saveStays(order.id)}
+                                  style={{ padding: '6px 14px', backgroundColor: '#D1FAE5', color: '#065F46', border: '1px solid #6EE7B7', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}
+                                >
+                                  💾 Guardar
+                                </button>
+                                <button 
+                                  onClick={() => cancelEditingStays(order.id)}
+                                  style={{ padding: '6px 14px', backgroundColor: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}
+                                >
+                                  ✕ Cancelar
+                                </button>
+                              </div>
+                            )}
+                          </div>
                           <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
                             <table style={styles.staysTable}>
                               <thead style={styles.tableHeader}>
                                 <tr>
+                                  <th style={styles.tableCell}>#</th>
                                   <th style={styles.tableCell}>Entrada</th>
                                   <th style={styles.tableCell}>Salida</th>
                                   <th style={styles.tableCell}>Huéspedes</th>
@@ -1014,15 +1109,73 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                                 </tr>
                               </thead>
                               <tbody>
-                                {(order.extracted_stays || []).map((stay, idx) => (
-                                  <tr key={idx}>
-                                    <td style={styles.tableCell}>{stay.fecha_entrada || stay.checkIn}</td>
-                                    <td style={styles.tableCell}>{stay.fecha_salida || stay.checkOut}</td>
-                                    <td style={styles.tableCell}>{stay.huespedes || stay.guests || '-'}</td>
-                                    <td style={styles.tableCell}>{stay.finalidad || stay.purpose || 'Vacacional'}</td>
-                                    <td style={styles.tableCell}>{stay.plataforma || stay.source || '-'}</td>
-                                  </tr>
-                                ))}
+                                {(editingStays[order.id] || order.extracted_stays || []).map((stay, idx) => {
+                                  const isEditing = !!editingStays[order.id]
+                                  const invalidYear = isCheckoutYearInvalid(stay, order.extracted_stays || [])
+                                  const checkOutValue = stay.fecha_salida || stay.checkOut || ''
+                                  const checkInValue = stay.fecha_entrada || stay.checkIn || ''
+                                  return (
+                                    <tr key={idx} style={invalidYear ? { backgroundColor: '#FEF9C3' } : {}}>
+                                      <td style={{ ...styles.tableCell, color: '#9ca3af', fontSize: '12px' }}>{idx + 1}</td>
+                                      <td style={styles.tableCell}>
+                                        {isEditing ? (
+                                          <input
+                                            type="text"
+                                            value={checkInValue}
+                                            onChange={e => updateEditingStay(order.id, idx, stay.fecha_entrada !== undefined ? 'fecha_entrada' : 'checkIn', e.target.value)}
+                                            style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '100px' }}
+                                          />
+                                        ) : checkInValue}
+                                      </td>
+                                      <td style={{ ...styles.tableCell, ...(invalidYear ? { fontWeight: '600', color: '#92400E' } : {}) }}>
+                                        {isEditing ? (
+                                          <div>
+                                            <input
+                                              type="text"
+                                              value={checkOutValue}
+                                              onChange={e => updateEditingStay(order.id, idx, stay.fecha_salida !== undefined ? 'fecha_salida' : 'checkOut', e.target.value)}
+                                              style={{ 
+                                                padding: '4px 6px', 
+                                                border: invalidYear ? '2px solid #F59E0B' : '1px solid #d1d5db', 
+                                                borderRadius: '4px', 
+                                                fontSize: '13px', 
+                                                width: '100px',
+                                                backgroundColor: invalidYear ? '#FEF9C3' : 'white'
+                                              }}
+                                            />
+                                            {invalidYear && <div style={{ fontSize: '11px', color: '#B45309', marginTop: '2px' }}>⚠️ Año incorrecto</div>}
+                                          </div>
+                                        ) : (
+                                          <span>
+                                            {checkOutValue}
+                                            {invalidYear && <span style={{ marginLeft: '6px', fontSize: '11px', backgroundColor: '#FEF3C7', color: '#92400E', padding: '1px 6px', borderRadius: '4px' }}>⚠️ año distinto</span>}
+                                          </span>
+                                        )}
+                                      </td>
+                                      <td style={styles.tableCell}>
+                                        {isEditing ? (
+                                          <input
+                                            type="text"
+                                            value={stay.huespedes || stay.guests || ''}
+                                            onChange={e => updateEditingStay(order.id, idx, stay.huespedes !== undefined ? 'huespedes' : 'guests', e.target.value)}
+                                            style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '50px', textAlign: 'center' }}
+                                          />
+                                        ) : (stay.huespedes || stay.guests || '-')}
+                                      </td>
+                                      <td style={styles.tableCell}>
+                                        {isEditing ? (
+                                          <input
+                                            type="text"
+                                            value={stay.finalidad || stay.purpose || ''}
+                                            onChange={e => updateEditingStay(order.id, idx, stay.finalidad !== undefined ? 'finalidad' : 'purpose', e.target.value)}
+                                            style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '80px' }}
+                                          />
+                                        ) : (stay.finalidad || stay.purpose || 'Vacacional')}
+                                      </td>
+                                      <td style={styles.tableCell}>{stay.plataforma || stay.source || '-'}</td>
+                                    </tr>
+                                  )
+                                })}
                               </tbody>
                             </table>
                           </div>
