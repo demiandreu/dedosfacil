@@ -399,6 +399,14 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     })
   }
 
+  const deleteEditingStay = (orderId, idx) => {
+  setEditingStays(prev => {
+    const updated = { ...prev }
+    updated[orderId] = updated[orderId].filter((_, i) => i !== idx)
+    return updated
+  })
+}
+
   // Detectar si la fecha de salida cae en año distinto al de las entradas
   const isCheckoutYearInvalid = (stay, allStays) => {
     const checkOut = stay.fecha_salida || stay.checkOut
@@ -1106,6 +1114,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                                   <th style={styles.tableCell}>Huéspedes</th>
                                   <th style={styles.tableCell}>Finalidad</th>
                                   <th style={styles.tableCell}>Fuente</th>
+                                  {isEditing && <th style={styles.tableCell}></th>}
                                 </tr>
                               </thead>
                               <tbody>
@@ -1173,6 +1182,15 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                                         ) : (stay.finalidad || stay.purpose || 'Vacacional')}
                                       </td>
                                       <td style={styles.tableCell}>{stay.plataforma || stay.source || '-'}</td>
+                                      {isEditing && (
+  <td style={styles.tableCell}>
+    <button
+      onClick={() => deleteEditingStay(order.id, idx)}
+      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}
+      title="Eliminar fila"
+    >🗑️</button>
+  </td>
+)}
                                     </tr>
                                   )
                                 })}
