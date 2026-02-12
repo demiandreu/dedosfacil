@@ -1634,6 +1634,19 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '50mb' }
               <p><strong>Estado:</strong> ✅ Presentado</p>
             </div>
 
+           <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #bae6fd; font-size: 13px; color: #1e3a5f; line-height: 1.6;">
+  <p style="margin: 0 0 12px; font-weight: 600; font-size: 14px;">ℹ️ Información importante sobre su justificante de presentación</p>
+  
+  <p style="margin: 0 0 10px;">El documento adjunto constituye el <strong>acuse de presentación del Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2)</strong> ante el Registro de la Propiedad, conforme a lo establecido en el artículo 10.4 del Real Decreto 1312/2024 y la Orden VAU/1560/2025. Este acuse es el <strong>único comprobante oficial</strong> que certifica que su declaración ha sido presentada correctamente dentro del plazo establecido.</p>
+  
+  <p style="margin: 0 0 10px;">Si desea verificar la autenticidad de este documento, puede hacerlo acudiendo a <strong>cualquier oficina del Registro de la Propiedad en España</strong>, donde le confirmarán que la presentación consta debidamente registrada.</p>
+  
+  <p style="margin: 0 0 10px;">Es importante que sepa que, en cumplimiento del <strong>Reglamento General de Protección de Datos (RGPD) y la Ley Orgánica 3/2018 de Protección de Datos Personales</strong>, el acuse de presentación no refleja datos identificativos del inmueble como la dirección, número de apartamento u otros datos personales del titular. Esta es la práctica habitual del Registro y no afecta en absoluto a la validez de la presentación.</p>
+  
+  <p style="margin: 0 0 10px;">Asimismo, le informamos de que la <strong>tasa registral de 32€</strong> correspondiente a esta presentación ya ha sido abonada por nuestra parte. <strong>No es necesario que realice ninguna gestión adicional</strong>; su obligación de presentación del Modelo N2 para el ejercicio 2025 queda cumplida con este trámite.</p>
+  
+  <p style="margin: 0;">Por último, le comunicamos que en determinados casos, dependiendo de la oficina registral, es posible que el Registro solicite una <strong>autorización firmada del titular de la vivienda a favor del gestor</strong> que realizó la presentación en su nombre. En caso de que esto ocurra, nos pondremos en contacto con usted y le enviaremos a este mismo correo electrónico un documento de <strong>firma electrónica</strong> para que lo firme de forma rápida y sencilla. Hasta entonces, no es necesario que haga nada al respecto.</p>
+</div>
             <div style="text-align: center; margin: 25px 0;">
               <a href="${facturaUrl}" 
                  style="display: inline-block; padding: 14px 32px; background: #1e3a5f; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
