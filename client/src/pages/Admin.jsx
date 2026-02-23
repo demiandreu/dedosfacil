@@ -16,6 +16,7 @@ const [newAffiliate, setNewAffiliate] = useState({ name: '', email: '', code: ''
 const [showAffForm, setShowAffForm] = useState(false)
   const [nruaSearch, setNruaSearch] = useState('')
   const [n2Search, setN2Search] = useState('')
+  const [nruaNumbers, setNruaNumbers] = useState({})
   const [editingStays, setEditingStays] = useState({}) // { orderId: [...stays] }
 
   const ADMIN_PASSWORD = 'dedos2026'
@@ -444,6 +445,38 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
       alert('Error al eliminar: ' + err.message)
     }
   }
+
+  const updateNruaStatus = async (id, newStatus) => {
+  try {
+    await fetch(`/api/admin/nrua-status/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    })
+    fetchNruaRequests()
+  } catch (err) { console.error(err) }
+}
+
+  const sendNruaEmail = async (reqId) => {
+  const nrua = nruaNumbers[reqId]
+  if (!nrua || !nrua.trim()) {
+    alert('Introduce primero el número NRUA provisional')
+    return
+  }
+  try {
+    const response = await fetch(`/api/admin/send-nrua/${reqId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nrua: nrua.trim() })
+    })
+    const data = await response.json()
+    if (data.error) throw new Error(data.error)
+    alert(`✅ Número NRUA enviado a ${data.email}`)
+    fetchNruaRequests()
+  } catch (err) {
+    alert('Error: ' + err.message)
+  }
+}
   
   const filteredOrders = orders.filter(order => {
     if (filter === 'all') return true
@@ -1199,6 +1232,38 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                           </div>
                         </div>
                       )}
+
+                      {/* Campo NRUA provisional */}
+<div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#F0FDF4', borderRadius: '8px', border: '1px solid #6EE7B7' }}>
+  <h3 style={{ margin: '0 0 10px', fontSize: '14px', color: '#065F46' }}>🔑 Número NRUA Provisional</h3>
+  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+    <input
+      type="text"
+      placeholder="Ej: ES-14-RU-00001234"
+      value={nruaNumbers[req.id] ?? (req.provisional_nrua || '')}
+      onChange={e => setNruaNumbers(prev => ({ ...prev, [req.id]: e.target.value }))}
+      style={{
+        flex: 1, padding: '10px 14px', border: '1px solid #6EE7B7',
+        borderRadius: '8px', fontSize: '14px', fontFamily: 'monospace'
+      }}
+    />
+    <button
+      onClick={() => sendNruaEmail(req.id)}
+      style={{
+        padding: '10px 20px', backgroundColor: '#059669', color: 'white',
+        border: 'none', borderRadius: '8px', cursor: 'pointer',
+        fontSize: '14px', fontWeight: '600', whiteSpace: 'nowrap'
+      }}
+    >
+      📨 Enviar número NRUA
+    </button>
+  </div>
+  {req.provisional_nrua && (
+    <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#065F46' }}>
+      ✅ Último enviado: <strong style={{ fontFamily: 'monospace' }}>{req.provisional_nrua}</strong>
+    </p>
+  )}
+</div>
 
                       {/* Actions */}
                       <div style={styles.actionsBar}>
