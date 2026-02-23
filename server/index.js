@@ -177,6 +177,7 @@ app.post('/api/admin/send-nrua/:id', async (req, res) => {
 
     const nombreCliente = name ? `${name}${surname ? ' ' + surname : ''}` : null;
     const reviewUrl = `https://dedosfacil.es/valoracion?order_id=${order_id}`;
+    const facturaUrl = `https://dedosfacil.es/factura/${order_id}`;
 
     // Guardar el número provisional en la BD
     await pool.query(
@@ -229,6 +230,13 @@ app.post('/api/admin/send-nrua/:id', async (req, res) => {
               <p style="margin: 4px 0;"><strong>Inmueble:</strong> ${property_address || '-'}, ${property_municipality || '-'}</p>
               <p style="margin: 4px 0;"><strong>NRUA:</strong> <span style="font-family: monospace;">${nrua}</span></p>
             </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+  <a href="${facturaUrl}"
+     style="display: inline-block; padding: 14px 32px; background: #1e3a5f; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+    📄 Ver Factura
+  </a>
+</div>
 
             <div style="background: #fffbeb; border: 1px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
               <p style="margin: 0 0 12px 0; font-size: 16px;"><strong>¿Qué tal tu experiencia?</strong></p>
