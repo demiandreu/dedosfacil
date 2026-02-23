@@ -2224,6 +2224,225 @@ app.post('/api/admin/nrua-status/:id', async (req, res) => {
   }
 });
 
+// Update assigned NRUA number
+app.post('/api/admin/update-nrua-number/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { assigned_nrua } = req.body;
+    // Try to add column if it doesn't exist (safe to run multiple times)
+    await pool.query('ALTER TABLE nrua_requests ADD COLUMN IF NOT EXISTS assigned_nrua TEXT').catch(() => {});
+    await pool.query('UPDATE nrua_requests SET assigned_nrua = $1 WHERE id = $2', [assigned_nrua, id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Update NRUA number error:', error);
+    res.status(500).json({ error: 'Error al actualizar número NRUA' });
+  }
+});
+
+// Send NRUA justificante email with PDFs
+app.post('/api/admin/send-nrua-justificante/:orderId', express.json({ limit: '50mb' }), async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { pdfs, nruaNumber } = req.body;
+
+    if (!pdfs || pdfs.length === 0) {
+      return res.status(400).json({ error: 'No se han adjuntado PDFs' });
+    }
+
+    // Get order and NRUA request data
+    const result = await pool.query(
+      `SELECT o.email, o.amount, nr.name, nr.surname, nr.company_name, nr.person_type,
+              nr.property_address, nr.property_municipality, nr.property_province,
+              nr.assigned_nrua, nr.id as nrua_id
+       FROM orders o
+       JOIN nrua_requests nr ON nr.order_id = o.id
+       WHERE o.id = $1
+       LIMIT 1`,
+      [orderId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido NRUA no encontrado' });
+    }
+
+    const row = result.rows[0];
+    const email = row.email;
+    const clientName = row.person_type === 'physical' ? `${row.name || ''} ${row.surname || ''}`.trim() : row.company_name || '';
+    const assignedNrua = nruaNumber || row.assigned_nrua || '';
+    const propertyAddress = [row.property_address, row.property_municipality, row.property_province].filter(Boolean).join(', ');
+    const reviewUrl = `https://dedosfacil.es/valoracion?order_id=${orderId}`;
+    const facturaUrl = `https://dedosfacil.es/factura/${orderId}`;
+
+    // Save assigned NRUA number if provided
+    if (nruaNumber) {
+      await pool.query('ALTER TABLE nrua_requests ADD COLUMN IF NOT EXISTS assigned_nrua TEXT').catch(() => {});
+      await pool.query('UPDATE nrua_requests SET assigned_nrua = $1 WHERE id = $2', [nruaNumber, row.nrua_id]);
+    }
+
+    // Update status to enviado
+    await pool.query('UPDATE orders SET status = $1 WHERE id = $2', ['enviado', orderId]);
+    await pool.query('UPDATE nrua_requests SET status = $1 WHERE order_id = $2', ['enviado', orderId]);
+
+    // Build attachments
+    const attachments = pdfs.map((pdf, i) => {
+      const base64Data = pdf.data.includes(',') ? pdf.data.split(',')[1] : pdf.data;
+      return {
+        filename: pdf.name || `Justificante_NRUA_${i + 1}_DF-${orderId}.pdf`,
+        content: base64Data,
+        type: 'application/pdf'
+      };
+    });
+
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: email,
+      bcc: 'support@dedosfacil.es',
+      subject: `🔑 Tu Número NRUA - Pedido DF-${orderId}`,
+      attachments,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #2563eb 0%, #3B82F6 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #3B82F6; margin-top: 0;">🔑 ¡Tu número NRUA ya está disponible!</h2>
+            <p>Hola${clientName ? ' ' + clientName : ''}, te confirmamos que hemos tramitado tu solicitud de Número de Registro Único de Arrendamiento (NRUA).</p>
+
+            <div style="background: #1e3a5f; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <span style="font-size: 14px;">Referencia pedido</span><br>
+              <strong style="font-size: 28px;">DF-${orderId}</strong>
+            </div>
+
+            ${assignedNrua ? `
+            <div style="background: #D1FAE5; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border: 2px solid #10b981;">
+              <p style="margin: 0 0 8px 0; font-size: 14px; color: #065f46;">Tu número NRUA provisional:</p>
+              <p style="margin: 0; font-size: 28px; font-weight: 700; color: #065f46; font-family: monospace; letter-spacing: 1px;">${assignedNrua}</p>
+            </div>
+            ` : ''}
+
+            <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 16px;">📎 <strong>${pdfs.length} justificante${pdfs.length > 1 ? 's' : ''} adjunto${pdfs.length > 1 ? 's' : ''} a este email</strong></p>
+            </div>
+
+            ${propertyAddress ? `
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb;">
+              <h3 style="margin-top: 0;">🏠 Propiedad</h3>
+              <p>${propertyAddress}</p>
+            </div>
+            ` : ''}
+
+            <div style="background: #EFF6FF; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #BFDBFE; font-size: 14px; color: #1e3a5f; line-height: 1.6;">
+              <p style="margin: 0 0 12px; font-weight: 600; font-size: 15px;">📋 ¿Qué hacer con tu número NRUA?</p>
+              <p style="margin: 0 0 10px;">Este número provisional ya es <strong>válido</strong> y puedes añadirlo inmediatamente a tus plataformas de alquiler vacacional:</p>
+              <ul style="margin: 0 0 10px; padding-left: 20px;">
+                <li><strong>Airbnb</strong> - En la sección de licencias/registros de tu anuncio</li>
+                <li><strong>Booking.com</strong> - En los datos legales de tu propiedad</li>
+                <li><strong>Otras plataformas</strong> - En el apartado correspondiente de cada una</li>
+              </ul>
+              <p style="margin: 0;">Es obligatorio mostrar este número en todos tus anuncios de alquiler vacacional.</p>
+            </div>
+
+            <div style="background: #FEF3C7; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #F59E0B; font-size: 14px; color: #78350F; line-height: 1.6;">
+              <p style="margin: 0 0 12px; font-weight: 600; font-size: 15px;">⚠️ ¿Has tenido estancias entre 2025 y el 2 de marzo de 2026?</p>
+              <p style="margin: 0 0 10px;">Si has tenido huéspedes entre el <strong>1 de enero de 2025</strong> y el <strong>2 de marzo de 2026</strong>, es <strong>obligatorio presentar el Modelo N2</strong> (declaración de arrendamientos de corta duración) ante el Registro de la Propiedad.</p>
+              <p style="margin: 0;">Puedes contratarlo fácilmente desde nuestra web:</p>
+              <div style="text-align: center; margin-top: 12px;">
+                <a href="https://dedosfacil.es" style="display: inline-block; padding: 12px 28px; background: #F97316; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px;">
+                  📄 Presentar Modelo N2
+                </a>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="${facturaUrl}"
+                 style="display: inline-block; padding: 14px 32px; background: #1e3a5f; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                📄 Ver Factura
+              </a>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
+              <p style="margin: 0 0 12px 0; font-size: 16px;"><strong>¿Qué tal tu experiencia?</strong></p>
+              <p style="margin: 0 0 16px 0; color: #6b7280;">Solo tardas 30 segundos. Tu opinión nos ayuda mucho.</p>
+              <a href="${reviewUrl}"
+                 style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #f97316, #f59e0b); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                ⭐ Dejar valoración
+              </a>
+            </div>
+
+            <p style="color: #6b7280; font-size: 13px;">
+              ¿Dudas? Escríbenos a <a href="mailto:support@dedosfacil.es">support@dedosfacil.es</a> indicando tu referencia DF-${orderId}.
+            </p>
+          </div>
+        </div>
+      `
+    });
+
+    console.log(`📧 ${pdfs.length} justificante(s) NRUA enviado(s) a: ${email}`);
+    res.json({ success: true, email });
+  } catch (error) {
+    console.error('Send NRUA justificante error:', error);
+    res.status(500).json({ error: 'Error al enviar justificante NRUA' });
+  }
+});
+
+// Send NRUA review email
+app.post('/api/admin/send-nrua-review/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const result = await pool.query(
+      `SELECT o.email, nr.name, nr.surname, nr.company_name, nr.person_type
+       FROM orders o
+       JOIN nrua_requests nr ON nr.order_id = o.id
+       WHERE o.id = $1
+       LIMIT 1`,
+      [orderId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    const row = result.rows[0];
+    const email = row.email;
+    const clientName = row.person_type === 'physical' ? `${row.name || ''} ${row.surname || ''}`.trim() : row.company_name || '';
+    const reviewUrl = `https://dedosfacil.es/valoracion?order_id=${orderId}`;
+
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: email,
+      subject: `⭐ ¿Qué tal tu experiencia con DedosFácil? - DF-${orderId}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #f97316, #f59e0b); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #f97316; margin-top: 0;">⭐ Tu opinión es muy importante</h2>
+            <p>Hola${clientName ? ' ' + clientName : ''}, esperamos que todo haya ido bien con tu solicitud NRUA.</p>
+            <p>Nos encantaría saber cómo fue tu experiencia. Solo te llevará 30 segundos.</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${reviewUrl}"
+                 style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #f97316, #f59e0b); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 18px;">
+                ⭐ Dejar valoración
+              </a>
+            </div>
+            <p style="color: #6b7280; font-size: 13px;">
+              Referencia: DF-${orderId} | ¿Dudas? <a href="mailto:support@dedosfacil.es">support@dedosfacil.es</a>
+            </p>
+          </div>
+        </div>
+      `
+    });
+
+    console.log(`📧 Review email NRUA enviado a: ${email}`);
+    res.json({ success: true, email });
+  } catch (error) {
+    console.error('Send NRUA review error:', error);
+    res.status(500).json({ error: 'Error al enviar email de valoración' });
+  }
+});
+
 // ============================================
 // AFFILIATE ENDPOINTS
 // ============================================

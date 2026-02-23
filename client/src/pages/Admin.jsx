@@ -328,6 +328,21 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     input.click()
   }
 
+  const updateNruaStatus = async (nruaId, newStatus) => {
+    try {
+      const response = await fetch(`/api/admin/nrua-status/${nruaId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchNruaRequests()
+    } catch (err) {
+      alert('Error: ' + err.message)
+    }
+  }
+
   const sendPaymentReminder = async (orderId) => {
     try {
       const response = await fetch(`/api/admin/send-payment-reminder/${orderId}`, {
@@ -336,6 +351,67 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
       const data = await response.json()
       if (data.error) throw new Error(data.error)
       alert(`✅ Recordatorio de pago enviado a ${data.email}`)
+    } catch (err) {
+      alert('Error: ' + err.message)
+    }
+  }
+
+  const sendNruaJustificante = async (orderId, nruaNumber) => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.pdf'
+    input.multiple = true
+    input.onchange = async (e) => {
+      const files = Array.from(e.target.files)
+      if (files.length === 0) return
+      try {
+        const pdfs = await Promise.all(files.map(file => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve({ data: reader.result, name: file.name })
+            reader.onerror = reject
+            reader.readAsDataURL(file)
+          })
+        }))
+        const response = await fetch(`/api/admin/send-nrua-justificante/${orderId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pdfs, nruaNumber })
+        })
+        const data = await response.json()
+        if (data.error) throw new Error(data.error)
+        alert(`✅ ${files.length} justificante(s) NRUA enviado(s) a ${data.email}`)
+        await fetchNruaRequests()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+    input.click()
+  }
+
+  const updateNruaNumber = async (nruaRequestId, assignedNrua) => {
+    try {
+      const response = await fetch(`/api/admin/update-nrua-number/${nruaRequestId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assigned_nrua: assignedNrua })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchNruaRequests()
+    } catch (err) {
+      alert('Error al actualizar número NRUA: ' + err.message)
+    }
+  }
+
+  const sendNruaReviewEmail = async (orderId) => {
+    try {
+      const response = await fetch(`/api/admin/send-nrua-review/${orderId}`, {
+        method: 'POST'
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      alert(`✅ Email de valoración NRUA enviado a ${data.email}`)
     } catch (err) {
       alert('Error: ' + err.message)
     }
@@ -1414,15 +1490,60 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                         </p>
                       </div>
 
+                      {/* Número NRUA asignado */}
+                      <div style={{ marginTop: '20px', padding: '16px', backgroundColor: '#F0FDF4', borderRadius: '8px', border: '1px solid #BBF7D0' }}>
+                        <h3 style={{ margin: '0 0 8px', fontSize: '14px', color: '#065F46' }}>🔑 Número NRUA asignado</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <input
+                            style={{
+                              fontFamily: 'monospace',
+                              fontSize: '14px',
+                              padding: '8px 12px',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '6px',
+                              flex: 1,
+                              maxWidth: '400px'
+                            }}
+                            defaultValue={req.assigned_nrua || ''}
+                            placeholder="Ej: NRUA-2025-XXXXX"
+                            onBlur={(e) => {
+                              if (e.target.value !== (req.assigned_nrua || '')) {
+                                updateNruaNumber(req.id, e.target.value)
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') e.target.blur()
+                            }}
+                          />
+                          {req.assigned_nrua && <span style={{ color: '#10b981', fontSize: '13px' }}>✅ Guardado</span>}
+                        </div>
+                      </div>
+
                       {/* Actions */}
                       <div style={{ ...styles.actionsBar, marginTop: '16px' }}>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {req.status === 'completed' && (
+                            <button
+                              onClick={() => sendNruaJustificante(req.order_id, req.assigned_nrua)}
+                              style={styles.btnSuccess}
+                            >
+                              📧 Enviar justificante NRUA
+                            </button>
+                          )}
                           {req.status === 'completed' && (
                             <button
                               onClick={() => updateNruaStatus(req.id, 'enviado')}
-                              style={styles.btnSuccess}
+                              style={{ ...styles.btnSuccess, backgroundColor: '#059669' }}
                             >
                               ✅ Marcar como Enviado
+                            </button>
+                          )}
+                          {req.status === 'enviado' && (
+                            <button
+                              onClick={() => sendNruaReviewEmail(req.order_id)}
+                              style={{ ...styles.btnSecondary, backgroundColor: '#f59e0b' }}
+                            >
+                              ⭐ Reenviar valoración
                             </button>
                           )}
                           {req.status === 'enviado' && (
