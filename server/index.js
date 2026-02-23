@@ -145,6 +145,120 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ============================================
+// ENVIAR NÚMERO NRUA PROVISIONAL AL CLIENTE
+// Añadir en server/index.js junto a los otros endpoints admin
+// ============================================
+
+app.post('/api/admin/send-nrua/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nrua } = req.body;
+
+    if (!nrua) {
+      return res.status(400).json({ error: 'Número NRUA obligatorio' });
+    }
+
+    // Obtener datos de la solicitud
+    const result = await pool.query(
+      `SELECT nr.*, o.email, o.amount
+       FROM nrua_requests nr
+       JOIN orders o ON o.id = nr.order_id
+       WHERE nr.id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Solicitud no encontrada' });
+    }
+
+    const req_data = result.rows[0];
+    const { email, name, surname, property_address, property_municipality, property_province, order_id } = req_data;
+
+    const nombreCliente = name ? `${name}${surname ? ' ' + surname : ''}` : null;
+    const reviewUrl = `https://dedosfacil.es/valoracion?order_id=${order_id}`;
+
+    // Guardar el número provisional en la BD
+    await pool.query(
+      'UPDATE nrua_requests SET provisional_nrua = $1 WHERE id = $2',
+      [nrua, id]
+    );
+
+    // Marcar como enviado
+    await pool.query('UPDATE nrua_requests SET status = $1 WHERE id = $2', ['enviado', id]);
+    await pool.query('UPDATE orders SET status = $1 WHERE id = $2', ['enviado', order_id]);
+
+    // Enviar email
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: email,
+      bcc: 'support@dedosfacil.es',
+      subject: `🔑 Tu número NRUA provisional ya está disponible - Pedido DF-${order_id}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #10b981; margin-top: 0;">✅ Tu número NRUA provisional está listo</h2>
+            <p>Hola${nombreCliente ? ' ' + nombreCliente : ''},</p>
+            <p>Nos complace informarte de que tu número NRUA provisional ha sido asignado correctamente para el inmueble ubicado en <strong>${property_address || ''}, ${property_municipality || ''} (${property_province || ''})</strong>.</p>
+
+            <div style="background: #1e3a5f; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 25px 0;">
+              <p style="margin: 0 0 8px; font-size: 14px; opacity: 0.8;">Tu número NRUA provisional</p>
+              <strong style="font-size: 26px; font-family: monospace; letter-spacing: 2px;">${nrua}</strong>
+            </div>
+
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0 0 10px; font-weight: 600; color: #1e40af;">✅ ¿Puedo usarlo ya?</p>
+              <p style="margin: 0; color: #1e3a5f; font-size: 14px;">Sí, este número ya tiene plena validez. Puedes añadirlo a tus anuncios en <strong>Airbnb</strong>, <strong>Booking.com</strong> y cualquier otra plataforma de reservas online.</p>
+            </div>
+
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0 0 10px; font-weight: 600; color: #065f46;">📅 ¿Y el Modelo N2?</p>
+              <p style="margin: 0; color: #065f46; font-size: 14px;">Como has recibido tu número NRUA en 2026, <strong>no tienes que presentar el Modelo N2 este año</strong>. Tu primera declaración será en febrero de 2027, con los datos de las estancias de 2026.</p>
+            </div>
+
+            <div style="background: #fefce8; border: 1px solid #fde68a; padding: 16px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #92400e; font-size: 14px;">🔄 <strong>Número definitivo:</strong> En cuanto el Registro de la Propiedad emita tu número NRUA definitivo, te lo enviaremos a este mismo correo. Mientras tanto, el número provisional es completamente válido para su uso en las plataformas.</p>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb;">
+              <h3 style="margin-top: 0;">📋 Referencia de tu pedido</h3>
+              <p style="margin: 4px 0;"><strong>Nº pedido:</strong> DF-${order_id}</p>
+              <p style="margin: 4px 0;"><strong>Inmueble:</strong> ${property_address || '-'}, ${property_municipality || '-'}</p>
+              <p style="margin: 4px 0;"><strong>NRUA:</strong> <span style="font-family: monospace;">${nrua}</span></p>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
+              <p style="margin: 0 0 12px 0; font-size: 16px;"><strong>¿Qué tal tu experiencia?</strong></p>
+              <p style="margin: 0 0 16px 0; color: #6b7280;">Solo tardas 30 segundos. Tu opinión nos ayuda mucho.</p>
+              <a href="${reviewUrl}"
+                 style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #f97316, #f59e0b); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                ⭐ Dejar valoración
+              </a>
+            </div>
+
+            <p style="color: #6b7280; font-size: 13px;">
+              ¿Tienes alguna duda? Escríbenos a <a href="mailto:support@dedosfacil.es">support@dedosfacil.es</a> indicando tu referencia DF-${order_id}.
+            </p>
+
+            <p style="color: #6b7280; font-size: 12px; margin-top: 0;">
+              — Irina, equipo DedosFácil
+            </p>
+          </div>
+        </div>
+      `
+    });
+
+    console.log(`📧 NRUA provisional ${nrua} enviado a: ${email}`);
+    res.json({ success: true, email });
+
+  } catch (error) {
+    console.error('Send NRUA error:', error);
+    res.status(500).json({ error: 'Error al enviar número NRUA' });
+  }
+});
 
 // Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
