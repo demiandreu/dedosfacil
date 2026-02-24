@@ -194,12 +194,12 @@ app.post('/api/admin/send-nrua/:id', async (req, res) => {
     await pool.query('UPDATE nrua_requests SET status = $1 WHERE id = $2', ['enviado', id]);
     await pool.query('UPDATE orders SET status = $1 WHERE id = $2', ['enviado', order_id]);
 
-    // Enviar email
+    // Enviar email al cliente con copia a support
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      // to: email, // TESTING: descomentado para producción
-      to: 'support@dedosfacil.es',
-      subject: `[TEST → ${email}] 🔑 Tu número NRUA provisional ya está disponible - Pedido DF-${order_id}`,
+      to: email,
+      cc: 'support@dedosfacil.es',
+      subject: `🔑 Tu número NRUA provisional ya está disponible - Pedido DF-${order_id}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -2472,9 +2472,9 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
 
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      // to: email, // TESTING: descomentado para producción
-      to: 'support@dedosfacil.es',
-      subject: `[TEST → ${email}] 🔑 Tu número NRUA - Pedido DF-${nruaReq.order_id}`,
+      to: email,
+      cc: 'support@dedosfacil.es',
+      subject: `🔑 Tu número NRUA - Pedido DF-${nruaReq.order_id}`,
       attachments: [{
         filename: pdfName || `NRUA_DF-${nruaReq.order_id}.pdf`,
         content: base64Data,
