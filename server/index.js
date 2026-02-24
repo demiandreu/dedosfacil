@@ -2436,10 +2436,18 @@ app.post('/api/admin/nrua-status/:id', async (req, res) => {
 app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }), async (req, res) => {
   try {
     const { id } = req.params;
-    const { pdfBase64, pdfName, nruaNumber } = req.body;
+    const { pdfs, pdfBase64, pdfName, nruaNumber } = req.body;
 
-    if (!pdfBase64) {
-      return res.status(400).json({ error: 'No se ha adjuntado PDF' });
+    // Support both old format (single) and new format (array)
+    let pdfList = [];
+    if (pdfs && Array.isArray(pdfs)) {
+      pdfList = pdfs;
+    } else if (pdfBase64) {
+      pdfList = [{ data: pdfBase64, name: pdfName || `NRUA_DF-${id}.pdf` }];
+    }
+
+    if (pdfList.length === 0) {
+      return res.status(400).json({ error: 'No se han adjuntado PDFs' });
     }
 
     // Get NRUA request data
@@ -2467,19 +2475,22 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
     await pool.query('UPDATE nrua_requests SET status = $1 WHERE id = $2', ['enviado', id]);
     await pool.query('UPDATE orders SET status = $1 WHERE id = $2', ['enviado', nruaReq.order_id]);
 
-    // Build attachment
-    const base64Data = pdfBase64.includes(',') ? pdfBase64.split(',')[1] : pdfBase64;
+    // Build attachments array
+    const attachments = pdfList.map((pdf, i) => {
+      const base64Data = pdf.data.includes(',') ? pdf.data.split(',')[1] : pdf.data;
+      return {
+        filename: pdf.name || `NRUA_${i + 1}_DF-${nruaReq.order_id}.pdf`,
+        content: base64Data,
+        type: 'application/pdf'
+      };
+    });
 
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
       to: email,
       cc: 'support@dedosfacil.es',
       subject: `🔑 Tu número NRUA - Pedido DF-${nruaReq.order_id}`,
-      attachments: [{
-        filename: pdfName || `NRUA_DF-${nruaReq.order_id}.pdf`,
-        content: base64Data,
-        type: 'application/pdf'
-      }],
+      attachments,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -2512,7 +2523,7 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
             </div>
 
             <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
-              <p style="margin: 0 0 8px 0; font-size: 16px;">📎 <strong>1 documento adjunto a este email</strong></p>
+              <p style="margin: 0 0 8px 0; font-size: 16px;">📎 <strong>${pdfList.length} documento${pdfList.length > 1 ? 's' : ''} adjunto${pdfList.length > 1 ? 's' : ''} a este email</strong></p>
               <p style="margin: 0; font-size: 13px; color: #065f46;">Comunicación oficial del Registro de la Propiedad con tu número NRUA asignado.</p>
             </div>
 
@@ -2540,7 +2551,7 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
       `
     });
 
-    console.log('NRUA justificante sent to:', email);
+    console.log(`📧 ${pdfList.length} NRUA justificante(s) enviado(s) a: ${email}`);
     res.json({ success: true, email });
   } catch (error) {
     console.error('Send NRUA justificante error:', error);
