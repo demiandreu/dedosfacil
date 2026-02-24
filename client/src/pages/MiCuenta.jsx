@@ -240,11 +240,9 @@ function MiCuenta() {
       const formData = new FormData()
       formData.append('orderId', order.id)
       formData.append('email', order.email)
-      formData.append('name', '') // Already on file from order
       formData.append('nrua', propertyForm.nrua)
       formData.append('address', propertyForm.address)
       formData.append('province', propertyForm.province)
-      formData.append('phone', '')
       formData.append('stays', JSON.stringify(extractedStays))
       formData.append('noActivity', noActivity)
       

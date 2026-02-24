@@ -304,8 +304,8 @@ let affiliate = null;
     // Email de prueba que salta Stripe
     if (email === 'demiandreu@gmail.com') {
       const orderResult = await pool.query(
-        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount]
+        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
+        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null]
       );
       const orderId = orderResult.rows[0].id;
       
@@ -353,8 +353,8 @@ let affiliate = null;
 
     // Create order in database
     const orderResult = await pool.query(
-      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount]
+      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
+      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null]
     );
     const orderId = orderResult.rows[0].id;
 
@@ -1496,11 +1496,11 @@ app.get('/api/admin/orders', async (req, res) => {
         o.created_at,
         o.completed_at,
         s.id as submission_id,
-        s.name,
+        COALESCE(s.name, o.contact_name) as name,
         s.nrua,
         s.address,
         s.province,
-        s.phone,
+        COALESCE(s.phone, o.contact_phone) as phone,
         s.airbnb_file IS NOT NULL as has_airbnb,
         s.booking_file IS NOT NULL as has_booking,
         s.other_file IS NOT NULL as has_other,
@@ -2330,7 +2330,7 @@ app.post('/api/mi-cuenta/add-property', upload.fields([
 
     // Verify order exists and belongs to this email
     const orderCheck = await pool.query(
-      `SELECT id, properties_count, email FROM orders 
+      `SELECT id, properties_count, email, contact_name, contact_phone FROM orders
        WHERE id = $1 AND LOWER(email) = LOWER($2) AND status IN ('completed', 'enviado')`,
       [orderId, email]
     );
@@ -2369,20 +2369,20 @@ app.post('/api/mi-cuenta/add-property', upload.fields([
       parsedStays = [];
     }
 
-    // Insert submission
+    // Insert submission (use contact_name/contact_phone from order as fallback)
     await pool.query(
-      `INSERT INTO submissions 
-       (order_id, name, nrua, address, province, phone, 
-        airbnb_file, booking_file, other_file, 
+      `INSERT INTO submissions
+       (order_id, name, nrua, address, province, phone,
+        airbnb_file, booking_file, other_file,
         extracted_stays, status, authorization_timestamp, authorization_ip)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
       [
         orderId,
-        null, // name already on file
+        order.contact_name || null,
         nrua || null,
         address || null,
         province || null,
-        phone || null,
+        order.contact_phone || phone || null,
         fileToJson(files?.airbnb),
         fileToJson(files?.booking),
         fileToJson(files?.other),
