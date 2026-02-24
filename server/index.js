@@ -2460,7 +2460,7 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
 
     // Update NRUA number if provided
     if (nruaNumber) {
-      await pool.query('UPDATE nrua_requests SET nrua_number = $1 WHERE id = $2', [nruaNumber, id]);
+      await pool.query('UPDATE nrua_requests SET provisional_nrua = $1 WHERE id = $2', [nruaNumber, id]);
     }
 
     // Update status to enviado
