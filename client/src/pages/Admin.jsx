@@ -334,24 +334,27 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.pdf'
+    input.multiple = true
     input.onchange = async (e) => {
-      const file = e.target.files[0]
-      if (!file) return
+      const files = Array.from(e.target.files)
+      if (files.length === 0) return
       try {
-        const pdfBase64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onload = () => resolve(reader.result)
-          reader.onerror = reject
-          reader.readAsDataURL(file)
-        })
+        const pdfs = await Promise.all(files.map(file => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve({ data: reader.result, name: file.name })
+            reader.onerror = reject
+            reader.readAsDataURL(file)
+          })
+        }))
         const response = await fetch(`/api/admin/send-nrua-justificante/${reqId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pdfBase64, pdfName: file.name, nruaNumber: nruaNumber || null })
+          body: JSON.stringify({ pdfs, nruaNumber: nruaNumber || null })
         })
         const data = await response.json()
         if (data.error) throw new Error(data.error)
-        alert(`✅ Justificante NRUA enviado a ${data.email}`)
+        alert(`✅ ${files.length} justificante(s) NRUA enviado(s) a ${data.email}`)
         await fetchNruaRequests()
       } catch (err) {
         alert('Error: ' + err.message)
