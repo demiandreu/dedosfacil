@@ -1811,9 +1811,9 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '50mb' }
     // Send email with all PDFs attached
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      // to: email, // TESTING: descomentado para producción
-      to: 'support@dedosfacil.es',
-      subject: `[TEST → ${email}] 📄 Justificante${pdfList.length > 1 ? 's' : ''} Modelo N2 - Pedido DF-${orderId}`,
+      to: email,
+      cc: 'support@dedosfacil.es',
+      subject: `📄 Justificante${pdfList.length > 1 ? 's' : ''} Modelo N2 - Pedido DF-${orderId}`,
       attachments,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
