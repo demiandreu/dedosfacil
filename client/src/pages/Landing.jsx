@@ -25,14 +25,20 @@ es: {
     },
     nav: { howItWorks: "Cómo funciona", pricing: "Precios", faq: "FAQ", startNow: "Empezar ahora" },
     hero: {
-      badge: "Plazo límite: 2 de marzo",
-      title: "Presenta tu Modelo N2",
-      titleHighlight: "en 10 minutos",
-      subtitle: "Cumple con el Depósito de Arrendamientos obligatorio antes del 2 de marzo.",
-      subtitleBold: " Sin descargar programas. Sin certificado digital. Nosotros lo presentamos por ti.",
-      cta: "Presentar ahora",
-      priceFrom: "Desde",
-     trust1: "Sin programa N2", trust2: "Sin certificado digital", trust3: "100% Legal", trust4: "24-48h", trust5: "Garantía 100%"
+      badge: "Plazo límite N2: 2 de marzo",
+      title: "Tu alquiler turístico",
+      titleHighlight: "100% en regla",
+      subtitle: "Somos los expertos en normativa de alquiler vacacional en España. Elige qué necesitas:",
+      serviceN2Title: "Modelo N2",
+      serviceN2Desc: "Presenta el depósito de arrendamientos obligatorio ante el Registro de la Propiedad",
+      serviceN2Price: "Desde 99€",
+      serviceN2Cta: "Presentar N2",
+      serviceN2Badge: "⏰ Urgente",
+      serviceNruaTitle: "Número NRUA",
+      serviceNruaDesc: "Obtén tu registro de vivienda turística — alta nueva o renovación",
+      serviceNruaPrice: "149€",
+      serviceNruaCta: "Solicitar NRUA",
+      trust1: "Sin programa N2", trust2: "Sin certificado digital", trust3: "100% Legal", trust4: "24-48h", trust5: "Garantía 100%"
     },
     warning: {
       title: "⚠️ Si no presentas el Modelo N2 antes del 2 de marzo:",
@@ -152,14 +158,20 @@ es: {
     },
     nav: { howItWorks: "How it works", pricing: "Pricing", faq: "FAQ", startNow: "Start now" },
     hero: {
-      badge: "Deadline: March 2nd",
-      title: "Submit your Form N2",
-      titleHighlight: "in 10 minutes",
-      subtitle: "Comply with the mandatory Rental Declaration before March 2nd.",
-      subtitleBold: " No software to download. No digital certificate. We submit it for you.",
-      cta: "Submit now",
-      priceFrom: "From",
-     trust1: "No N2 software", trust2: "No digital certificate", trust3: "100% Legal", trust4: "24-48h", trust5: "100% Guarantee"
+      badge: "N2 Deadline: March 2nd",
+      title: "Your tourist rental",
+      titleHighlight: "100% compliant",
+      subtitle: "We are the experts in vacation rental regulations in Spain. Choose what you need:",
+      serviceN2Title: "Form N2",
+      serviceN2Desc: "Submit the mandatory rental declaration to the Property Registry",
+      serviceN2Price: "From €99",
+      serviceN2Cta: "Submit N2",
+      serviceN2Badge: "⏰ Urgent",
+      serviceNruaTitle: "NRUA Number",
+      serviceNruaDesc: "Get your tourist rental registration — new application or renewal",
+      serviceNruaPrice: "€149",
+      serviceNruaCta: "Request NRUA",
+      trust1: "No N2 software", trust2: "No digital certificate", trust3: "100% Legal", trust4: "24-48h", trust5: "100% Guarantee"
     },
     warning: {
       title: "⚠️ If you don't submit Form N2 before March 2nd:",
@@ -279,13 +291,19 @@ es: {
     },
     nav: { howItWorks: "Comment ça marche", pricing: "Tarifs", faq: "FAQ", startNow: "Commencer" },
     hero: {
-      badge: "Date limite: 2 mars",
-      title: "Déposez votre Formulaire N2",
-      titleHighlight: "en 10 minutes",
-      subtitle: "Respectez le Dépôt de Locations obligatoire avant le 2 mars.",
-      subtitleBold: " Sans télécharger de logiciel. Sans certificat numérique. Nous le déposons pour vous.",
-      cta: "Déposer maintenant",
-      priceFrom: "À partir de",
+      badge: "Date limite N2: 2 mars",
+      title: "Votre location touristique",
+      titleHighlight: "100% en règle",
+      subtitle: "Nous sommes les experts en réglementation de location vacancière en Espagne. Choisissez ce dont vous avez besoin :",
+      serviceN2Title: "Formulaire N2",
+      serviceN2Desc: "Déposez la déclaration de locations obligatoire auprès du Registre de la Propriété",
+      serviceN2Price: "À partir de 99€",
+      serviceN2Cta: "Déposer N2",
+      serviceN2Badge: "⏰ Urgent",
+      serviceNruaTitle: "Numéro NRUA",
+      serviceNruaDesc: "Obtenez votre enregistrement de logement touristique — nouvelle inscription ou renouvellement",
+      serviceNruaPrice: "149€",
+      serviceNruaCta: "Demander NRUA",
       trust1: "Sans logiciel N2", trust2: "Sans certificat numérique", trust3: "100% Légal", trust4: "24-48h", trust5: "Garantie 100%"
     },
     warning: {
@@ -405,13 +423,19 @@ es: {
     },
     nav: { howItWorks: "So funktioniert's", pricing: "Preise", faq: "FAQ", startNow: "Jetzt starten" },
     hero: {
-      badge: "Frist: 2. März",
-      title: "Reichen Sie Ihr Formular N2 ein",
-      titleHighlight: "in 10 Minuten",
-      subtitle: "Erfüllen Sie die obligatorische Mietmeldung vor dem 2. März.",
-      subtitleBold: " Keine Software herunterladen. Kein digitales Zertifikat. Wir reichen es für Sie ein.",
-      cta: "Jetzt einreichen",
-      priceFrom: "Ab",
+      badge: "N2-Frist: 2. März",
+      title: "Ihre Ferienvermietung",
+      titleHighlight: "100% rechtskonform",
+      subtitle: "Wir sind die Experten für Ferienvermietungsvorschriften in Spanien. Wählen Sie, was Sie brauchen:",
+      serviceN2Title: "Formular N2",
+      serviceN2Desc: "Reichen Sie die obligatorische Mietmeldung beim Grundbuchamt ein",
+      serviceN2Price: "Ab 99€",
+      serviceN2Cta: "N2 einreichen",
+      serviceN2Badge: "⏰ Dringend",
+      serviceNruaTitle: "NRUA-Nummer",
+      serviceNruaDesc: "Erhalten Sie Ihre Ferienwohnungsregistrierung — Neuanmeldung oder Erneuerung",
+      serviceNruaPrice: "149€",
+      serviceNruaCta: "NRUA beantragen",
       trust1: "Ohne N2-Software", trust2: "Ohne digitales Zertifikat", trust3: "100% Legal", trust4: "24-48h", trust5: "100% Garantie"
     },
     warning: {
@@ -626,33 +650,49 @@ useEffect(() => {
               <span>{t.hero.badge} · {daysLeft} {t.urgentBanner.days}</span>
             </div>
             <h1>{t.hero.title} <span className="gradient-text">{t.hero.titleHighlight}</span></h1>
-            <p className="hero-subtitle">{t.hero.subtitle}<strong>{t.hero.subtitleBold}</strong></p>
-            <div className="hero-cta">
-              <a href="/formulario" className="btn btn-primary btn-large btn-urgent">{t.hero.cta}<ArrowRight size={20} /></a>
-             <span className="hero-price">{t.hero.priceFrom} <strong>99€</strong></span>
+            <p className="hero-subtitle">{t.hero.subtitle}</p>
+
+            {/* Two service cards */}
+            <div className="hero-services">
+              <a href="/formulario" className="hero-service-card hero-service-n2">
+                <div className="hero-service-badge-urgent">{t.hero.serviceN2Badge}</div>
+                <div className="hero-service-icon">📄</div>
+                <h3>{t.hero.serviceN2Title}</h3>
+                <p>{t.hero.serviceN2Desc}</p>
+                <div className="hero-service-price">{t.hero.serviceN2Price}</div>
+                <span className="btn btn-primary btn-urgent">{t.hero.serviceN2Cta} <ArrowRight size={16} /></span>
+              </a>
+              <a href="/solicitar-nrua" className="hero-service-card hero-service-nrua">
+                <div className="hero-service-icon">🔑</div>
+                <h3>{t.hero.serviceNruaTitle}</h3>
+                <p>{t.hero.serviceNruaDesc}</p>
+                <div className="hero-service-price">{t.hero.serviceNruaPrice}</div>
+                <span className="btn btn-primary">{t.hero.serviceNruaCta} <ArrowRight size={16} /></span>
+              </a>
             </div>
+
             <div className="hero-trust">
               <div className="trust-item"><CheckCircle size={18} /><span>{t.hero.trust1}</span></div>
               <div className="trust-item"><Shield size={18} /><span>{t.hero.trust2}</span></div>
               <div className="trust-item"><Clock size={18} /><span>{t.hero.trust3}</span></div>
-                <div className="trust-item guarantee"><Shield size={18} /><span>{t.hero.trust5}</span></div>
+              <div className="trust-item guarantee"><Shield size={18} /><span>{t.hero.trust5}</span></div>
             </div>
           </div>
-        <div className="hero-visual">
-  <div className="video-container" style={{ maxWidth: '100%', overflow: 'hidden' }}>
-    <iframe 
-      width="100%" 
-      height="auto" 
-      src="https://www.youtube.com/embed/ftETjWOIG5w" 
-      title="Depósito de Arrendamientos - Registradores de España"
-      frameBorder="0" 
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-      allowFullScreen
-      style={{ width: '100%', height: '100%' }}
-    ></iframe>
-  </div>
-</div>
+          <div className="hero-visual">
+            <div className="video-container" style={{ maxWidth: '100%', overflow: 'hidden' }}>
+              <iframe
+                width="100%"
+                height="auto"
+                src="https://www.youtube.com/embed/ftETjWOIG5w"
+                title="Depósito de Arrendamientos - Registradores de España"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{ width: '100%', height: '100%' }}
+              ></iframe>
+            </div>
           </div>
+        </div>
         <div className="hero-bg"></div>
       </section>
 
@@ -697,6 +737,41 @@ useEffect(() => {
             <div className="step"><div className="step-number">2</div><div className="step-icon"><Upload size={32} /></div><h3>{t.howItWorks.step2}</h3><p>{t.howItWorks.step2desc}</p></div>
             <div className="step-arrow">→</div>
             <div className="step"><div className="step-number">3</div><div className="step-icon"><FileText size={32} /></div><h3>{t.howItWorks.step3}</h3><p>{t.howItWorks.step3desc}</p></div>
+          </div>
+        </div>
+      </section>
+
+      {/* NRUA Section - Don't have NRUA? */}
+      <section className="no-nrua-section">
+        <div className="container">
+          <div className="no-nrua-card">
+            <div className="no-nrua-icon">🔑</div>
+            <div className="no-nrua-content">
+              <h3>
+                {lang === 'es' ? '¿No tienes número NRUA?' :
+                 lang === 'en' ? "Don't have an NRUA number?" :
+                 lang === 'fr' ? "Vous n'avez pas de numéro NRUA ?" :
+                 'Keine NRUA-Nummer?'}
+              </h3>
+              <p>
+                {lang === 'es' ? 'Sin el NRUA no puedes presentar el Modelo N2. Te ayudamos a obtenerlo — gestionamos toda la solicitud ante el Registro de la Propiedad por ti.' :
+                 lang === 'en' ? "Without the NRUA you can't submit Form N2. We help you get it — we handle the entire application at the Property Registry for you." :
+                 lang === 'fr' ? "Sans le NRUA vous ne pouvez pas déposer le N2. Nous vous aidons — nous gérons toute la demande au Registre pour vous." :
+                 'Ohne NRUA können Sie kein N2 einreichen. Wir helfen Ihnen — wir bearbeiten den gesamten Antrag beim Grundbuchamt.'}
+              </p>
+              <div className="no-nrua-features">
+                <span><CheckCircle size={16} /> {lang === 'es' ? 'Gestión completa' : lang === 'en' ? 'Full management' : lang === 'fr' ? 'Gestion complète' : 'Komplette Verwaltung'}</span>
+                <span><CheckCircle size={16} /> {lang === 'es' ? 'Sin desplazamientos' : lang === 'en' ? 'No travel needed' : lang === 'fr' ? 'Sans déplacement' : 'Keine Reisen'}</span>
+                <span><CheckCircle size={16} /> {lang === 'es' ? '5-10 días laborables' : lang === 'en' ? '5-10 business days' : lang === 'fr' ? '5-10 jours ouvrables' : '5-10 Werktage'}</span>
+              </div>
+              <a href="/solicitar-nrua" className="btn btn-primary">
+                {lang === 'es' ? 'Solicitar NRUA — 149€' :
+                 lang === 'en' ? 'Request NRUA — €149' :
+                 lang === 'fr' ? 'Demander NRUA — 149€' :
+                 'NRUA beantragen — 149€'}
+                <ArrowRight size={18} />
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -796,41 +871,6 @@ useEffect(() => {
                 <p className="faq-answer">{item.a}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* No NRUA? */}
-      <section className="no-nrua-section">
-        <div className="container">
-          <div className="no-nrua-card">
-            <div className="no-nrua-icon">🔑</div>
-            <div className="no-nrua-content">
-              <h3>
-                {lang === 'es' ? '¿No tienes número NRUA?' :
-                 lang === 'en' ? "Don't have an NRUA number?" :
-                 lang === 'fr' ? "Vous n'avez pas de numéro NRUA ?" :
-                 'Keine NRUA-Nummer?'}
-              </h3>
-              <p>
-                {lang === 'es' ? 'Sin el NRUA no puedes presentar el Modelo N2. Te ayudamos a obtenerlo — gestionamos toda la solicitud ante el Registro de la Propiedad por ti.' :
-                 lang === 'en' ? "Without the NRUA you can't submit Form N2. We help you get it — we handle the entire application at the Property Registry for you." :
-                 lang === 'fr' ? "Sans le NRUA vous ne pouvez pas déposer le N2. Nous vous aidons — nous gérons toute la demande au Registre pour vous." :
-                 'Ohne NRUA können Sie kein N2 einreichen. Wir helfen Ihnen — wir bearbeiten den gesamten Antrag beim Grundbuchamt.'}
-              </p>
-              <div className="no-nrua-features">
-                <span><CheckCircle size={16} /> {lang === 'es' ? 'Gestión completa' : lang === 'en' ? 'Full management' : lang === 'fr' ? 'Gestion complète' : 'Komplette Verwaltung'}</span>
-                <span><CheckCircle size={16} /> {lang === 'es' ? 'Sin desplazamientos' : lang === 'en' ? 'No travel needed' : lang === 'fr' ? 'Sans déplacement' : 'Keine Reisen'}</span>
-                <span><CheckCircle size={16} /> {lang === 'es' ? '5-10 días laborables' : lang === 'en' ? '5-10 business days' : lang === 'fr' ? '5-10 jours ouvrables' : '5-10 Werktage'}</span>
-              </div>
-              <a href="/solicitar-nrua" className="btn btn-primary">
-                {lang === 'es' ? 'Solicitar NRUA — 149€' :
-                 lang === 'en' ? 'Request NRUA — €149' :
-                 lang === 'fr' ? 'Demander NRUA — 149€' :
-                 'NRUA beantragen — 149€'}
-                <ArrowRight size={18} />
-              </a>
-            </div>
           </div>
         </div>
       </section>
