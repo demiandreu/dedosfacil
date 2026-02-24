@@ -17,7 +17,7 @@ const [showAffForm, setShowAffForm] = useState(false)
   const [nruaSearch, setNruaSearch] = useState('')
   const [n2Search, setN2Search] = useState('')
   const [nruaNumbers, setNruaNumbers] = useState({})
-  const [editingStays, setEditingStays] = useState({}) // { orderId: [...stays] }
+  const [editingStays, setEditingStays] = useState({}) // { submissionId: [...stays] }
 
   const ADMIN_PASSWORD = 'dedos2026'
 
@@ -111,9 +111,12 @@ useEffect(() => {
     } catch (err) { console.error(err) }
   }
   
-  const downloadFile = async (orderId, fileType) => {
+  const downloadFile = async (orderId, fileType, submissionId) => {
     try {
-      const response = await fetch(`/api/admin/download/${orderId}/${fileType}`)
+      const url = submissionId
+        ? `/api/admin/download/${orderId}/${fileType}?submissionId=${submissionId}`
+        : `/api/admin/download/${orderId}/${fileType}`
+      const response = await fetch(url)
       const data = await response.json()
       if (data.error) { alert(data.error); return }
       const link = document.createElement('a')
@@ -127,9 +130,12 @@ useEffect(() => {
     }
   }
 
-  const downloadN2Csv = async (orderId) => {
+  const downloadN2Csv = async (orderId, submissionId) => {
     try {
-      const response = await fetch(`/api/admin/generate-n2-csv/${orderId}`)
+      const url = submissionId
+        ? `/api/admin/generate-n2-csv/${orderId}?submissionId=${submissionId}`
+        : `/api/admin/generate-n2-csv/${orderId}`
+      const response = await fetch(url)
       const data = await response.json()
       if (data.error) { alert(data.error); return }
       const blob = new Blob([data.csv], { type: 'text/csv;charset=utf-8;' })
@@ -144,9 +150,12 @@ useEffect(() => {
     }
   }
 
-  const downloadAuthorizationPdf = async (orderId) => {
+  const downloadAuthorizationPdf = async (orderId, submissionId) => {
   try {
-    const response = await fetch(`/api/admin/authorization/${orderId}`)
+    const url = submissionId
+      ? `/api/admin/authorization/${orderId}?submissionId=${submissionId}`
+      : `/api/admin/authorization/${orderId}`
+    const response = await fetch(url)
     const data = await response.json()
     if (data.error) { alert(data.error); return }
 
@@ -362,12 +371,12 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     }
   }
 
-  const updateNrua = async (orderId, newNrua) => {
+  const updateNrua = async (orderId, newNrua, submissionId) => {
     try {
       const response = await fetch(`/api/admin/update-nrua/${orderId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nrua: newNrua })
+        body: JSON.stringify({ nrua: newNrua, submissionId })
       })
       const data = await response.json()
       if (data.error) throw new Error(data.error)
@@ -377,31 +386,31 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     }
   }
 
-  const startEditingStays = (orderId, stays) => {
-    setEditingStays(prev => ({ ...prev, [orderId]: JSON.parse(JSON.stringify(stays)) }))
+  const startEditingStays = (subId, stays) => {
+    setEditingStays(prev => ({ ...prev, [subId]: JSON.parse(JSON.stringify(stays)) }))
   }
 
-  const updateEditingStay = (orderId, idx, field, value) => {
+  const updateEditingStay = (subId, idx, field, value) => {
     setEditingStays(prev => {
       const updated = { ...prev }
-      updated[orderId] = [...updated[orderId]]
-      updated[orderId][idx] = { ...updated[orderId][idx], [field]: value }
+      updated[subId] = [...updated[subId]]
+      updated[subId][idx] = { ...updated[subId][idx], [field]: value }
       return updated
     })
   }
 
-  const saveStays = async (orderId) => {
+  const saveStays = async (orderId, subId) => {
     try {
       const response = await fetch(`/api/admin/update-stays/${orderId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stays: editingStays[orderId] })
+        body: JSON.stringify({ stays: editingStays[subId], submissionId: subId })
       })
       const data = await response.json()
       if (data.error) throw new Error(data.error)
       setEditingStays(prev => {
         const updated = { ...prev }
-        delete updated[orderId]
+        delete updated[subId]
         return updated
       })
       await fetchOrders()
@@ -411,18 +420,18 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     }
   }
 
-  const cancelEditingStays = (orderId) => {
+  const cancelEditingStays = (subId) => {
     setEditingStays(prev => {
       const updated = { ...prev }
-      delete updated[orderId]
+      delete updated[subId]
       return updated
     })
   }
 
-  const deleteEditingStay = (orderId, idx) => {
+  const deleteEditingStay = (subId, idx) => {
     setEditingStays(prev => {
       const updated = { ...prev }
-      updated[orderId] = updated[orderId].filter((_, i) => i !== idx)
+      updated[subId] = updated[subId].filter((_, i) => i !== idx)
       return updated
     })
   }
@@ -565,14 +574,16 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
   const filteredN2 = filteredOrders.filter(order => {
     if (!n2Search) return true
     const q = n2Search.toLowerCase()
-    return (
+    if (
       (order.email || '').toLowerCase().includes(q) ||
-      (order.name || '').toLowerCase().includes(q) ||
-      (order.nrua || '').toLowerCase().includes(q) ||
-      (order.address || '').toLowerCase().includes(q) ||
-      (order.province || '').toLowerCase().includes(q) ||
-      (order.phone || '').toLowerCase().includes(q) ||
       String(order.id || '').includes(q)
+    ) return true
+    return (order.submissions || []).some(sub =>
+      (sub.name || '').toLowerCase().includes(q) ||
+      (sub.nrua || '').toLowerCase().includes(q) ||
+      (sub.address || '').toLowerCase().includes(q) ||
+      (sub.province || '').toLowerCase().includes(q) ||
+      (sub.phone || '').toLowerCase().includes(q)
     )
   })
 
@@ -663,6 +674,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                         <span style={styles.orderId}>#{order.id}</span>
                         <span style={getBadgeStyle(order.status)}>{getStatusLabel(order.status)}</span>
                         <span style={styles.orderEmail}>{order.email}</span>
+                        {order.properties_count > 1 && <span style={{ fontSize: '12px', color: '#6b7280', backgroundColor: '#f3f4f6', padding: '2px 8px', borderRadius: '4px' }}>{(order.submissions || []).length}/{order.properties_count} viviendas</span>}
                       </div>
                       <div style={styles.orderHeaderRight}>
                         <span style={styles.orderDate}>{new Date(order.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
@@ -674,100 +686,113 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
 
                     {expandedOrder === order.id && (
                       <div style={styles.orderDetails}>
-                        <div style={styles.detailsGrid}>
-                          <div>
-                            <h3 style={styles.sectionTitle}>📋 Datos del cliente</h3>
-                            <p style={styles.detailRow}><span style={styles.detailLabel}>Nombre: </span><span style={styles.detailValue}>{order.name || '-'}</span></p>
-                            <p style={styles.detailRow}><span style={styles.detailLabel}>Email: </span><span style={styles.detailValue}>{order.email}</span></p>
-                            <p style={styles.detailRow}><span style={styles.detailLabel}>Teléfono: </span><span style={styles.detailValue}>{order.phone || '-'}</span></p>
-                            <div style={{ ...styles.detailRow, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={styles.detailLabel}>NRUA: </span>
-                              <input style={{ fontFamily: 'monospace', fontSize: '13px', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: '4px', flex: 1, maxWidth: '400px' }} defaultValue={order.nrua || ''} onBlur={(e) => { if (e.target.value !== (order.nrua || '')) { updateNrua(order.id, e.target.value) } }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }} />
-                            </div>
-                            <p style={styles.detailRow}><span style={styles.detailLabel}>Dirección: </span><span style={styles.detailValue}>{order.address || '-'}</span></p>
-                            <p style={styles.detailRow}><span style={styles.detailLabel}>Provincia: </span><span style={styles.detailValue}>{order.province || '-'}</span></p>
-                          </div>
-                          <div>
-                            <h3 style={styles.sectionTitle}>📁 Archivos</h3>
-                            {order.has_airbnb && <button onClick={() => downloadFile(order.id, 'airbnb')} style={styles.downloadBtn}>⬇️ Descargar Airbnb</button>}
-                            {order.has_booking && <button onClick={() => downloadFile(order.id, 'booking')} style={styles.downloadBtn}>⬇️ Descargar Booking</button>}
-                            {order.has_other && <button onClick={() => downloadFile(order.id, 'other')} style={styles.downloadBtn}>⬇️ Descargar Otro</button>}
-                            {order.has_nrua_photo && <button onClick={() => downloadFile(order.id, 'nruaPhoto')} style={styles.downloadBtn}>📷 Foto NRUA ({order.nrua_photo_name})</button>}
-                            {!order.has_airbnb && !order.has_booking && !order.has_other && !order.has_nrua_photo && <p style={{ color: '#9ca3af', fontSize: '14px' }}>Sin archivos</p>}
-                          </div>
-                        </div>
-
-                        {order.stays_count > 0 && (
-                          <div style={{ marginTop: '24px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                              <h3 style={styles.sectionTitle}>🏠 Estancias extraídas ({order.stays_count})</h3>
-                              {!editingStays[order.id] ? (
-                                <button onClick={() => startEditingStays(order.id, order.extracted_stays || [])} style={{ padding: '6px 14px', backgroundColor: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>✏️ Editar estancias</button>
-                              ) : (
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                  <button onClick={() => saveStays(order.id)} style={{ padding: '6px 14px', backgroundColor: '#D1FAE5', color: '#065F46', border: '1px solid #6EE7B7', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>💾 Guardar</button>
-                                  <button onClick={() => cancelEditingStays(order.id)} style={{ padding: '6px 14px', backgroundColor: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>✕ Cancelar</button>
+                        {(order.submissions && order.submissions.length > 0 ? order.submissions : [order]).map((sub, subIdx) => {
+                          const subId = sub.id || `${order.id}_${subIdx}`
+                          const totalSubs = order.submissions ? order.submissions.length : 1
+                          return (
+                          <div key={subId} style={totalSubs > 1 ? { border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', marginBottom: '16px', backgroundColor: '#fafafa' } : {}}>
+                            {totalSubs > 1 && <h3 style={{ margin: '0 0 12px', fontSize: '15px', color: '#1e3a5f' }}>🏠 Vivienda {subIdx + 1} de {totalSubs}</h3>}
+                            <div style={styles.detailsGrid}>
+                              <div>
+                                <h3 style={styles.sectionTitle}>📋 Datos del cliente</h3>
+                                <p style={styles.detailRow}><span style={styles.detailLabel}>Nombre: </span><span style={styles.detailValue}>{sub.name || '-'}</span></p>
+                                <p style={styles.detailRow}><span style={styles.detailLabel}>Email: </span><span style={styles.detailValue}>{order.email}</span></p>
+                                <p style={styles.detailRow}><span style={styles.detailLabel}>Teléfono: </span><span style={styles.detailValue}>{sub.phone || '-'}</span></p>
+                                <div style={{ ...styles.detailRow, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={styles.detailLabel}>NRUA: </span>
+                                  <input style={{ fontFamily: 'monospace', fontSize: '13px', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: '4px', flex: 1, maxWidth: '400px' }} defaultValue={sub.nrua || ''} onBlur={(e) => { if (e.target.value !== (sub.nrua || '')) { updateNrua(order.id, e.target.value, sub.id) } }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }} />
                                 </div>
-                              )}
+                                <p style={styles.detailRow}><span style={styles.detailLabel}>Dirección: </span><span style={styles.detailValue}>{sub.address || '-'}</span></p>
+                                <p style={styles.detailRow}><span style={styles.detailLabel}>Provincia: </span><span style={styles.detailValue}>{sub.province || '-'}</span></p>
+                              </div>
+                              <div>
+                                <h3 style={styles.sectionTitle}>📁 Archivos</h3>
+                                {sub.has_airbnb && <button onClick={() => downloadFile(order.id, 'airbnb', sub.id)} style={styles.downloadBtn}>⬇️ Descargar Airbnb</button>}
+                                {sub.has_booking && <button onClick={() => downloadFile(order.id, 'booking', sub.id)} style={styles.downloadBtn}>⬇️ Descargar Booking</button>}
+                                {sub.has_other && <button onClick={() => downloadFile(order.id, 'other', sub.id)} style={styles.downloadBtn}>⬇️ Descargar Otro</button>}
+                                {sub.has_nrua_photo && <button onClick={() => downloadFile(order.id, 'nruaPhoto', sub.id)} style={styles.downloadBtn}>📷 Foto NRUA ({sub.nrua_photo_name})</button>}
+                                {!sub.has_airbnb && !sub.has_booking && !sub.has_other && !sub.has_nrua_photo && <p style={{ color: '#9ca3af', fontSize: '14px' }}>Sin archivos</p>}
+                              </div>
                             </div>
-                            <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
-                              <table style={styles.staysTable}>
-                                <thead style={styles.tableHeader}>
-                                  <tr>
-                                    <th style={styles.tableCell}>#</th>
-                                    <th style={styles.tableCell}>Entrada</th>
-                                    <th style={styles.tableCell}>Salida</th>
-                                    <th style={styles.tableCell}>Huéspedes</th>
-                                    <th style={styles.tableCell}>Finalidad</th>
-                                    <th style={styles.tableCell}>Fuente</th>
-                                    {editingStays[order.id] && <th style={styles.tableCell}></th>}
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {(editingStays[order.id] || order.extracted_stays || []).map((stay, idx) => {
-                                    const isEditing = !!editingStays[order.id]
-                                    const invalidYear = isCheckoutYearInvalid(stay)
-                                    const checkOutValue = stay.fecha_salida || stay.checkOut || ''
-                                    const checkInValue = stay.fecha_entrada || stay.checkIn || ''
-                                    return (
-                                      <tr key={idx} style={invalidYear ? { backgroundColor: '#FEF9C3' } : {}}>
-                                        <td style={{ ...styles.tableCell, color: '#9ca3af', fontSize: '12px' }}>{idx + 1}</td>
-                                        <td style={styles.tableCell}>
-                                          {isEditing ? <input type="text" value={checkInValue} onChange={e => updateEditingStay(order.id, idx, stay.fecha_entrada !== undefined ? 'fecha_entrada' : 'checkIn', e.target.value)} style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '100px' }} /> : checkInValue}
-                                        </td>
-                                        <td style={{ ...styles.tableCell, ...(invalidYear ? { fontWeight: '600', color: '#92400E' } : {}) }}>
-                                          {isEditing ? (
-                                            <div>
-                                              <input type="text" value={checkOutValue} onChange={e => updateEditingStay(order.id, idx, stay.fecha_salida !== undefined ? 'fecha_salida' : 'checkOut', e.target.value)} style={{ padding: '4px 6px', border: invalidYear ? '2px solid #F59E0B' : '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '100px', backgroundColor: invalidYear ? '#FEF9C3' : 'white' }} />
-                                              {invalidYear && <div style={{ fontSize: '11px', color: '#B45309', marginTop: '2px' }}>⚠️ Año incorrecto</div>}
-                                            </div>
-                                          ) : (
-                                            <span>{checkOutValue}{invalidYear && <span style={{ marginLeft: '6px', fontSize: '11px', backgroundColor: '#FEF3C7', color: '#92400E', padding: '1px 6px', borderRadius: '4px' }}>⚠️ año distinto</span>}</span>
-                                          )}
-                                        </td>
-                                        <td style={styles.tableCell}>
-                                          {isEditing ? <input type="text" value={stay.huespedes || stay.guests || ''} onChange={e => updateEditingStay(order.id, idx, stay.huespedes !== undefined ? 'huespedes' : 'guests', e.target.value)} style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '50px', textAlign: 'center' }} /> : (stay.huespedes || stay.guests || '-')}
-                                        </td>
-                                        <td style={styles.tableCell}>
-                                          {isEditing ? <input type="text" value={stay.finalidad || stay.purpose || ''} onChange={e => updateEditingStay(order.id, idx, stay.finalidad !== undefined ? 'finalidad' : 'purpose', e.target.value)} style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '80px' }} /> : (stay.finalidad || stay.purpose || 'Vacacional')}
-                                        </td>
-                                        <td style={styles.tableCell}>{stay.plataforma || stay.source || '-'}</td>
-                                        {isEditing && <td style={styles.tableCell}><button onClick={() => deleteEditingStay(order.id, idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }} title="Eliminar fila">🗑️</button></td>}
+
+                            {sub.stays_count > 0 && (
+                              <div style={{ marginTop: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                  <h3 style={styles.sectionTitle}>🏠 Estancias extraídas ({sub.stays_count})</h3>
+                                  {!editingStays[subId] ? (
+                                    <button onClick={() => startEditingStays(subId, sub.extracted_stays || [])} style={{ padding: '6px 14px', backgroundColor: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>✏️ Editar estancias</button>
+                                  ) : (
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                      <button onClick={() => saveStays(order.id, subId)} style={{ padding: '6px 14px', backgroundColor: '#D1FAE5', color: '#065F46', border: '1px solid #6EE7B7', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>💾 Guardar</button>
+                                      <button onClick={() => cancelEditingStays(subId)} style={{ padding: '6px 14px', backgroundColor: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>✕ Cancelar</button>
+                                    </div>
+                                  )}
+                                </div>
+                                <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+                                  <table style={styles.staysTable}>
+                                    <thead style={styles.tableHeader}>
+                                      <tr>
+                                        <th style={styles.tableCell}>#</th>
+                                        <th style={styles.tableCell}>Entrada</th>
+                                        <th style={styles.tableCell}>Salida</th>
+                                        <th style={styles.tableCell}>Huéspedes</th>
+                                        <th style={styles.tableCell}>Finalidad</th>
+                                        <th style={styles.tableCell}>Fuente</th>
+                                        {editingStays[subId] && <th style={styles.tableCell}></th>}
                                       </tr>
-                                    )
-                                  })}
-                                </tbody>
-                              </table>
+                                    </thead>
+                                    <tbody>
+                                      {(editingStays[subId] || sub.extracted_stays || []).map((stay, idx) => {
+                                        const isEditing = !!editingStays[subId]
+                                        const invalidYear = isCheckoutYearInvalid(stay)
+                                        const checkOutValue = stay.fecha_salida || stay.checkOut || ''
+                                        const checkInValue = stay.fecha_entrada || stay.checkIn || ''
+                                        return (
+                                          <tr key={idx} style={invalidYear ? { backgroundColor: '#FEF9C3' } : {}}>
+                                            <td style={{ ...styles.tableCell, color: '#9ca3af', fontSize: '12px' }}>{idx + 1}</td>
+                                            <td style={styles.tableCell}>
+                                              {isEditing ? <input type="text" value={checkInValue} onChange={e => updateEditingStay(subId, idx, stay.fecha_entrada !== undefined ? 'fecha_entrada' : 'checkIn', e.target.value)} style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '100px' }} /> : checkInValue}
+                                            </td>
+                                            <td style={{ ...styles.tableCell, ...(invalidYear ? { fontWeight: '600', color: '#92400E' } : {}) }}>
+                                              {isEditing ? (
+                                                <div>
+                                                  <input type="text" value={checkOutValue} onChange={e => updateEditingStay(subId, idx, stay.fecha_salida !== undefined ? 'fecha_salida' : 'checkOut', e.target.value)} style={{ padding: '4px 6px', border: invalidYear ? '2px solid #F59E0B' : '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '100px', backgroundColor: invalidYear ? '#FEF9C3' : 'white' }} />
+                                                  {invalidYear && <div style={{ fontSize: '11px', color: '#B45309', marginTop: '2px' }}>⚠️ Año incorrecto</div>}
+                                                </div>
+                                              ) : (
+                                                <span>{checkOutValue}{invalidYear && <span style={{ marginLeft: '6px', fontSize: '11px', backgroundColor: '#FEF3C7', color: '#92400E', padding: '1px 6px', borderRadius: '4px' }}>⚠️ año distinto</span>}</span>
+                                              )}
+                                            </td>
+                                            <td style={styles.tableCell}>
+                                              {isEditing ? <input type="text" value={stay.huespedes || stay.guests || ''} onChange={e => updateEditingStay(subId, idx, stay.huespedes !== undefined ? 'huespedes' : 'guests', e.target.value)} style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '50px', textAlign: 'center' }} /> : (stay.huespedes || stay.guests || '-')}
+                                            </td>
+                                            <td style={styles.tableCell}>
+                                              {isEditing ? <input type="text" value={stay.finalidad || stay.purpose || ''} onChange={e => updateEditingStay(subId, idx, stay.finalidad !== undefined ? 'finalidad' : 'purpose', e.target.value)} style={{ padding: '4px 6px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '13px', width: '80px' }} /> : (stay.finalidad || stay.purpose || 'Vacacional')}
+                                            </td>
+                                            <td style={styles.tableCell}>{stay.plataforma || stay.source || '-'}</td>
+                                            {isEditing && <td style={styles.tableCell}><button onClick={() => deleteEditingStay(subId, idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }} title="Eliminar fila">🗑️</button></td>}
+                                          </tr>
+                                        )
+                                      })}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Per-submission actions */}
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                              {sub.stays_count > 0 && <button onClick={() => downloadN2Csv(order.id, sub.id)} style={styles.btnPrimary}>📄 CSV para N2</button>}
+                              <button onClick={() => downloadAuthorizationPdf(order.id, sub.id)} style={styles.btnSecondary}>📋 Autorización PDF</button>
                             </div>
                           </div>
-                        )}
+                          )
+                        })}
 
-                        {/* Actions N2 */}
+                        {/* Order-level actions */}
                         <div style={styles.actionsBar}>
                           <div>
                             <div style={{ display: 'flex', gap: '8px' }}>
-                              {order.stays_count > 0 && <button onClick={() => downloadN2Csv(order.id)} style={styles.btnPrimary}>📄 CSV para N2</button>}
-                              <button onClick={() => downloadAuthorizationPdf(order.id)} style={styles.btnSecondary}>📋 Autorización PDF</button>
                               {order.status === 'enviado' && <button onClick={() => sendReviewEmail(order.id)} style={{ ...styles.btnSecondary, backgroundColor: '#f59e0b' }}>⭐ Reenviar valoración</button>}
                             </div>
                           </div>

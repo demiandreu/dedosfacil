@@ -1440,18 +1440,31 @@ app.get('/api/factura/:orderId', async (req, res) => {
 app.get('/api/admin/authorization/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
-    
-    const result = await pool.query(
-      `SELECT 
-        s.name, s.nrua, s.address, s.province, s.phone,
-        s.authorization_timestamp, s.authorization_ip,
-        s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
-        o.email
-       FROM submissions s 
-       JOIN orders o ON o.id = s.order_id 
-       WHERE s.order_id = $1`,
-      [orderId]
-    );
+    const { submissionId } = req.query;
+
+    const result = submissionId
+      ? await pool.query(
+          `SELECT
+            s.name, s.nrua, s.address, s.province, s.phone,
+            s.authorization_timestamp, s.authorization_ip,
+            s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
+            o.email
+           FROM submissions s
+           JOIN orders o ON o.id = s.order_id
+           WHERE s.id = $1`,
+          [submissionId]
+        )
+      : await pool.query(
+          `SELECT
+            s.name, s.nrua, s.address, s.province, s.phone,
+            s.authorization_timestamp, s.authorization_ip,
+            s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
+            o.email
+           FROM submissions s
+           JOIN orders o ON o.id = s.order_id
+           WHERE s.order_id = $1`,
+          [orderId]
+        );
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Pedido no encontrado' });
@@ -1472,7 +1485,7 @@ app.get('/api/admin/authorization/:orderId', async (req, res) => {
 app.get('/api/admin/orders', async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT DISTINCT ON (o.id)
+      SELECT
         o.id,
         o.email,
         o.plan,
@@ -1481,6 +1494,7 @@ app.get('/api/admin/orders', async (req, res) => {
         o.status,
         o.created_at,
         o.completed_at,
+        s.id as submission_id,
         s.name,
         s.nrua,
         s.address,
@@ -1496,10 +1510,65 @@ app.get('/api/admin/orders', async (req, res) => {
       FROM orders o
       LEFT JOIN submissions s ON s.order_id = o.id
       WHERE (o.service_type IS NULL OR o.service_type = 'n2')
-      ORDER BY o.id DESC
+      ORDER BY o.id DESC, s.id ASC
     `);
-    
-    res.json(result.rows);
+
+    // Group submissions by order
+    const ordersMap = new Map();
+    for (const row of result.rows) {
+      if (!ordersMap.has(row.id)) {
+        ordersMap.set(row.id, {
+          id: row.id,
+          email: row.email,
+          plan: row.plan,
+          properties_count: row.properties_count,
+          amount: row.amount,
+          status: row.status,
+          created_at: row.created_at,
+          completed_at: row.completed_at,
+          submissions: []
+        });
+      }
+      if (row.submission_id) {
+        ordersMap.get(row.id).submissions.push({
+          id: row.submission_id,
+          name: row.name,
+          nrua: row.nrua,
+          address: row.address,
+          province: row.province,
+          phone: row.phone,
+          has_airbnb: row.has_airbnb,
+          has_booking: row.has_booking,
+          has_other: row.has_other,
+          nrua_photo_name: row.nrua_photo_name,
+          has_nrua_photo: row.has_nrua_photo,
+          extracted_stays: row.extracted_stays,
+          stays_count: parseInt(row.stays_count) || 0
+        });
+      }
+    }
+
+    // Convert to array with backward-compat flat fields from first submission
+    const orders = [...ordersMap.values()].map(order => {
+      const first = order.submissions[0] || {};
+      return {
+        ...order,
+        name: first.name,
+        nrua: first.nrua,
+        address: first.address,
+        province: first.province,
+        phone: first.phone,
+        has_airbnb: first.has_airbnb,
+        has_booking: first.has_booking,
+        has_other: first.has_other,
+        nrua_photo_name: first.nrua_photo_name,
+        has_nrua_photo: first.has_nrua_photo,
+        extracted_stays: first.extracted_stays,
+        stays_count: first.stays_count || 0
+      };
+    });
+
+    res.json(orders);
   } catch (error) {
     console.error('Admin orders error:', error);
     res.status(500).json({ error: 'Error al obtener pedidos' });
@@ -1509,23 +1578,23 @@ app.get('/api/admin/orders', async (req, res) => {
 app.get('/api/admin/download/:orderId/:fileType', async (req, res) => {
   try {
     const { orderId, fileType } = req.params;
-    
+    const { submissionId } = req.query;
+
  const columnMap = {
       airbnb: 'airbnb_file',
       booking: 'booking_file',
       other: 'other_file',
       nruaPhoto: 'nrua_photo_base64'
     };
-    
+
     const column = columnMap[fileType];
     if (!column) {
       return res.status(400).json({ error: 'Tipo de archivo no válido' });
     }
-    
-    const result = await pool.query(
-      `SELECT ${column} as file_data FROM submissions WHERE order_id = $1`,
-      [orderId]
-    );
+
+    const result = submissionId
+      ? await pool.query(`SELECT ${column} as file_data FROM submissions WHERE id = $1`, [submissionId])
+      : await pool.query(`SELECT ${column} as file_data FROM submissions WHERE order_id = $1`, [orderId]);
     
     if (result.rows.length === 0 || !result.rows[0].file_data) {
       return res.status(404).json({ error: 'Archivo no encontrado' });
@@ -1556,14 +1625,23 @@ app.get('/api/admin/download/:orderId/:fileType', async (req, res) => {
 app.get('/api/admin/generate-n2-csv/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
-    
-    const result = await pool.query(
-      `SELECT s.nrua, s.extracted_stays, o.email 
-       FROM submissions s 
-       JOIN orders o ON o.id = s.order_id 
-       WHERE s.order_id = $1`,
-      [orderId]
-    );
+    const { submissionId } = req.query;
+
+    const result = submissionId
+      ? await pool.query(
+          `SELECT s.nrua, s.extracted_stays, o.email
+           FROM submissions s
+           JOIN orders o ON o.id = s.order_id
+           WHERE s.id = $1`,
+          [submissionId]
+        )
+      : await pool.query(
+          `SELECT s.nrua, s.extracted_stays, o.email
+           FROM submissions s
+           JOIN orders o ON o.id = s.order_id
+           WHERE s.order_id = $1`,
+          [orderId]
+        );
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Pedido no encontrado' });
@@ -1637,13 +1715,14 @@ app.get('/api/admin/generate-n2-csv/:orderId', async (req, res) => {
 app.post('/api/admin/update-nrua/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { nrua } = req.body;
-    
-    await pool.query(
-      'UPDATE submissions SET nrua = $1 WHERE order_id = $2',
-      [nrua, orderId]
-    );
-    
+    const { nrua, submissionId } = req.body;
+
+    if (submissionId) {
+      await pool.query('UPDATE submissions SET nrua = $1 WHERE id = $2', [nrua, submissionId]);
+    } else {
+      await pool.query('UPDATE submissions SET nrua = $1 WHERE order_id = $2', [nrua, orderId]);
+    }
+
     res.json({ success: true });
   } catch (error) {
     console.error('Update NRUA error:', error);
@@ -1655,13 +1734,14 @@ app.post('/api/admin/update-nrua/:orderId', async (req, res) => {
 app.post('/api/admin/update-stays/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { stays } = req.body;
-    
-    await pool.query(
-      'UPDATE submissions SET extracted_stays = $1 WHERE order_id = $2',
-      [JSON.stringify(stays), orderId]
-    );
-    
+    const { stays, submissionId } = req.body;
+
+    if (submissionId) {
+      await pool.query('UPDATE submissions SET extracted_stays = $1 WHERE id = $2', [JSON.stringify(stays), submissionId]);
+    } else {
+      await pool.query('UPDATE submissions SET extracted_stays = $1 WHERE order_id = $2', [JSON.stringify(stays), orderId]);
+    }
+
     res.json({ success: true });
   } catch (error) {
     console.error('Update stays error:', error);
