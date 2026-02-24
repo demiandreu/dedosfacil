@@ -2523,6 +2523,15 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
               </a>
             </div>
 
+            <div style="background: #fffbeb; border: 1px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
+              <p style="margin: 0 0 12px 0; font-size: 16px;"><strong>¿Qué tal tu experiencia?</strong></p>
+              <p style="margin: 0 0 16px 0; color: #6b7280;">Solo tardas 30 segundos. Tu opinión nos ayuda mucho.</p>
+              <a href="https://dedosfacil.es/valoracion?order_id=${nruaReq.order_id}"
+                 style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #f97316, #f59e0b); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                ⭐ Dejar valoración
+              </a>
+            </div>
+
             <p style="color: #6b7280; font-size: 14px;">
               ¿Dudas? Escríbenos a support@dedosfacil.es indicando tu referencia DF-${nruaReq.order_id}
             </p>
