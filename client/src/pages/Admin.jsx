@@ -460,17 +460,6 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     }
   }
 
-  const updateNruaStatus = async (id, newStatus) => {
-    try {
-      await fetch(`/api/admin/nrua-status/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      })
-      fetchNruaRequests()
-    } catch (err) { console.error(err) }
-  }
-
   const sendNruaEmail = async (reqId) => {
     const nrua = nruaNumbers[reqId]
     if (!nrua || !nrua.trim()) {
