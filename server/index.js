@@ -2487,7 +2487,7 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
           </div>
           <div style="padding: 30px; background: #f8fafc;">
             <h2 style="color: #10b981; margin-top: 0;">🔑 ¡Tu número NRUA está listo!</h2>
-            <p>Hola${name ? ' ' + name : ''}, te confirmamos que hemos tramitado tu solicitud de número NRUA.</p>
+            <p>Hola${name ? ' ' + name : ''}, te confirmamos que hemos tramitado tu solicitud de número NRUA ante el Registro de la Propiedad.</p>
 
             <div style="background: #1e3a5f; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
               <span style="font-size: 14px;">Referencia</span><br>
@@ -2496,14 +2496,24 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
 
             ${nruaNumber ? `
             <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
-              <p style="margin: 0 0 4px 0; font-size: 14px; color: #065f46;">Tu número NRUA:</p>
-              <p style="margin: 0; font-size: 24px; font-weight: bold; color: #065f46; font-family: monospace;">${nruaNumber}</p>
+              <p style="margin: 0 0 4px 0; font-size: 14px; color: #065f46;">Tu número NRUA provisional:</p>
+              <p style="margin: 0; font-size: 15px; font-weight: bold; color: #065f46; font-family: monospace; word-break: break-all;">${nruaNumber}</p>
             </div>
             ` : ''}
 
+            <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 16px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0 0 8px 0; font-size: 15px; font-weight: 600; color: #9a3412;">📋 ¿Qué significa "provisional"?</p>
+              <p style="margin: 0 0 8px 0; font-size: 14px; color: #7c2d12; line-height: 1.5;">
+                El Registro de la Propiedad asigna inicialmente un <strong>número provisional</strong> de registro de alquiler de corta duración. Este número es <strong>completamente válido</strong> y puedes utilizarlo de inmediato en plataformas como <strong>Airbnb, Booking.com, Vrbo</strong> y cualquier otra plataforma de alquiler turístico.
+              </p>
+              <p style="margin: 0; font-size: 14px; color: #7c2d12; line-height: 1.5;">
+                Cuando el Registro emita tu <strong>número definitivo</strong>, te lo enviaremos automáticamente por correo electrónico. No necesitas hacer nada más por tu parte.
+              </p>
+            </div>
+
             <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
               <p style="margin: 0 0 8px 0; font-size: 16px;">📎 <strong>1 documento adjunto a este email</strong></p>
-              <p style="margin: 0; font-size: 13px; color: #065f46;">Documento con tu número NRUA asignado.</p>
+              <p style="margin: 0; font-size: 13px; color: #065f46;">Comunicación oficial del Registro de la Propiedad con tu número NRUA asignado.</p>
             </div>
 
             <div style="text-align: center; margin: 25px 0;">
