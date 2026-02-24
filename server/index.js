@@ -61,8 +61,10 @@ async function sendConfirmationEmail(email, orderData) {
             <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
               <h3 style="margin-top: 0; color: #166534;">¿Qué pasa ahora?</h3>
               <ol style="color: #166534;">
-                <li>Procesaremos tu declaración NRUA</li>
-                <li>En 24-48h recibirás el justificante</li>
+                ${orderData.serviceType === 'nrua_request'
+                  ? '<li>Tramitaremos tu solicitud de número NRUA</li><li>En 24-48h recibirás tu número NRUA por email</li>'
+                  : '<li>Procesaremos tu declaración del Modelo N2</li><li>En 24-48h recibirás el justificante de presentación</li>'
+                }
               </ol>
             </div>
            <div style="text-align: center; margin: 20px 0;">
@@ -126,6 +128,8 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     
     // Enviar email...
     await sendConfirmationEmail(session.customer_email, {
+      orderId: order.id,
+      serviceType: order.service_type,
       plan: order.properties_count,
       amount: order.amount / 100
     });
@@ -1346,7 +1350,7 @@ app.get('/api/admin/authorization/:orderId', async (req, res) => {
 app.get('/api/admin/orders', async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT 
+      SELECT DISTINCT ON (o.id)
         o.id,
         o.email,
         o.plan,
@@ -2221,6 +2225,103 @@ app.post('/api/admin/nrua-status/:id', async (req, res) => {
   } catch (error) {
     console.error('Update NRUA status error:', error);
     res.status(500).json({ error: 'Error al actualizar estado' });
+  }
+});
+
+// Send NRUA justificante with PDF attachment
+app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { pdfBase64, pdfName, nruaNumber } = req.body;
+
+    if (!pdfBase64) {
+      return res.status(400).json({ error: 'No se ha adjuntado PDF' });
+    }
+
+    // Get NRUA request data
+    const result = await pool.query(
+      'SELECT * FROM nrua_requests WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Solicitud NRUA no encontrada' });
+    }
+
+    const nruaReq = result.rows[0];
+    const email = nruaReq.email;
+    const name = nruaReq.person_type === 'physical'
+      ? `${nruaReq.name || ''} ${nruaReq.surname || ''}`.trim()
+      : nruaReq.company_name || '';
+
+    // Update NRUA number if provided
+    if (nruaNumber) {
+      await pool.query('UPDATE nrua_requests SET nrua_number = $1 WHERE id = $2', [nruaNumber, id]);
+    }
+
+    // Update status to enviado
+    await pool.query('UPDATE nrua_requests SET status = $1 WHERE id = $2', ['enviado', id]);
+    await pool.query('UPDATE orders SET status = $1 WHERE id = $2', ['enviado', nruaReq.order_id]);
+
+    // Build attachment
+    const base64Data = pdfBase64.includes(',') ? pdfBase64.split(',')[1] : pdfBase64;
+
+    await resend.emails.send({
+      from: 'DedosFácil <noreply@dedosfacil.es>',
+      to: email,
+      bcc: 'support@dedosfacil.es',
+      subject: `🔑 Tu número NRUA - Pedido DF-${nruaReq.order_id}`,
+      attachments: [{
+        filename: pdfName || `NRUA_DF-${nruaReq.order_id}.pdf`,
+        content: base64Data,
+        type: 'application/pdf'
+      }],
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">DedosFácil</h1>
+          </div>
+          <div style="padding: 30px; background: #f8fafc;">
+            <h2 style="color: #10b981; margin-top: 0;">🔑 ¡Tu número NRUA está listo!</h2>
+            <p>Hola${name ? ' ' + name : ''}, te confirmamos que hemos tramitado tu solicitud de número NRUA.</p>
+
+            <div style="background: #1e3a5f; color: white; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <span style="font-size: 14px;">Referencia</span><br>
+              <strong style="font-size: 28px;">DF-${nruaReq.order_id}</strong>
+            </div>
+
+            ${nruaNumber ? `
+            <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0 0 4px 0; font-size: 14px; color: #065f46;">Tu número NRUA:</p>
+              <p style="margin: 0; font-size: 24px; font-weight: bold; color: #065f46; font-family: monospace;">${nruaNumber}</p>
+            </div>
+            ` : ''}
+
+            <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 16px;">📎 <strong>1 documento adjunto a este email</strong></p>
+              <p style="margin: 0; font-size: 13px; color: #065f46;">Documento con tu número NRUA asignado.</p>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="https://dedosfacil.es/factura/${nruaReq.order_id}"
+                 style="display: inline-block; padding: 14px 32px; background: #1e3a5f; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                📄 Ver Factura
+              </a>
+            </div>
+
+            <p style="color: #6b7280; font-size: 14px;">
+              ¿Dudas? Escríbenos a support@dedosfacil.es indicando tu referencia DF-${nruaReq.order_id}
+            </p>
+          </div>
+        </div>
+      `
+    });
+
+    console.log('NRUA justificante sent to:', email);
+    res.json({ success: true, email });
+  } catch (error) {
+    console.error('Send NRUA justificante error:', error);
+    res.status(500).json({ error: 'Error al enviar justificante NRUA' });
   }
 });
 

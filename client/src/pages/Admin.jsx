@@ -328,6 +328,54 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     input.click()
   }
 
+  const updateNruaStatus = async (id, newStatus) => {
+    try {
+      const response = await fetch(`/api/admin/nrua-status/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchNruaRequests()
+    } catch (err) {
+      alert('Error al actualizar estado NRUA: ' + err.message)
+    }
+  }
+
+  const sendNruaJustificante = async (reqId) => {
+    const nruaNumber = prompt('Introduce el número NRUA asignado (opcional):')
+    if (nruaNumber === null) return // user cancelled
+
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.pdf'
+    input.onchange = async (e) => {
+      const file = e.target.files[0]
+      if (!file) return
+      try {
+        const pdfBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result)
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+        const response = await fetch(`/api/admin/send-nrua-justificante/${reqId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pdfBase64, pdfName: file.name, nruaNumber: nruaNumber || null })
+        })
+        const data = await response.json()
+        if (data.error) throw new Error(data.error)
+        alert(`✅ Justificante NRUA enviado a ${data.email}`)
+        await fetchNruaRequests()
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    }
+    input.click()
+  }
+
   const sendPaymentReminder = async (orderId) => {
     try {
       const response = await fetch(`/api/admin/send-payment-reminder/${orderId}`, {
@@ -1419,10 +1467,10 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                         <div style={{ display: 'flex', gap: '8px' }}>
                           {req.status === 'completed' && (
                             <button
-                              onClick={() => updateNruaStatus(req.id, 'enviado')}
+                              onClick={() => sendNruaJustificante(req.id)}
                               style={styles.btnSuccess}
                             >
-                              ✅ Marcar como Enviado
+                              📧 Enviar justificante NRUA
                             </button>
                           )}
                           {req.status === 'enviado' && (
