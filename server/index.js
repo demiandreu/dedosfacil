@@ -38,9 +38,10 @@ async function sendConfirmationEmail(email, orderData) {
   try {
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      to: email,
-      bcc: ['support@dedosfacil.es', 'dedosfacil.es+b70c16ff1f@invite.trustpilot.com'],
-      subject: `✅ Pedido DF-${orderData.orderId} confirmado - DedosFácil`,
+      // to: email, // TESTING: descomentado para producción
+      to: 'support@dedosfacil.es',
+      bcc: ['dedosfacil.es+b70c16ff1f@invite.trustpilot.com'],
+      subject: `[TEST → ${email}] ✅ Pedido DF-${orderData.orderId} confirmado - DedosFácil`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -196,9 +197,9 @@ app.post('/api/admin/send-nrua/:id', async (req, res) => {
     // Enviar email
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      to: email,
-      bcc: 'support@dedosfacil.es',
-      subject: `🔑 Tu número NRUA provisional ya está disponible - Pedido DF-${order_id}`,
+      // to: email, // TESTING: descomentado para producción
+      to: 'support@dedosfacil.es',
+      subject: `[TEST → ${email}] 🔑 Tu número NRUA provisional ya está disponible - Pedido DF-${order_id}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -1810,9 +1811,9 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '50mb' }
     // Send email with all PDFs attached
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      to: email,
-      bcc: 'support@dedosfacil.es',
-      subject: `📄 Justificante${pdfList.length > 1 ? 's' : ''} Modelo N2 - Pedido DF-${orderId}`,
+      // to: email, // TESTING: descomentado para producción
+      to: 'support@dedosfacil.es',
+      subject: `[TEST → ${email}] 📄 Justificante${pdfList.length > 1 ? 's' : ''} Modelo N2 - Pedido DF-${orderId}`,
       attachments,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -1923,8 +1924,9 @@ app.post('/api/admin/update-status/:orderId', async (req, res) => {
 
           await resend.emails.send({
             from: 'DedosFácil <noreply@dedosfacil.es>',
-            to: email,
-            subject: `📄 Justificante Modelo N2 - Pedido DF-${orderId}`,
+            // to: email, // TESTING: descomentado para producción
+            to: 'support@dedosfacil.es',
+            subject: `[TEST → ${email}] 📄 Justificante Modelo N2 - Pedido DF-${orderId}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -2075,9 +2077,9 @@ app.post('/api/admin/send-review/:orderId', async (req, res) => {
     
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      to: email,
-     bcc: 'support@dedosfacil.es',
-      subject: `${name ? name + ', ¿' : '¿'}Qué tal tu experiencia con DedosFácil?`,
+      // to: email, // TESTING: descomentado para producción
+      to: 'support@dedosfacil.es',
+      subject: `[TEST → ${email}] ${name ? name + ', ¿' : '¿'}Qué tal tu experiencia con DedosFácil?`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -2166,9 +2168,9 @@ app.post('/api/admin/send-payment-reminder/:orderId', async (req, res) => {
     // Send reminder email
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      to: order.email,
-      bcc: 'support@dedosfacil.es',
-      subject: `⏳ Tu pedido DF-${orderId} está pendiente de pago`,
+      // to: order.email, // TESTING: descomentado para producción
+      to: 'support@dedosfacil.es',
+      subject: `[TEST → ${order.email}] ⏳ Tu pedido DF-${orderId} está pendiente de pago`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -2470,9 +2472,9 @@ app.post('/api/admin/send-nrua-justificante/:id', express.json({ limit: '50mb' }
 
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
-      to: email,
-      bcc: 'support@dedosfacil.es',
-      subject: `🔑 Tu número NRUA - Pedido DF-${nruaReq.order_id}`,
+      // to: email, // TESTING: descomentado para producción
+      to: 'support@dedosfacil.es',
+      subject: `[TEST → ${email}] 🔑 Tu número NRUA - Pedido DF-${nruaReq.order_id}`,
       attachments: [{
         filename: pdfName || `NRUA_DF-${nruaReq.order_id}.pdf`,
         content: base64Data,
