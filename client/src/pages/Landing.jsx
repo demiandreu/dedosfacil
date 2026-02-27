@@ -636,6 +636,7 @@ useEffect(() => {
      lang === 'fr' ? 'Obtenir NRUA' :
      'NRUA erhalten'}
   </a>
+  <a href="/blog">Blog</a>
 </nav>
           <a href="/formulario" className="btn btn-primary">{t.nav.startNow}</a>
         </div>
