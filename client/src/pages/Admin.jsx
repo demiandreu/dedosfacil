@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, lazy, Suspense } from 'react'
+
+const BlogAdmin = lazy(() => import('./BlogAdmin'))
 
 const Admin = () => {
   const [orders, setOrders] = useState([])
@@ -649,6 +651,9 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
           <button onClick={() => setActiveTab('affiliates')} style={{ padding: '12px 24px', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600', borderBottom: activeTab === 'affiliates' ? '3px solid #10b981' : '3px solid transparent', color: activeTab === 'affiliates' ? '#10b981' : '#6b7280', background: 'none' }}>
             🤝 Afiliados ({affiliates.length})
           </button>
+          <button onClick={() => setActiveTab('blog')} style={{ padding: '12px 24px', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600', borderBottom: activeTab === 'blog' ? '3px solid #8B5CF6' : '3px solid transparent', color: activeTab === 'blog' ? '#8B5CF6' : '#6b7280', background: 'none' }}>
+            📝 Blog
+          </button>
         </div>
 
         {/* ===================== TAB N2 ===================== */}
@@ -1023,6 +1028,13 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
               </div>
             )}
           </div>
+        )}
+
+        {/* ===================== TAB BLOG ===================== */}
+        {activeTab === 'blog' && (
+          <Suspense fallback={<p style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>Cargando editor de blog...</p>}>
+            <BlogAdmin />
+          </Suspense>
         )}
       </div>
     </div>

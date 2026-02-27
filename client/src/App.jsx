@@ -12,6 +12,8 @@ import Factura from './pages/Factura'
 import Valoracion from './pages/Valoracion'
 import SolicitarNRUA from './pages/SolicitarNRUA'
 import Afiliado from './pages/Afiliado'
+import BlogList from './pages/BlogList'
+import BlogPost from './pages/BlogPost'
 
 
 function App() {
@@ -31,6 +33,8 @@ function App() {
         <Route path="/aviso-legal" element={<AvisoLegal />} />
 <Route path="/privacidad" element={<Privacidad />} />
 <Route path="/cookies" element={<Cookies />} />
+        <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/:lang/:slug" element={<BlogPost />} />
       </Routes>
     </BrowserRouter>
   )

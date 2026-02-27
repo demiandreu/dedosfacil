@@ -2675,6 +2675,440 @@ app.delete('/api/admin/affiliates/:id', async (req, res) => {
 // FIN MI CUENTA ENDPOINTS
 // ============================================
 
+// ============================================
+// BLOG ENDPOINTS
+// ============================================
+
+// Run blog migrations on startup
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS blog_categories (
+        id SERIAL PRIMARY KEY,
+        slug VARCHAR(100) UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS blog_category_translations (
+        id SERIAL PRIMARY KEY,
+        category_id INTEGER NOT NULL REFERENCES blog_categories(id) ON DELETE CASCADE,
+        lang VARCHAR(5) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        UNIQUE(category_id, lang)
+      );
+      CREATE TABLE IF NOT EXISTS blog_posts (
+        id SERIAL PRIMARY KEY,
+        category_id INTEGER REFERENCES blog_categories(id) ON DELETE SET NULL,
+        author VARCHAR(255) DEFAULT 'DedosFácil',
+        featured_image TEXT,
+        status VARCHAR(20) DEFAULT 'draft',
+        published_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS blog_post_translations (
+        id SERIAL PRIMARY KEY,
+        post_id INTEGER NOT NULL REFERENCES blog_posts(id) ON DELETE CASCADE,
+        lang VARCHAR(5) NOT NULL,
+        slug VARCHAR(255) NOT NULL,
+        title VARCHAR(500) NOT NULL,
+        excerpt TEXT,
+        content TEXT,
+        meta_title VARCHAR(255),
+        meta_description VARCHAR(500),
+        UNIQUE(post_id, lang),
+        UNIQUE(lang, slug)
+      );
+    `);
+    console.log('Blog tables ready');
+  } catch (err) {
+    console.error('Blog migration error:', err.message);
+  }
+})();
+
+// Get blog categories
+app.get('/api/blog/categories', async (req, res) => {
+  const lang = req.query.lang || 'es';
+  try {
+    const result = await pool.query(`
+      SELECT c.id, c.slug, ct.name, ct.description
+      FROM blog_categories c
+      LEFT JOIN blog_category_translations ct ON c.id = ct.category_id AND ct.lang = $1
+      ORDER BY c.id
+    `, [lang]);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching categories' });
+  }
+});
+
+// Get published blog posts (public, with pagination)
+app.get('/api/blog/posts', async (req, res) => {
+  const lang = req.query.lang || 'es';
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+  const category = req.query.category || null;
+
+  try {
+    // Count query
+    let countQuery, countParams;
+    if (category) {
+      countQuery = `SELECT COUNT(*) FROM blog_posts p LEFT JOIN blog_categories c ON p.category_id = c.id WHERE p.status = 'published' AND c.slug = $1`;
+      countParams = [category];
+    } else {
+      countQuery = `SELECT COUNT(*) FROM blog_posts p WHERE p.status = 'published'`;
+      countParams = [];
+    }
+    const countResult = await pool.query(countQuery, countParams);
+
+    // Posts query
+    let postsQuery = `
+      SELECT p.id, p.author, p.featured_image, p.status, p.published_at, p.created_at,
+             pt.slug, pt.title, pt.excerpt, pt.meta_title, pt.meta_description,
+             c.slug as category_slug,
+             ct.name as category_name
+      FROM blog_posts p
+      LEFT JOIN blog_post_translations pt ON p.id = pt.post_id AND pt.lang = $1
+      LEFT JOIN blog_categories c ON p.category_id = c.id
+      LEFT JOIN blog_category_translations ct ON c.id = ct.category_id AND ct.lang = $1
+      WHERE p.status = 'published'`;
+    const postsParams = [lang];
+
+    if (category) {
+      postsQuery += ` AND c.slug = $${postsParams.length + 1}`;
+      postsParams.push(category);
+    }
+
+    postsQuery += ` ORDER BY p.published_at DESC LIMIT $${postsParams.length + 1} OFFSET $${postsParams.length + 2}`;
+    postsParams.push(limit, offset);
+
+    const result = await pool.query(postsQuery, postsParams);
+
+    res.json({
+      posts: result.rows,
+      total: parseInt(countResult.rows[0].count),
+      page,
+      totalPages: Math.ceil(parseInt(countResult.rows[0].count) / limit)
+    });
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    res.status(500).json({ error: 'Error fetching posts' });
+  }
+});
+
+// Get single blog post by slug (public)
+app.get('/api/blog/post/:lang/:slug', async (req, res) => {
+  const { lang, slug } = req.params;
+  try {
+    const result = await pool.query(`
+      SELECT p.id, p.author, p.featured_image, p.status, p.published_at, p.created_at,
+             pt.slug, pt.title, pt.excerpt, pt.content, pt.meta_title, pt.meta_description,
+             c.slug as category_slug,
+             ct.name as category_name
+      FROM blog_posts p
+      INNER JOIN blog_post_translations pt ON p.id = pt.post_id AND pt.lang = $1 AND pt.slug = $2
+      LEFT JOIN blog_categories c ON p.category_id = c.id
+      LEFT JOIN blog_category_translations ct ON c.id = ct.category_id AND ct.lang = $1
+      WHERE p.status = 'published'
+    `, [lang, slug]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Get all language versions for hreflang
+    const translations = await pool.query(`
+      SELECT pt.lang, pt.slug, pt.title
+      FROM blog_post_translations pt
+      WHERE pt.post_id = $1
+    `, [result.rows[0].id]);
+
+    // Get category_id for related posts
+    let categoryId = null;
+    if (result.rows[0].category_slug) {
+      const catResult = await pool.query('SELECT id FROM blog_categories WHERE slug = $1', [result.rows[0].category_slug]);
+      if (catResult.rows.length > 0) categoryId = catResult.rows[0].id;
+    }
+
+    // Get related posts (same category, different post)
+    const related = categoryId ? await pool.query(`
+      SELECT p.id, p.featured_image, p.published_at,
+             pt.slug, pt.title, pt.excerpt,
+             ct.name as category_name
+      FROM blog_posts p
+      INNER JOIN blog_post_translations pt ON p.id = pt.post_id AND pt.lang = $1
+      LEFT JOIN blog_categories c ON p.category_id = c.id
+      LEFT JOIN blog_category_translations ct ON c.id = ct.category_id AND ct.lang = $1
+      WHERE p.status = 'published' AND p.id != $2 AND p.category_id = $3
+      ORDER BY p.published_at DESC
+      LIMIT 3
+    `, [lang, result.rows[0].id, categoryId]) : { rows: [] };
+
+    res.json({
+      post: result.rows[0],
+      translations: translations.rows,
+      related: related.rows
+    });
+  } catch (error) {
+    console.error('Error fetching blog post:', error);
+    res.status(500).json({ error: 'Error fetching post' });
+  }
+});
+
+// Blog sitemap XML
+app.get('/sitemap-blog.xml', async (req, res) => {
+  try {
+    const posts = await pool.query(`
+      SELECT pt.lang, pt.slug, p.updated_at
+      FROM blog_posts p
+      INNER JOIN blog_post_translations pt ON p.id = pt.post_id
+      WHERE p.status = 'published'
+      ORDER BY p.published_at DESC
+    `);
+
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n';
+    xml += '        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n';
+
+    // Group by post_id to create hreflang entries
+    const postGroups = {};
+    posts.rows.forEach(row => {
+      const key = row.slug;
+      if (!postGroups[row.lang]) postGroups[row.lang] = {};
+      postGroups[row.lang][row.slug] = row;
+    });
+
+    // Get all posts grouped by post_id
+    const grouped = await pool.query(`
+      SELECT p.id, p.updated_at, pt.lang, pt.slug
+      FROM blog_posts p
+      INNER JOIN blog_post_translations pt ON p.id = pt.post_id
+      WHERE p.status = 'published'
+      ORDER BY p.id, pt.lang
+    `);
+
+    const byPostId = {};
+    grouped.rows.forEach(row => {
+      if (!byPostId[row.id]) byPostId[row.id] = { updated_at: row.updated_at, translations: [] };
+      byPostId[row.id].translations.push({ lang: row.lang, slug: row.slug });
+    });
+
+    for (const postId in byPostId) {
+      const post = byPostId[postId];
+      post.translations.forEach(t => {
+        xml += '  <url>\n';
+        xml += `    <loc>https://dedosfacil.es/blog/${t.lang}/${t.slug}</loc>\n`;
+        xml += `    <lastmod>${new Date(post.updated_at).toISOString().split('T')[0]}</lastmod>\n`;
+        post.translations.forEach(alt => {
+          xml += `    <xhtml:link rel="alternate" hreflang="${alt.lang}" href="https://dedosfacil.es/blog/${alt.lang}/${alt.slug}" />\n`;
+        });
+        xml += '  </url>\n';
+      });
+    }
+
+    xml += '</urlset>';
+    res.set('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (error) {
+    console.error('Sitemap error:', error);
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
+// Blog RSS feed
+app.get('/blog/feed.xml', async (req, res) => {
+  const lang = req.query.lang || 'es';
+  try {
+    const posts = await pool.query(`
+      SELECT p.id, p.author, p.published_at,
+             pt.slug, pt.title, pt.excerpt, pt.content,
+             ct.name as category_name
+      FROM blog_posts p
+      INNER JOIN blog_post_translations pt ON p.id = pt.post_id AND pt.lang = $1
+      LEFT JOIN blog_categories c ON p.category_id = c.id
+      LEFT JOIN blog_category_translations ct ON c.id = ct.category_id AND ct.lang = $1
+      WHERE p.status = 'published'
+      ORDER BY p.published_at DESC
+      LIMIT 20
+    `, [lang]);
+
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n';
+    xml += '  <channel>\n';
+    xml += '    <title>DedosFácil Blog</title>\n';
+    xml += `    <link>https://dedosfacil.es/blog</link>\n`;
+    xml += '    <description>Noticias y guías sobre alquiler turístico en España</description>\n';
+    xml += '    <language>' + lang + '</language>\n';
+    xml += `    <atom:link href="https://dedosfacil.es/blog/feed.xml?lang=${lang}" rel="self" type="application/rss+xml" />\n`;
+
+    posts.rows.forEach(post => {
+      xml += '    <item>\n';
+      xml += `      <title><![CDATA[${post.title}]]></title>\n`;
+      xml += `      <link>https://dedosfacil.es/blog/${lang}/${post.slug}</link>\n`;
+      xml += `      <guid>https://dedosfacil.es/blog/${lang}/${post.slug}</guid>\n`;
+      xml += `      <description><![CDATA[${post.excerpt || ''}]]></description>\n`;
+      xml += `      <pubDate>${new Date(post.published_at).toUTCString()}</pubDate>\n`;
+      if (post.category_name) xml += `      <category>${post.category_name}</category>\n`;
+      xml += '    </item>\n';
+    });
+
+    xml += '  </channel>\n';
+    xml += '</rss>';
+    res.set('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (error) {
+    console.error('RSS feed error:', error);
+    res.status(500).send('Error generating RSS feed');
+  }
+});
+
+// ============================================
+// ADMIN BLOG ENDPOINTS
+// ============================================
+
+// Get all blog posts (admin - includes drafts)
+app.get('/api/admin/blog/posts', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT p.id, p.author, p.featured_image, p.status, p.published_at, p.created_at, p.updated_at,
+             p.category_id,
+             c.slug as category_slug,
+             (SELECT json_agg(json_build_object(
+               'lang', pt.lang, 'slug', pt.slug, 'title', pt.title, 'excerpt', pt.excerpt
+             )) FROM blog_post_translations pt WHERE pt.post_id = p.id) as translations,
+             (SELECT ct.name FROM blog_category_translations ct WHERE ct.category_id = p.category_id AND ct.lang = 'es') as category_name
+      FROM blog_posts p
+      LEFT JOIN blog_categories c ON p.category_id = c.id
+      ORDER BY p.created_at DESC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Admin blog posts error:', error);
+    res.status(500).json({ error: 'Error fetching posts' });
+  }
+});
+
+// Get single blog post for editing (admin)
+app.get('/api/admin/blog/posts/:id', async (req, res) => {
+  try {
+    const post = await pool.query(`
+      SELECT p.* FROM blog_posts p WHERE p.id = $1
+    `, [req.params.id]);
+
+    if (post.rows.length === 0) return res.status(404).json({ error: 'Post not found' });
+
+    const translations = await pool.query(`
+      SELECT * FROM blog_post_translations WHERE post_id = $1
+    `, [req.params.id]);
+
+    res.json({
+      ...post.rows[0],
+      translations: translations.rows
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching post' });
+  }
+});
+
+// Create blog post (admin)
+app.post('/api/admin/blog/posts', async (req, res) => {
+  const { category_id, author, featured_image, status, published_at, translations } = req.body;
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const postResult = await client.query(`
+      INSERT INTO blog_posts (category_id, author, featured_image, status, published_at)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `, [category_id || null, author || 'DedosFácil', featured_image || null, status || 'draft', status === 'published' ? (published_at || new Date()) : null]);
+
+    const postId = postResult.rows[0].id;
+
+    for (const t of translations) {
+      if (t.title && t.slug) {
+        await client.query(`
+          INSERT INTO blog_post_translations (post_id, lang, slug, title, excerpt, content, meta_title, meta_description)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `, [postId, t.lang, t.slug, t.title, t.excerpt || '', t.content || '', t.meta_title || '', t.meta_description || '']);
+      }
+    }
+
+    await client.query('COMMIT');
+    res.json({ id: postId, success: true });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Create post error:', error);
+    res.status(500).json({ error: 'Error creating post: ' + error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Update blog post (admin)
+app.put('/api/admin/blog/posts/:id', async (req, res) => {
+  const { category_id, author, featured_image, status, published_at, translations } = req.body;
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    await client.query(`
+      UPDATE blog_posts
+      SET category_id = $1, author = $2, featured_image = $3, status = $4, published_at = $5, updated_at = NOW()
+      WHERE id = $6
+    `, [category_id || null, author || 'DedosFácil', featured_image || null, status || 'draft', status === 'published' ? (published_at || new Date()) : null, req.params.id]);
+
+    for (const t of translations) {
+      if (t.title && t.slug) {
+        await client.query(`
+          INSERT INTO blog_post_translations (post_id, lang, slug, title, excerpt, content, meta_title, meta_description)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          ON CONFLICT (post_id, lang)
+          DO UPDATE SET slug = $3, title = $4, excerpt = $5, content = $6, meta_title = $7, meta_description = $8
+        `, [req.params.id, t.lang, t.slug, t.title, t.excerpt || '', t.content || '', t.meta_title || '', t.meta_description || '']);
+      }
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Update post error:', error);
+    res.status(500).json({ error: 'Error updating post: ' + error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Delete blog post (admin)
+app.delete('/api/admin/blog/posts/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM blog_posts WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error deleting post' });
+  }
+});
+
+// Upload blog image (admin)
+app.post('/api/admin/blog/upload-image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const base64 = req.file.buffer.toString('base64');
+    const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+    res.json({ url: dataUrl });
+  } catch (error) {
+    res.status(500).json({ error: 'Error uploading image' });
+  }
+});
+
+// ============================================
+// FIN BLOG ENDPOINTS
+// ============================================
+
 // Catch-all: serve React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
