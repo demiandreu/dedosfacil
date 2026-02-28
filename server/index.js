@@ -1750,6 +1750,22 @@ app.post('/api/admin/update-stays/:orderId', async (req, res) => {
   }
 });
 
+// Update order email from admin
+app.post('/api/admin/update-email/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { email } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Email no válido' });
+    }
+    await pool.query('UPDATE orders SET email = $1 WHERE id = $2', [email.trim(), orderId]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Update email error:', error);
+    res.status(500).json({ error: 'Error al actualizar email' });
+  }
+});
+
 // Upload justificante and send email with everything
 
 app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '50mb' }), async (req, res) => {
