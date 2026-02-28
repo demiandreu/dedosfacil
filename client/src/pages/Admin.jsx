@@ -441,6 +441,14 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     })
   }
 
+  const addEditingStay = (subId) => {
+    setEditingStays(prev => {
+      const updated = { ...prev }
+      updated[subId] = [...(updated[subId] || []), { fecha_entrada: '', fecha_salida: '', huespedes: '1', finalidad: 'Vacacional', plataforma: '' }]
+      return updated
+    })
+  }
+
   const isCheckoutYearInvalid = (stay) => {
     const checkOut = stay.fecha_salida || stay.checkOut
     const checkIn = stay.fecha_entrada || stay.checkIn
@@ -461,6 +469,21 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     const checkOutYear = parseYear(checkOut)
     if (!checkInYear || !checkOutYear) return false
     return checkOutYear > checkInYear
+  }
+
+  const updateEmail = async (orderId, newEmail) => {
+    try {
+      const response = await fetch(`/api/admin/update-email/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchOrders()
+    } catch (err) {
+      alert('Error al actualizar email: ' + err.message)
+    }
   }
 
   const deleteOrder = async (orderId) => {
@@ -704,7 +727,10 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                               <div>
                                 <h3 style={styles.sectionTitle}>📋 Datos del cliente</h3>
                                 <p style={styles.detailRow}><span style={styles.detailLabel}>Nombre: </span><span style={styles.detailValue}>{sub.name || '-'}</span></p>
-                                <p style={styles.detailRow}><span style={styles.detailLabel}>Email: </span><span style={styles.detailValue}>{order.email}</span></p>
+                                <div style={{ ...styles.detailRow, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={styles.detailLabel}>Email: </span>
+                                  <input style={{ fontSize: '13px', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: '4px', flex: 1, maxWidth: '400px' }} defaultValue={order.email || ''} onBlur={(e) => { if (e.target.value !== (order.email || '')) { updateEmail(order.id, e.target.value) } }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }} />
+                                </div>
                                 <p style={styles.detailRow}><span style={styles.detailLabel}>Teléfono: </span><span style={styles.detailValue}>{sub.phone || '-'}</span></p>
                                 <div style={{ ...styles.detailRow, display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <span style={styles.detailLabel}>NRUA: </span>
@@ -731,6 +757,7 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                                     <button onClick={() => startEditingStays(subId, sub.extracted_stays || [])} style={{ padding: '6px 14px', backgroundColor: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>✏️ Editar estancias</button>
                                   ) : (
                                     <div style={{ display: 'flex', gap: '8px' }}>
+                                      <button onClick={() => addEditingStay(subId)} style={{ padding: '6px 14px', backgroundColor: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>+ Añadir estancia</button>
                                       <button onClick={() => saveStays(order.id, subId)} style={{ padding: '6px 14px', backgroundColor: '#D1FAE5', color: '#065F46', border: '1px solid #6EE7B7', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>💾 Guardar</button>
                                       <button onClick={() => cancelEditingStays(subId)} style={{ padding: '6px 14px', backgroundColor: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>✕ Cancelar</button>
                                     </div>
