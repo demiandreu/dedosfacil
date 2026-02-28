@@ -33,20 +33,20 @@ const translations = {
     notFoundDesc: 'The article you are looking for does not exist or has been removed.',
     loading: 'Loading article...'
   },
-  fi: {
-    nav: { home: 'Etusivu', blog: 'Blogi', howItWorks: 'Miten se toimii', pricing: 'Hinnat', faq: 'UKK', startNow: 'Aloita nyt' },
-    backToBlog: 'Takaisin blogiin',
-    relatedPosts: 'Aiheeseen liittyvät artikkelit',
-    readMore: 'Lue lisää',
-    share: 'Jaa',
-    copyLink: 'Kopioi linkki',
-    linkCopied: 'Linkki kopioitu',
+  fr: {
+    nav: { home: 'Accueil', blog: 'Blog', howItWorks: 'Comment ça marche', pricing: 'Tarifs', faq: 'FAQ', startNow: 'Commencer' },
+    backToBlog: 'Retour au blog',
+    relatedPosts: 'Articles similaires',
+    readMore: 'Lire la suite',
+    share: 'Partager',
+    copyLink: 'Copier le lien',
+    linkCopied: 'Lien copié',
     shareWhatsApp: 'WhatsApp',
     shareFacebook: 'Facebook',
-    readAlsoIn: 'Lue kielellä',
-    notFound: 'Artikkelia ei löytynyt',
-    notFoundDesc: 'Etsimääsi artikkelia ei ole tai se on poistettu.',
-    loading: 'Ladataan artikkelia...'
+    readAlsoIn: 'Lire en',
+    notFound: 'Article non trouvé',
+    notFoundDesc: "L'article que vous recherchez n'existe pas ou a été supprimé.",
+    loading: 'Chargement de l\'article...'
   },
   de: {
     nav: { home: 'Startseite', blog: 'Blog', howItWorks: 'So funktioniert es', pricing: 'Preise', faq: 'FAQ', startNow: 'Jetzt starten' },
@@ -65,8 +65,8 @@ const translations = {
   }
 }
 
-const langNames = { es: 'Español', en: 'English', fi: 'Suomi', de: 'Deutsch' }
-const langFlags = { es: '🇪🇸', en: '🇬🇧', fi: '🇫🇮', de: '🇩🇪' }
+const langNames = { es: 'Español', en: 'English', fr: 'Français', de: 'Deutsch' }
+const langFlags = { es: '🇪🇸', en: '🇬🇧', fr: '🇫🇷', de: '🇩🇪' }
 
 const BlogPost = () => {
   const { lang: urlLang, slug } = useParams()
@@ -78,7 +78,7 @@ const BlogPost = () => {
   const [notFound, setNotFound] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const lang = urlLang && ['es', 'en', 'fi', 'de'].includes(urlLang) ? urlLang : 'es'
+  const lang = urlLang && ['es', 'en', 'fr', 'de'].includes(urlLang) ? urlLang : 'es'
   const t = translations[lang] || translations.es
 
   const changeLang = (l) => {
@@ -157,7 +157,7 @@ const BlogPost = () => {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return ''
-    return new Date(dateStr).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'de' ? 'de-DE' : lang === 'fi' ? 'fi-FI' : 'en-GB', {
+    return new Date(dateStr).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
   }
@@ -230,7 +230,7 @@ const BlogPost = () => {
     <div className="blog-page">
       {/* Language Selector */}
       <div className="lang-selector">
-        {['es', 'en', 'fi', 'de'].map(l => (
+        {['es', 'en', 'fr', 'de'].map(l => (
           <button key={l} className={`lang-btn ${lang === l ? 'active' : ''}`} onClick={() => changeLang(l)}>
             {langFlags[l]}
           </button>

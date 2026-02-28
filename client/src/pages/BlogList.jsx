@@ -25,16 +25,16 @@ const translations = {
     nav: { home: 'Home', blog: 'Blog', howItWorks: 'How it works', pricing: 'Pricing', faq: 'FAQ', startNow: 'Get started' },
     rss: 'RSS Feed'
   },
-  fi: {
-    title: 'Blogi',
-    subtitle: 'Uutisia, oppaita ja vinkkejä matkailuvuokrauksesta Espanjassa',
-    allCategories: 'Kaikki',
-    readMore: 'Lue lisää',
-    noPosts: 'Tässä kategoriassa ei ole julkaistuja artikkeleita.',
-    page: 'Sivu',
-    of: '/',
-    nav: { home: 'Etusivu', blog: 'Blogi', howItWorks: 'Miten se toimii', pricing: 'Hinnat', faq: 'UKK', startNow: 'Aloita nyt' },
-    rss: 'RSS-syöte'
+  fr: {
+    title: 'Blog',
+    subtitle: 'Actualités, guides et conseils sur la location touristique en Espagne',
+    allCategories: 'Toutes',
+    readMore: 'Lire la suite',
+    noPosts: 'Aucun article publié dans cette catégorie.',
+    page: 'Page',
+    of: 'sur',
+    nav: { home: 'Accueil', blog: 'Blog', howItWorks: 'Comment ça marche', pricing: 'Tarifs', faq: 'FAQ', startNow: 'Commencer' },
+    rss: 'Flux RSS'
   },
   de: {
     title: 'Blog',
@@ -63,9 +63,9 @@ const BlogList = () => {
 
   const [lang, setLang] = useState(() => {
     const saved = localStorage.getItem('dedosfacil-lang')
-    if (saved && ['es', 'en', 'fi', 'de'].includes(saved)) return saved
+    if (saved && ['es', 'en', 'fr', 'de'].includes(saved)) return saved
     const browserLang = navigator.language.slice(0, 2)
-    if (['es', 'en', 'fi', 'de'].includes(browserLang)) return browserLang
+    if (['es', 'en', 'fr', 'de'].includes(browserLang)) return browserLang
     return 'es'
   })
 
@@ -120,7 +120,7 @@ const BlogList = () => {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return ''
-    return new Date(dateStr).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'de' ? 'de-DE' : lang === 'fi' ? 'fi-FI' : 'en-GB', {
+    return new Date(dateStr).toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
   }
@@ -129,9 +129,9 @@ const BlogList = () => {
     <div className="blog-page">
       {/* Language Selector */}
       <div className="lang-selector">
-        {['es', 'en', 'fi', 'de'].map(l => (
+        {['es', 'en', 'fr', 'de'].map(l => (
           <button key={l} className={`lang-btn ${lang === l ? 'active' : ''}`} onClick={() => changeLang(l)}>
-            {l === 'es' ? '🇪🇸' : l === 'en' ? '🇬🇧' : l === 'fi' ? '🇫🇮' : '🇩🇪'}
+            {l === 'es' ? '🇪🇸' : l === 'en' ? '🇬🇧' : l === 'fr' ? '🇫🇷' : '🇩🇪'}
           </button>
         ))}
       </div>

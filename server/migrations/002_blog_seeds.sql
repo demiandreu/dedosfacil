@@ -36,15 +36,15 @@ INSERT INTO blog_category_translations (category_id, lang, name, description) VA
   ((SELECT id FROM blog_categories WHERE slug = 'preguntas-frecuentes'), 'en', 'FAQ', 'Answers to the most common questions')
 ON CONFLICT (category_id, lang) DO NOTHING;
 
--- Category translations: Finnish
+-- Category translations: French
 INSERT INTO blog_category_translations (category_id, lang, name, description) VALUES
-  ((SELECT id FROM blog_categories WHERE slug = 'registros-licencias'), 'fi', 'Rekisteröinnit ja lisenssit', 'NRUA, VUD, matkailuluvat ja pakolliset rekisteröinnit'),
-  ((SELECT id FROM blog_categories WHERE slug = 'impuestos-modelos'), 'fi', 'Verot ja lomakkeet', 'Lomake N2, 210, 179, IRNR ja verovelvollisuudet'),
-  ((SELECT id FROM blog_categories WHERE slug = 'normativa-comunidades'), 'fi', 'Alueelliset säännökset', 'Matkailuvuokrauksen sääntely autonomisissa yhteisöissä'),
-  ((SELECT id FROM blog_categories WHERE slug = 'plataformas-digitales'), 'fi', 'Digitaaliset alustat', 'Airbnb, Booking, Vrbo: oppaat ja uutiset'),
-  ((SELECT id FROM blog_categories WHERE slug = 'novedades-legales'), 'fi', 'Lakiuutiset', 'Viimeisimmät muutokset matkailuvuokrauslainsäädännössä'),
-  ((SELECT id FROM blog_categories WHERE slug = 'guias-extranjeros'), 'fi', 'Oppaat ulkomaisille omistajille', 'Kaikki mitä sinun tulee tietää ei-asukkaan omistajana'),
-  ((SELECT id FROM blog_categories WHERE slug = 'preguntas-frecuentes'), 'fi', 'Usein kysytyt kysymykset', 'Vastauksia yleisimpiin kysymyksiin')
+  ((SELECT id FROM blog_categories WHERE slug = 'registros-licencias'), 'fr', 'Enregistrements et licences', 'NRUA, VUD, licences touristiques et enregistrements obligatoires'),
+  ((SELECT id FROM blog_categories WHERE slug = 'impuestos-modelos'), 'fr', 'Impôts et formulaires', 'Formulaire N2, 210, 179, IRNR et obligations fiscales'),
+  ((SELECT id FROM blog_categories WHERE slug = 'normativa-comunidades'), 'fr', 'Réglementation par communauté autonome', 'Réglementation de la location touristique dans chaque communauté'),
+  ((SELECT id FROM blog_categories WHERE slug = 'plataformas-digitales'), 'fr', 'Plateformes numériques', 'Airbnb, Booking, Vrbo : guides et actualités'),
+  ((SELECT id FROM blog_categories WHERE slug = 'novedades-legales'), 'fr', 'Actualités juridiques', 'Derniers changements dans la législation sur la location touristique'),
+  ((SELECT id FROM blog_categories WHERE slug = 'guias-extranjeros'), 'fr', 'Guides pour propriétaires étrangers', 'Tout ce que vous devez savoir en tant que propriétaire non-résident'),
+  ((SELECT id FROM blog_categories WHERE slug = 'preguntas-frecuentes'), 'fr', 'Questions fréquentes', 'Réponses aux questions les plus courantes')
 ON CONFLICT (category_id, lang) DO NOTHING;
 
 -- Category translations: German
@@ -172,55 +172,55 @@ VALUES (
   'Discover the changes to Spain''s tourist tax from April 2025. Form N2, NRUA, IRNR: everything you need to know as a property owner.'
 );
 
--- Finnish version
+-- French version
 INSERT INTO blog_post_translations (post_id, lang, slug, title, excerpt, content, meta_title, meta_description)
 VALUES (
   (SELECT id FROM blog_posts ORDER BY id DESC LIMIT 1),
-  'fi',
-  'espanjan-matkailuveron-muutokset-huhtikuu-2025',
-  'Muutokset Espanjan matkailuverossa huhtikuusta 2025: kaikki mitä kiinteistönomistajan tulee tietää',
-  'Espanjan hallitus on ottanut käyttöön merkittäviä muutoksia matkailuvuokrauksen verotuksessa huhtikuusta 2025 alkaen. Selitämme, miten ne vaikuttavat lomakohteeseesi.',
-  '<h2>Uudet verovelvollisuudet matkailuvuokrakiinteistöjen omistajille</h2>
-<p>Huhtikuun 1. päivästä 2025 alkaen matkailuvuokrakiinteistöjen omistajat Espanjassa kohtaavat uudistetun verotusympäristön. Kuninkaallinen asetus 1312/2024 ja sen myöhemmät muutokset ovat luoneet uuden sääntelykehyksen, joka vaikuttaa suoraan tuhansiin kiinteistönomistajiin koko maassa.</p>
+  'fr',
+  'changements-taxe-touristique-espagne-avril-2025',
+  'Changements de la taxe touristique en Espagne à partir d''avril 2025 : tout ce que le propriétaire doit savoir',
+  'Le gouvernement espagnol a introduit des changements significatifs dans la fiscalité de la location touristique à partir d''avril 2025. Nous vous expliquons comment ils affectent votre propriété de vacances.',
+  '<h2>Nouvelles obligations fiscales pour les propriétaires de locations touristiques</h2>
+<p>À partir du 1er avril 2025, les propriétaires de biens locatifs touristiques en Espagne font face à un paysage fiscal renouvelé. Le Décret Royal 1312/2024 et ses modifications ultérieures ont établi un nouveau cadre réglementaire qui affecte directement des milliers de propriétaires sur tout le territoire national.</p>
 
-<h3>Mikä tarkalleen on muuttunut?</h3>
-<p>Tärkeimmät muutokset keskittyvät kolmeen avainalueeseen:</p>
+<h3>Qu''est-ce qui a exactement changé ?</h3>
+<p>Les principaux changements se concentrent sur trois domaines fondamentaux :</p>
 <ul>
-  <li><strong>Pakollinen N2-lomake:</strong> Kaikkien matkailukäyttöön tarkoitettujen kiinteistöjen omistajien on tehtävä vuokravakuusilmoitus kiinteistörekisteriin. Ensimmäisen ilmoituksen määräaika on 2. maaliskuuta 2026.</li>
-  <li><strong>Päivitetty NRUA-rekisteröinti:</strong> Ainutlaatuisen autonomisen rekisteröintinumeron (NRUA) vaatimusta on vahvistettu — ilman sitä et voi mainostaa kiinteistöäsi Airbnb:ssä, Bookingissa tai Vrbossa.</li>
-  <li><strong>Uudet veropidätykset:</strong> Digitaalisten alustojen on nyt pidätettävä IRNR (ulkomaalaisten tulovero) suoraan ei-asukkailta kiinteistönomistajilta.</li>
+  <li><strong>Formulaire N2 obligatoire :</strong> Tous les propriétaires de logements à usage touristique doivent déposer la déclaration de dépôt de loyers auprès du Registre de la Propriété. La date limite pour la première déclaration est le 2 mars 2026.</li>
+  <li><strong>Enregistrement NRUA mis à jour :</strong> L''obligation du Numéro d''Enregistrement Unique Autonome (NRUA) a été renforcée — sans celui-ci, vous ne pouvez pas publier votre logement sur des plateformes comme Airbnb, Booking ou Vrbo.</li>
+  <li><strong>Nouvelles retenues fiscales :</strong> Les plateformes numériques sont désormais tenues de pratiquer des retenues d''IRNR (Impôt sur le Revenu des Non-Résidents) directement aux propriétaires non-résidents.</li>
 </ul>
 
-<h3>Vaikutus Espanjassa asuviin omistajiin</h3>
-<p>Jos asut Espanjassa ja vuokraat yhtä tai useampaa lomakiinteistöä, sinun tulisi tietää, että matkailuvuokratulot sisällytetään tuloveroilmoitukseesi (IRPF). Sovellettavia vähennyksiä on muutettu: voit nyt vähentää jopa 60 % toimintaan suoraan liittyvistä kuluista, mukaan lukien sähkö ja vesi, siivous, hallinta-alustat ja vakuutukset.</p>
-<p>Lisäksi neljännesvuosittainen tiedonantolomake 179 on edelleen voimassa. Digitaalisten alustojen on raportoitava kaikki vuokraukset veroviranomaisille, mukaan lukien kiinteistön tiedot, käyttöpäivät ja ansaitut tulot.</p>
+<h3>Impact sur les propriétaires résidents</h3>
+<p>Si vous résidez en Espagne et louez un ou plusieurs biens de vacances, sachez que les revenus de location touristique sont intégrés dans votre déclaration d''impôt sur le revenu (IRPF). Les déductions applicables ont été modifiées : vous pouvez désormais déduire jusqu''à 60 % des dépenses directement liées à l''activité, y compris les charges, le ménage, les plateformes de gestion et les assurances.</p>
+<p>De plus, la déclaration informative trimestrielle Formulaire 179 reste en vigueur. Les plateformes numériques doivent communiquer à l''Agence Fiscale toutes les locations réalisées, y compris les données du bien, les jours d''occupation et les revenus obtenus.</p>
 
-<h3>Vaikutus ulkomailla asuviin omistajiin</h3>
-<p>Kiinteistönomistajille, jotka eivät asu Espanjassa — kasvava ryhmä erityisesti Pohjoismaista, Iso-Britanniasta ja Saksasta — muutokset ovat vieläkin merkittävämpiä. IRNR (lomake 210) on jätettävä neljännesvuosittain, ja uudet säännökset vahvistavat, että alustat voivat toimia pidätysagentteina.</p>
-<p>Tämä tarkoittaa, että monissa tapauksissa Airbnb tai Booking vähentää suoraan vastaavan veroprosenttiosuuden ennen tulojen siirtämistä omistajalle. EU-maiden asukkaiden sovellettava verokanta on 19 %, kun taas EU:n ulkopuolisten maiden asukkaille se nousee 24 prosenttiin.</p>
+<h3>Impact sur les propriétaires non-résidents</h3>
+<p>Pour les propriétaires qui ne résident pas en Espagne — un groupe de plus en plus nombreux, notamment en provenance des pays nordiques, du Royaume-Uni et d''Allemagne — les changements sont encore plus significatifs. L''IRNR (Formulaire 210) doit être déposé trimestriellement, et les nouvelles dispositions établissent que les plateformes peuvent agir comme agents de retenue.</p>
+<p>Cela signifie que, dans de nombreux cas, Airbnb ou Booking déduiront directement le pourcentage d''impôt correspondant avant de transférer les revenus au propriétaire. Le taux applicable pour les résidents de l''UE est de 19 %, tandis que pour les résidents de pays hors UE, il s''élève à 24 %.</p>
 
-<h3>Tärkeät määräajat muistettavaksi</h3>
-<p>Nämä ovat avainmääräajat, jotka jokaisen omistajan tulisi merkitä kalenteriinsa:</p>
+<h3>Dates limites importantes à retenir</h3>
+<p>Voici les dates clés que tout propriétaire doit noter dans son calendrier :</p>
 <ul>
-  <li><strong>2. maaliskuuta 2026:</strong> Ensimmäisen N2-lomakkeen jättämisen määräaika</li>
-  <li><strong>Neljännesvuosittain:</strong> Lomakkeen 210 ilmoitus ulkomaalaisille (20. huhtikuuta, heinäkuuta, lokakuuta ja tammikuuta)</li>
-  <li><strong>Vuosittain:</strong> NRUA:n uusiminen sitä vaativissa autonomisissa yhteisöissä</li>
+  <li><strong>2 mars 2026 :</strong> Date limite pour le dépôt du premier Formulaire N2</li>
+  <li><strong>Trimestriel :</strong> Déclaration du Formulaire 210 pour les non-résidents (20 avril, juillet, octobre et janvier)</li>
+  <li><strong>Annuel :</strong> Renouvellement du NRUA dans les communautés autonomes qui l''exigent</li>
 </ul>
 
-<h3>Miten valmistautua?</h3>
-<p>DedosFácilissa suosittelemme seuraavia askeleita:</p>
+<h3>Comment se préparer ?</h3>
+<p>Chez DedosFácil, nous recommandons de suivre ces étapes :</p>
 <ol>
-  <li>Varmista, että kiinteistölläsi on voimassa oleva NRUA</li>
-  <li>Kerää kaikki vuoden 2025 varaukset alustaltasi</li>
-  <li>Jätä N2-lomake ennen määräaikaa</li>
-  <li>Kysy veroneuvojalta sovellettavista vähennyksistä</li>
+  <li>Vérifier que votre propriété possède un NRUA en cours de validité</li>
+  <li>Rassembler toutes les réservations de l''année 2025 depuis votre plateforme</li>
+  <li>Déposer le Formulaire N2 avant la date limite</li>
+  <li>Consulter un conseiller fiscal sur les déductions applicables</li>
 </ol>
-<p>Näiden velvollisuuksien laiminlyönti voi johtaa matkailulupasi peruuttamiseen ja sakkoihin, jotka voivat vakavimmissa tapauksissa ylittää 30 000 €.</p>
+<p>Le non-respect de ces obligations peut entraîner la révocation de votre licence touristique et des amendes pouvant dépasser 30 000 € dans les cas les plus graves.</p>
 
-<h3>DedosFácil auttaa</h3>
-<p>Tiedämme, että säännökset voivat tuntua ylivoimaisilta, erityisesti jos et tunne Espanjan verojärjestelmää. Siksi DedosFácilissa huolehdimme koko prosessista: NRUA:n hankkimisesta N2-lomakkeen jättämiseen. Sinun tarvitsee vain ladata varausten CSV-tiedosto alustaltasi, ja me hoidamme loput.</p>',
-  'Espanjan matkailuveron muutokset 2025 | DedosFácil',
-  'Tutustu Espanjan matkailuveron muutoksiin huhtikuusta 2025. Lomake N2, NRUA, IRNR: kaikki mitä sinun tulee tietää kiinteistönomistajana.'
+<h3>DedosFácil vous aide</h3>
+<p>Nous savons que la réglementation peut être accablante, surtout si vous n''êtes pas familier avec le système fiscal espagnol. C''est pourquoi, chez DedosFácil, nous nous occupons de tout le processus : de l''obtention du NRUA au dépôt du Formulaire N2. Il vous suffit de télécharger le CSV de réservations depuis votre plateforme et nous faisons le reste.</p>',
+  'Changements taxe touristique Espagne 2025 | DedosFácil',
+  'Découvrez les changements de la taxe touristique en Espagne à partir d''avril 2025. Formulaire N2, NRUA, IRNR : tout ce que vous devez savoir en tant que propriétaire.'
 );
 
 -- German version

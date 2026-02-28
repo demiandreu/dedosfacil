@@ -4,8 +4,8 @@ import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
 
-const LANGS = ['es', 'en', 'fi', 'de']
-const LANG_LABELS = { es: '🇪🇸 Español', en: '🇬🇧 English', fi: '🇫🇮 Suomi', de: '🇩🇪 Deutsch' }
+const LANGS = ['es', 'en', 'fr', 'de']
+const LANG_LABELS = { es: '🇪🇸 Español', en: '🇬🇧 English', fr: '🇫🇷 Français', de: '🇩🇪 Deutsch' }
 
 const generateSlug = (text) => {
   return text
