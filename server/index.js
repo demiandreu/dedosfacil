@@ -1903,6 +1903,26 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '50mb' }
 });
 
 // Update order status
+app.post('/api/admin/update-amount/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { amount } = req.body;
+
+    if (!amount || typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ error: 'Importe no válido' });
+    }
+
+    await pool.query(
+      'UPDATE orders SET amount = $1 WHERE id = $2',
+      [amount, orderId]
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/admin/update-status/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;

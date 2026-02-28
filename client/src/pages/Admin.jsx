@@ -486,6 +486,21 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     }
   }
 
+  const updateAmount = async (orderId, newAmount) => {
+    try {
+      const response = await fetch(`/api/admin/update-amount/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: newAmount })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchOrders()
+    } catch (err) {
+      alert('Error al actualizar importe: ' + err.message)
+    }
+  }
+
   const deleteOrder = async (orderId) => {
     try {
       const response = await fetch(`/api/admin/delete-order/${orderId}`, { method: 'DELETE' })
@@ -709,7 +724,8 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                       </div>
                       <div style={styles.orderHeaderRight}>
                         <span style={styles.orderDate}>{new Date(order.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                        <span style={styles.orderAmount}>{(order.amount / 100).toFixed(0)}€</span>
+                        <input style={{ ...styles.orderAmount, border: '1px solid transparent', borderRadius: '4px', width: '60px', textAlign: 'right', cursor: 'pointer', background: 'transparent' }} defaultValue={(order.amount / 100).toFixed(0)} onFocus={(e) => { e.target.style.border = '1px solid #d1d5db'; e.target.style.background = '#fff' }} onBlur={(e) => { e.target.style.border = '1px solid transparent'; e.target.style.background = 'transparent'; const val = parseInt(e.target.value); if (!isNaN(val) && val > 0 && val !== Math.round(order.amount / 100)) { updateAmount(order.id, val * 100) } }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }} onClick={(e) => e.stopPropagation()} title="Clic para editar importe" />
+                        <span style={{ fontWeight: '600', color: '#059669' }}>€</span>
                         <button onClick={(e) => { e.stopPropagation(); if (window.confirm(`¿Eliminar pedido #${order.id}?`)) { deleteOrder(order.id) } }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', padding: '4px 8px', borderRadius: '4px', opacity: 0.4 }} onMouseEnter={e => e.target.style.opacity = 1} onMouseLeave={e => e.target.style.opacity = 0.4} title="Eliminar pedido">🗑️</button>
                         <span>{expandedOrder === order.id ? '▲' : '▼'}</span>
                       </div>
