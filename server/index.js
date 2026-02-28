@@ -1713,6 +1713,24 @@ app.get('/api/admin/generate-n2-csv/:orderId', async (req, res) => {
 });
 
 // Update NRUA number
+app.post('/api/admin/update-name/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { name, submissionId } = req.body;
+
+    if (submissionId) {
+      await pool.query('UPDATE submissions SET name = $1 WHERE id = $2', [name, submissionId]);
+    } else {
+      await pool.query('UPDATE submissions SET name = $1 WHERE order_id = $2', [name, orderId]);
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Update name error:', error);
+    res.status(500).json({ error: 'Error al actualizar nombre' });
+  }
+});
+
 app.post('/api/admin/update-nrua/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
