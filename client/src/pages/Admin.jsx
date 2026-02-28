@@ -376,6 +376,21 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     }
   }
 
+  const updateName = async (orderId, newName, submissionId) => {
+    try {
+      const response = await fetch(`/api/admin/update-name/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName, submissionId })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchOrders()
+    } catch (err) {
+      alert('Error al actualizar nombre: ' + err.message)
+    }
+  }
+
   const updateNrua = async (orderId, newNrua, submissionId) => {
     try {
       const response = await fetch(`/api/admin/update-nrua/${orderId}`, {
@@ -742,7 +757,10 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                             <div style={styles.detailsGrid}>
                               <div>
                                 <h3 style={styles.sectionTitle}>📋 Datos del cliente</h3>
-                                <p style={styles.detailRow}><span style={styles.detailLabel}>Nombre: </span><span style={styles.detailValue}>{sub.name || '-'}</span></p>
+                                <div style={{ ...styles.detailRow, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={styles.detailLabel}>Nombre: </span>
+                                  <input style={{ fontSize: '13px', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: '4px', flex: 1, maxWidth: '400px' }} defaultValue={sub.name || ''} onBlur={(e) => { if (e.target.value !== (sub.name || '')) { updateName(order.id, e.target.value, sub.id) } }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }} />
+                                </div>
                                 <div style={{ ...styles.detailRow, display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <span style={styles.detailLabel}>Email: </span>
                                   <input style={{ fontSize: '13px', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: '4px', flex: 1, maxWidth: '400px' }} defaultValue={order.email || ''} onBlur={(e) => { if (e.target.value !== (order.email || '')) { updateEmail(order.id, e.target.value) } }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }} />
