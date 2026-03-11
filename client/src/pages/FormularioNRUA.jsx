@@ -24,7 +24,11 @@ const translations = {
       phone: "Teléfono (WhatsApp)",
       namePh: "Ej: Juan García",
       emailPh: "tu@email.com",
-      phonePh: "+34 600 000 000"
+      phonePh: "+34 600 000 000",
+      clientDocument: "Documento de identidad (opcional)",
+      clientDocumentPh: "NIE, DNI o Pasaporte",
+      clientAddress: "Dirección de facturación (opcional)",
+      clientAddressPh: "Ej: Calle Mayor 10, 28001 Madrid"
     },
     step2: {
       title: "Datos de la propiedad",
@@ -119,7 +123,11 @@ otherHelp: "CSV o Excel con fechas de entrada/salida y huéspedes",
       phone: "Phone (WhatsApp)",
       namePh: "E.g: John Smith",
       emailPh: "your@email.com",
-      phonePh: "+34 600 000 000"
+      phonePh: "+34 600 000 000",
+      clientDocument: "ID document (optional)",
+      clientDocumentPh: "NIE, DNI or Passport",
+      clientAddress: "Billing address (optional)",
+      clientAddressPh: "E.g: 10 Main Street, 28001 Madrid"
     },
     step2: {
       title: "Property details",
@@ -214,7 +222,11 @@ otherHelp: "CSV or Excel with check-in/check-out dates and guests",
       phone: "Téléphone (WhatsApp)",
       namePh: "Ex: Jean Dupont",
       emailPh: "votre@email.com",
-      phonePh: "+34 600 000 000"
+      phonePh: "+34 600 000 000",
+      clientDocument: "Pièce d'identité (optionnel)",
+      clientDocumentPh: "NIE, DNI ou Passeport",
+      clientAddress: "Adresse de facturation (optionnel)",
+      clientAddressPh: "Ex: 10 Rue Principale, 28001 Madrid"
     },
     step2: {
       title: "Détails de la propriété",
@@ -309,7 +321,11 @@ otherHelp: "CSV ou Excel avec dates d'arrivée/départ et voyageurs",
       phone: "Telefon (WhatsApp)",
       namePh: "Z.B: Max Mustermann",
       emailPh: "ihre@email.com",
-      phonePh: "+34 600 000 000"
+      phonePh: "+34 600 000 000",
+      clientDocument: "Ausweisdokument (optional)",
+      clientDocumentPh: "NIE, DNI oder Reisepass",
+      clientAddress: "Rechnungsadresse (optional)",
+      clientAddressPh: "Z.B: Hauptstraße 10, 28001 Madrid"
     },
     step2: {
       title: "Immobiliendetails",
@@ -430,6 +446,7 @@ const [uploadedFiles, setUploadedFiles] = useState({
   const [affiliateCode, setAffiliateCode] = useState(null)
   const [form, setForm] = useState({
     name: '', email: '', phone: '',
+    clientDocument: '', clientAddress: '',
     nrua: '', address: '', province: '',
     manualStays: ''
   })
@@ -777,6 +794,8 @@ if (!acceptTerms || !acceptAuthorization) return
         formData: {
           name: form.name,
           phone: form.phone,
+          clientDocument: form.clientDocument,
+          clientAddress: form.clientAddress,
           nrua: form.nrua,
           address: form.address,
           province: form.province
@@ -889,6 +908,16 @@ if (!acceptTerms || !acceptAuthorization) return
                   <label>{t.step1.phone} *</label>
                   <input type="tel" value={form.phone} onChange={e => updateForm('phone', e.target.value)} placeholder={t.step1.phonePh} />
                   {errors.phone && <span className="error-msg">{errors.phone}</span>}
+                </div>
+                <div className="form-group">
+                  <label>{t.step1.clientDocument}</label>
+                  <input value={form.clientDocument} onChange={e => updateForm('clientDocument', e.target.value)} placeholder={t.step1.clientDocumentPh} />
+                </div>
+                <div className="form-group">
+                  <label>{t.step1.clientAddress}</label>
+                  <input value={form.clientAddress} onChange={e => updateForm('clientAddress', e.target.value)} placeholder={t.step1.clientAddressPh} />
+                </div>
+                <div>
                   {/* Plan Selection */}
               <div className="plan-select-mini" style={{marginTop: '24px'}}>
                 <h4>{t.step4.plan}</h4>

@@ -304,8 +304,8 @@ let affiliate = null;
     // Email de prueba que salta Stripe
     if (email === 'demiandreu@gmail.com') {
       const orderResult = await pool.query(
-        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null]
+        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',
+        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null]
       );
       const orderId = orderResult.rows[0].id;
       
@@ -353,8 +353,8 @@ let affiliate = null;
 
     // Create order in database
     const orderResult = await pool.query(
-      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null]
+      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',
+      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null]
     );
     const orderId = orderResult.rows[0].id;
 
@@ -1420,7 +1420,7 @@ app.get('/api/factura/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params
     const result = await pool.query(
-      `SELECT o.id, o.email, o.amount, o.properties_count, o.created_at, s.name, s.phone
+      `SELECT o.id, o.email, o.amount, o.properties_count, o.created_at, o.client_document, o.client_address, s.name, s.phone
        FROM orders o
        LEFT JOIN submissions s ON s.order_id = o.id
        WHERE o.id = $1 AND o.status IN ('completed', 'enviado')`,
@@ -1507,7 +1507,9 @@ app.get('/api/admin/orders', async (req, res) => {
         s.nrua_photo_name,
         s.nrua_photo_base64 IS NOT NULL as has_nrua_photo,
         s.extracted_stays,
-        COALESCE(jsonb_array_length(s.extracted_stays), 0) as stays_count
+        COALESCE(jsonb_array_length(s.extracted_stays), 0) as stays_count,
+        o.client_document,
+        o.client_address
       FROM orders o
       LEFT JOIN submissions s ON s.order_id = o.id
       WHERE (o.service_type IS NULL OR o.service_type = 'n2')
@@ -1527,6 +1529,8 @@ app.get('/api/admin/orders', async (req, res) => {
           status: row.status,
           created_at: row.created_at,
           completed_at: row.completed_at,
+          client_document: row.client_document,
+          client_address: row.client_address,
           submissions: []
         });
       }
@@ -1921,6 +1925,28 @@ app.post('/api/admin/send-justificante/:orderId', express.json({ limit: '50mb' }
 });
 
 // Update order status
+app.post('/api/admin/update-client-document/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { clientDocument } = req.body;
+    await pool.query('UPDATE orders SET client_document = $1 WHERE id = $2', [clientDocument, orderId]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/update-client-address/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { clientAddress } = req.body;
+    await pool.query('UPDATE orders SET client_address = $1 WHERE id = $2', [clientAddress, orderId]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/admin/update-amount/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
