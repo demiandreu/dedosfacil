@@ -406,6 +406,36 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
     }
   }
 
+  const updateClientDocument = async (orderId, value) => {
+    try {
+      const response = await fetch(`/api/admin/update-client-document/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientDocument: value })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchOrders()
+    } catch (err) {
+      alert('Error al actualizar documento: ' + err.message)
+    }
+  }
+
+  const updateClientAddress = async (orderId, value) => {
+    try {
+      const response = await fetch(`/api/admin/update-client-address/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientAddress: value })
+      })
+      const data = await response.json()
+      if (data.error) throw new Error(data.error)
+      await fetchOrders()
+    } catch (err) {
+      alert('Error al actualizar dirección: ' + err.message)
+    }
+  }
+
   const startEditingStays = (subId, stays) => {
     setEditingStays(prev => ({ ...prev, [subId]: JSON.parse(JSON.stringify(stays)) }))
   }
@@ -772,6 +802,14 @@ h1 { text-align: center; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; paddi
                                 </div>
                                 <p style={styles.detailRow}><span style={styles.detailLabel}>Dirección: </span><span style={styles.detailValue}>{sub.address || '-'}</span></p>
                                 <p style={styles.detailRow}><span style={styles.detailLabel}>Provincia: </span><span style={styles.detailValue}>{sub.province || '-'}</span></p>
+                                <div style={{ ...styles.detailRow, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={styles.detailLabel}>Documento: </span>
+                                  <input style={{ fontSize: '13px', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: '4px', flex: 1, maxWidth: '400px' }} defaultValue={order.client_document || ''} placeholder="NIE / DNI / Pasaporte" onBlur={(e) => { if (e.target.value !== (order.client_document || '')) { updateClientDocument(order.id, e.target.value) } }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }} />
+                                </div>
+                                <div style={{ ...styles.detailRow, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={styles.detailLabel}>Dir. facturación: </span>
+                                  <input style={{ fontSize: '13px', padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: '4px', flex: 1, maxWidth: '400px' }} defaultValue={order.client_address || ''} placeholder="Dirección de facturación" onBlur={(e) => { if (e.target.value !== (order.client_address || '')) { updateClientAddress(order.id, e.target.value) } }} onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }} />
+                                </div>
                               </div>
                               <div>
                                 <h3 style={styles.sectionTitle}>📁 Archivos</h3>

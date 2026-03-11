@@ -70,8 +70,10 @@ const Factura = () => {
         <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px' }}>
           <h3 style={{ margin: '0 0 10px', fontSize: '14px', color: '#666' }}>CLIENTE</h3>
           <p style={{ margin: '3px 0', fontWeight: '600' }}>{order.name || 'Cliente'}</p>
+          {order.client_document && <p style={{ margin: '3px 0', fontSize: '14px' }}>{order.client_document}</p>}
           <p style={{ margin: '3px 0', fontSize: '14px' }}>{order.email}</p>
           {order.phone && <p style={{ margin: '3px 0', fontSize: '14px' }}>{order.phone}</p>}
+          {order.client_address && <p style={{ margin: '3px 0', fontSize: '14px' }}>{order.client_address}</p>}
         </div>
       </div>
 
