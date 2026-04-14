@@ -100,7 +100,7 @@ const translations = {
       title: "Autorización de representación",
       subtitle: "Para presentar la solicitud ante el Registro de la Propiedad en tu nombre",
       authText: "Autorizo a",
-     authPerson: "nuestra representante autorizada ante el Registro de la Propiedad",
+     authPerson: "Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi",
       authText2: "para que, en mi nombre y representación, presente la solicitud de asignación del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad correspondiente, conforme al Reglamento (UE) 2024/1028 del Parlamento Europeo y del Consejo.",
       authDetails: "Esta autorización incluye:",
       authItems: [
@@ -234,7 +234,7 @@ const translations = {
       title: "Authorization",
       subtitle: "To submit the application at the Property Registry on your behalf",
       authText: "I authorize",
-     authPerson: "our authorized representative at the Property Registry",
+     authPerson: "Irina Sheshina (NIE: Y6189281H), authorized representative of Rental Connect Solutions Tmi",
       authText2: "to, on my behalf and representation, submit the application for the assignment of the Rental Registration Number (NRUA) at the corresponding Property Registry, in accordance with EU Regulation 2024/1028.",
       authDetails: "This authorization includes:",
       authItems: [
@@ -368,7 +368,7 @@ const translations = {
       title: "Autorisation de représentation",
       subtitle: "Pour déposer la demande au Registre de la Propriété en votre nom",
       authText: "J'autorise",
-      authPerson: "Mme Sechina Irina",
+      authPerson: "Irina Sheshina (NIE: Y6189281H), représentante autorisée de Rental Connect Solutions Tmi",
       authText2: "à présenter, en mon nom et représentation, la demande d'attribution du Numéro d'Enregistrement Locatif (NRUA) au Registre de la Propriété correspondant, conformément au Règlement (UE) 2024/1028.",
       authDetails: "Cette autorisation comprend:",
       authItems: [
@@ -502,7 +502,7 @@ const translations = {
       title: "Vollmacht",
       subtitle: "Zur Antragstellung beim Grundbuchamt in Ihrem Namen",
       authText: "Ich bevollmächtige",
-      authPerson: "unsere autorisierte Vertreterin beim Grundbuchamt",
+      authPerson: "Irina Sheshina (NIE: Y6189281H), bevollmächtigte Vertreterin von Rental Connect Solutions Tmi",
       authText2: "in meinem Namen den Antrag auf Zuweisung der NRUA-Nummer beim Grundbuchamt einzureichen, gemäß EU-Verordnung 2024/1028.",
       authDetails: "Diese Vollmacht umfasst:",
       authItems: [
