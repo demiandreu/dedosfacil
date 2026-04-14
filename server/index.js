@@ -35,9 +35,14 @@ const PRICES = {
   '10': { amount: 79900, properties: 10, name: 'DedosFácil - 10 Propiedades' },
 };
 
-// Ensure authorization_documents table exists
-async function ensureAuthDocTable() {
+// Authorization texts (exact text shown in checkboxes)
+const AUTH_TEXT_N2 = 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que en mi nombre y representación presente el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) correspondiente al ejercicio 2025 ante el Registro de la Propiedad competente, conforme al artículo 10.4 del Real Decreto 1312/2024.';
+const AUTH_TEXT_NRUA = 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que, en mi nombre y representación, presente la solicitud de asignación del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad correspondiente, conforme al Reglamento (UE) 2024/1028 del Parlamento Europeo y del Consejo.';
+
+// Database migrations: create tables and add missing columns
+async function runMigrations() {
   try {
+    // authorization_documents table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS authorization_documents (
         id SERIAL PRIMARY KEY,
@@ -53,8 +58,15 @@ async function ensureAuthDocTable() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `);
+    // New consent columns on orders table
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS authorization_document_id UUID`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS authorization_text TEXT`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS form_type VARCHAR(10)`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS authorization_timestamp TIMESTAMPTZ`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS authorization_ip TEXT`);
+    console.log('Migrations OK');
   } catch (err) {
-    console.error('Error creating authorization_documents table:', err.message);
+    console.error('Migration error:', err.message);
   }
 }
 
@@ -122,23 +134,22 @@ async function generateAuthorizationPDF(data) {
 
     // ── Sección 3: Objeto de la autorización ──
     sectionHeader('3', 'OBJETO DE LA AUTORIZACIÓN');
-    const authText = isNRUA
-      ? 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que, en mi nombre y representación, presente la solicitud de asignación del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad correspondiente, conforme al Reglamento (UE) 2024/1028 del Parlamento Europeo y del Consejo.'
-      : 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que en mi nombre y representación presente el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) correspondiente al ejercicio 2025 ante el Registro de la Propiedad competente, conforme al artículo 10.4 del Real Decreto 1312/2024.';
+    const authText = data.authorizationText || (isNRUA ? AUTH_TEXT_NRUA : AUTH_TEXT_N2);
     doc.fillColor('#374151').fontSize(9).font('Helvetica').text(authText, { align: 'justify' });
     doc.moveDown(0.8);
 
     // ── Sección 4: Registro de aceptación electrónica ──
     sectionHeader('4', 'REGISTRO DE ACEPTACIÓN ELECTRÓNICA');
-    field('Fecha y hora', data.timestamp);
-    field('Dirección IP', data.ip || 'N/A');
-    field('Document ID', data.documentId);
+    field('Fecha y hora', data.timestamp || 'Dato no disponible');
+    field('Dirección IP', data.ip || 'Dato no disponible');
+    field('Document ID', data.documentIdDisplay || (data.documentId ? data.documentId.toString() : 'Dato no disponible'));
     doc.moveDown(0.8);
 
     // ── Sección 5: Consentimiento RGPD ──
     sectionHeader('5', 'CONSENTIMIENTO RGPD');
     field('Consentimiento', 'Aceptado ✓');
-    field('Fecha y hora', data.timestamp);
+    field('Fecha y hora', (data.gdprTimestamp || data.timestamp) || 'Dato no disponible');
+    if (data.adminView && data.gdprIp) field('Dirección IP', data.gdprIp);
     doc.moveDown(0.3);
     const gdprText = isNRUA
       ? 'Acepto el tratamiento de mis datos personales por parte de Rental Connect Solutions Tmi y su representante autorizada, con la finalidad exclusiva de gestionar la solicitud del número NRUA ante el Registro de la Propiedad.'
@@ -147,9 +158,10 @@ async function generateAuthorizationPDF(data) {
 
     // ── Footer ──
     const footerY = doc.page.height - 60;
+    const displayId = data.documentIdDisplay || (data.documentId ? data.documentId.toString() : 'N/A');
     doc.moveTo(50, footerY).lineTo(doc.page.width - 50, footerY).strokeColor(GRAY).lineWidth(0.5).stroke();
     doc.fillColor(GRAY).fontSize(7).font('Helvetica')
-      .text(`DedosFácil Document ID: ${data.documentId}`, 50, footerY + 8, { align: 'center', width: doc.page.width - 100 });
+      .text(`DedosFácil Document ID: ${displayId}`, 50, footerY + 8, { align: 'center', width: doc.page.width - 100 });
     doc.text('dedosfacil.es/privacidad', 50, footerY + 20, { align: 'center', width: doc.page.width - 100, link: 'https://dedosfacil.es/privacidad' });
 
     doc.end();
@@ -273,9 +285,11 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
         [order.id]
       );
       const cd = clientData.rows[0] || {};
-      const documentId = crypto.randomUUID();
-      const timestamp = new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'medium' });
-      const ip = cd.auth_ip || 'N/A';
+      // Use the UUID assigned at order creation (stored in orders table)
+      const documentId = order.authorization_document_id || crypto.randomUUID();
+      const authTimestamp = order.authorization_timestamp || new Date();
+      const timestamp = new Date(authTimestamp).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'medium' });
+      const ip = order.authorization_ip || cd.auth_ip || 'N/A';
 
       const pdfBuffer = await generateAuthorizationPDF({
         documentId,
@@ -286,21 +300,21 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
         clientDocument: order.client_document,
         propertyAddress: cd.property_address || order.client_address,
         nrua: cd.nrua,
+        authorizationText: order.authorization_text,
         timestamp,
         ip,
       });
 
-      // Save record to DB
+      // Save record to DB (upsert by document_id to avoid duplicates)
       await pool.query(
         `INSERT INTO authorization_documents (document_id, order_id, form_type, client_name, client_email, ip, consent_text, pdf_base64)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         ON CONFLICT (document_id) DO UPDATE SET pdf_base64 = EXCLUDED.pdf_base64`,
         [
           documentId, order.id,
           order.service_type === 'nrua_request' ? 'nrua' : 'n2',
           order.contact_name, session.customer_email, ip,
-          order.service_type === 'nrua_request'
-            ? 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para presentar la solicitud NRUA.'
-            : 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para presentar el Modelo N2.',
+          order.authorization_text || (order.service_type === 'nrua_request' ? AUTH_TEXT_NRUA : AUTH_TEXT_N2),
           pdfBuffer.toString('base64'),
         ]
       );
@@ -496,8 +510,8 @@ let affiliate = null;
     // Email de prueba que salta Stripe
     if (email === 'demiandreu@gmail.com') {
       const orderResult = await pool.query(
-        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',
-        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null]
+        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address, authorization_document_id, authorization_text, form_type, authorization_timestamp, authorization_ip) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *',
+        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null, crypto.randomUUID(), AUTH_TEXT_N2, 'N2', new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress]
       );
       const orderId = orderResult.rows[0].id;
       
@@ -545,8 +559,8 @@ let affiliate = null;
 
     // Create order in database
     const orderResult = await pool.query(
-      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',
-      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null]
+      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address, authorization_document_id, authorization_text, form_type, authorization_timestamp, authorization_ip) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *',
+      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null, crypto.randomUUID(), AUTH_TEXT_N2, 'N2', new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress]
     );
     const orderId = orderResult.rows[0].id;
 
@@ -685,8 +699,8 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
 
     if (email === 'demiandreu@gmail.com') {
       const orderResult = await pool.query(
-        'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
-        [email, 'nrua', 1, finalAmount, 'completed', 'nrua_request', affiliate?.code || null, discountAmount]
+        'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount, authorization_document_id, authorization_text, form_type, authorization_timestamp, authorization_ip) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *',
+        [email, 'nrua', 1, finalAmount, 'completed', 'nrua_request', affiliate?.code || null, discountAmount, crypto.randomUUID(), AUTH_TEXT_NRUA, 'NRUA', new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress]
       );
       const orderId = orderResult.rows[0].id;
 
@@ -729,8 +743,8 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
     }
 
     const orderResult = await pool.query(
-      'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
-      [email, 'nrua', 1, finalAmount, 'pending', 'nrua_request', affiliate?.code || null, discountAmount]
+      'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount, authorization_document_id, authorization_text, form_type, authorization_timestamp, authorization_ip) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *',
+      [email, 'nrua', 1, finalAmount, 'pending', 'nrua_request', affiliate?.code || null, discountAmount, crypto.randomUUID(), AUTH_TEXT_NRUA, 'NRUA', new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress]
     );
     const orderId = orderResult.rows[0].id;
 
@@ -1630,43 +1644,130 @@ app.get('/api/factura/:orderId', async (req, res) => {
 })
 
 // Get authorization data for PDF
+// Legacy JSON endpoint (kept for compatibility)
 app.get('/api/admin/authorization/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { submissionId } = req.query;
+    const result = await pool.query(
+      `SELECT
+         COALESCE(s.name, o.contact_name) AS name,
+         s.nrua,
+         COALESCE(s.address, o.client_address) AS address,
+         s.province,
+         COALESCE(s.phone, o.contact_phone) AS phone,
+         COALESCE(o.authorization_timestamp, s.authorization_timestamp) AS authorization_timestamp,
+         COALESCE(o.authorization_ip, s.authorization_ip) AS authorization_ip,
+         o.authorization_document_id,
+         o.authorization_text,
+         o.form_type,
+         COALESCE(o.client_document, '') AS client_document,
+         s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
+         o.email
+       FROM orders o
+       LEFT JOIN submissions s ON s.order_id = o.id
+       WHERE o.id = $1
+       LIMIT 1`,
+      [orderId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Pedido no encontrado' });
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener datos' });
+  }
+});
 
-    const result = submissionId
-      ? await pool.query(
-          `SELECT
-            s.name, s.nrua, s.address, s.province, s.phone,
-            s.authorization_timestamp, s.authorization_ip,
-            s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
-            o.email
-           FROM submissions s
-           JOIN orders o ON o.id = s.order_id
-           WHERE s.id = $1`,
-          [submissionId]
-        )
-      : await pool.query(
-          `SELECT
-            s.name, s.nrua, s.address, s.province, s.phone,
-            s.authorization_timestamp, s.authorization_ip,
-            s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
-            o.email
-           FROM submissions s
-           JOIN orders o ON o.id = s.order_id
-           WHERE s.order_id = $1`,
-          [orderId]
-        );
-    
+// New PDF endpoint for admin — generates PDF server-side with pdfkit
+app.get('/api/admin/authorization-pdf/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Query all data needed for the PDF
+    const result = await pool.query(
+      `SELECT
+         o.id, o.email, o.contact_name, o.contact_phone, o.client_document, o.client_address,
+         o.service_type, o.created_at,
+         o.authorization_document_id,
+         o.authorization_text,
+         o.form_type,
+         o.authorization_timestamp AS o_auth_ts,
+         o.authorization_ip AS o_auth_ip,
+         COALESCE(s.name, nr.name, o.contact_name) AS name,
+         s.nrua,
+         COALESCE(s.address, nr.property_address, o.client_address) AS property_address,
+         COALESCE(s.province, nr.property_province) AS province,
+         COALESCE(s.phone, nr.phone, o.contact_phone) AS phone,
+         COALESCE(o.authorization_timestamp, s.authorization_timestamp, nr.authorization_timestamp) AS authorization_timestamp,
+         COALESCE(o.authorization_ip, s.authorization_ip, nr.authorization_ip) AS authorization_ip,
+         COALESCE(s.gdpr_accepted, nr.gdpr_accepted, false) AS gdpr_accepted,
+         COALESCE(s.gdpr_timestamp, nr.authorization_timestamp) AS gdpr_timestamp,
+         COALESCE(s.gdpr_ip, nr.authorization_ip) AS gdpr_ip,
+         COALESCE(o.client_document, nr.id_number) AS client_document_full,
+         CONCAT_WS(' ', nr.name, nr.surname) AS nrua_full_name,
+         nr.id_type, nr.id_number
+       FROM orders o
+       LEFT JOIN submissions s ON s.order_id = o.id
+       LEFT JOIN nrua_requests nr ON nr.order_id = o.id
+       WHERE o.id = $1
+       LIMIT 1`,
+      [orderId]
+    );
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Pedido no encontrado' });
     }
-    
-    res.json(result.rows[0]);
+
+    const row = result.rows[0];
+    const NA = 'Dato no disponible';
+
+    // Determine the document ID to show
+    const documentId = row.authorization_document_id
+      ? row.authorization_document_id.toString()
+      : NA;
+
+    // Format timestamp
+    const formatTs = (ts) => ts
+      ? new Date(ts).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      : NA;
+
+    const isNRUA = row.service_type === 'nrua_request';
+    const clientName = (isNRUA && row.nrua_full_name?.trim())
+      ? row.nrua_full_name
+      : (row.name || row.email || NA);
+    const clientDoc = row.client_document_full || (row.id_type && row.id_number ? `${row.id_type}: ${row.id_number}` : null);
+
+    const pdfBuffer = await generateAuthorizationPDF({
+      documentId: row.authorization_document_id || null,
+      serviceType: row.service_type || 'n2',
+      clientName,
+      email: row.email,
+      phone: row.phone,
+      clientDocument: clientDoc,
+      propertyAddress: row.property_address
+        ? (row.province ? `${row.property_address}, ${row.province}` : row.property_address)
+        : null,
+      nrua: row.nrua,
+      authorizationText: row.authorization_text,
+      timestamp: formatTs(row.authorization_timestamp),
+      ip: row.authorization_ip || NA,
+      // Admin-specific extras
+      adminView: true,
+      documentIdDisplay: documentId,
+      gdprAccepted: row.gdpr_accepted,
+      gdprTimestamp: formatTs(row.gdpr_timestamp),
+      gdprIp: row.gdpr_ip || NA,
+    });
+
+    const filename = isNRUA
+      ? `Autorizacion_NRUA_DF-${orderId}.pdf`
+      : `Autorizacion_N2_DF-${orderId}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    res.send(pdfBuffer);
   } catch (error) {
-    console.error('Authorization data error:', error);
-    res.status(500).json({ error: 'Error al obtener datos' });
+    console.error('Authorization PDF error:', error);
+    res.status(500).json({ error: 'Error al generar PDF' });
   }
 });
 
@@ -3389,5 +3490,5 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
-  await ensureAuthDocTable();
+  await runMigrations();
 });
