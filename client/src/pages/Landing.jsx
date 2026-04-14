@@ -135,10 +135,9 @@ es: {
       ]
     },
     cta: {
-      title: "No pierdas tu licencia",
-      subtitle: "Quedan pocos días. Presenta tu Modelo N2 ahora.",
+      title: "Presenta tu Modelo N2",
+      subtitle: "Sin complicaciones y 100% legal. Nos encargamos de todo.",
       button: "Empezar ahora",
-      daysLeft: "días restantes"
     },
     footer: {
       slogan: "Presentación del Modelo N2 sin complicaciones",
@@ -267,10 +266,9 @@ es: {
       ]
     },
     cta: {
-      title: "Don't lose your license",
-      subtitle: "Few days left. Submit your Form N2 now.",
+      title: "Submit your Form N2",
+      subtitle: "Hassle-free and 100% legal. We handle everything.",
       button: "Start now",
-      daysLeft: "days left"
     },
     footer: {
       slogan: "Form N2 submission without complications",
@@ -399,10 +397,9 @@ es: {
       ]
     },
     cta: {
-      title: "Ne perdez pas votre licence",
-      subtitle: "Il reste peu de jours. Déposez votre Formulaire N2 maintenant.",
+      title: "Déposez votre Formulaire N2",
+      subtitle: "Sans complications et 100% légal. Nous nous occupons de tout.",
       button: "Commencer",
-      daysLeft: "jours restants"
     },
     footer: {
       slogan: "Dépôt du Formulaire N2 sans complications",
@@ -531,10 +528,9 @@ es: {
       ]
     },
     cta: {
-      title: "Verlieren Sie nicht Ihre Lizenz",
-      subtitle: "Nur noch wenige Tage. Reichen Sie jetzt Ihr Formular N2 ein.",
+      title: "Formular N2 einreichen",
+      subtitle: "Unkompliziert und 100% legal. Wir kümmern uns um alles.",
       button: "Jetzt starten",
-      daysLeft: "Tage übrig"
     },
     footer: {
       slogan: "Formular N2 Einreichung ohne Komplikationen",
@@ -610,14 +606,7 @@ useEffect(() => {
         ))}
       </div>
 
-      {/* URGENT BANNER */}
-      <div className="urgent-banner">
-        <AlertTriangle size={20} />
-        <span>
-          {t.urgentBanner.text} <strong>{daysLeft} {t.urgentBanner.days}</strong> {t.urgentBanner.text2}
-        </span>
-        <a href="/formulario" className="banner-cta">{t.urgentBanner.cta}</a>
-      </div>
+
 
       {/* Header */}
       <header className="header">
@@ -646,10 +635,7 @@ useEffect(() => {
       <section className="hero">
         <div className="container">
           <div className="hero-content">
-            <div className="hero-badge urgent">
-              <AlertTriangle size={16} />
-              <span>{t.hero.badge} · {daysLeft} {t.urgentBanner.days}</span>
-            </div>
+
             <h1>{t.hero.title} <span className="gradient-text">{t.hero.titleHighlight}</span></h1>
             <p className="hero-subtitle">{t.hero.subtitle}</p>
 
@@ -879,7 +865,6 @@ useEffect(() => {
       {/* CTA Final */}
       <section className="cta-final urgent" id="empezar">
         <div className="container">
-          <div className="cta-countdown"><span className="countdown-number">{daysLeft}</span><span className="countdown-label">{t.cta.daysLeft}</span></div>
           <h2>{t.cta.title}</h2>
           <p>{t.cta.subtitle}</p>
           <a href="/formulario" className="btn btn-primary btn-large">{t.cta.button}<ArrowRight size={20} /></a>
