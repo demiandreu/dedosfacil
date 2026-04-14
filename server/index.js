@@ -6,8 +6,10 @@ import Stripe from 'stripe';
 import Anthropic from '@anthropic-ai/sdk';
 import pg from 'pg';
 import multer from 'multer';
-import { Resend } from 'resend';  
+import { Resend } from 'resend';
 import XLSX from 'xlsx';
+import PDFDocument from 'pdfkit';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,8 +35,141 @@ const PRICES = {
   '10': { amount: 79900, properties: 10, name: 'DedosFácil - 10 Propiedades' },
 };
 
+// Authorization texts (exact text shown in checkboxes)
+const AUTH_TEXT_N2 = 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que en mi nombre y representación presente el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) correspondiente al ejercicio 2025 ante el Registro de la Propiedad competente, conforme al artículo 10.4 del Real Decreto 1312/2024.';
+const AUTH_TEXT_NRUA = 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que, en mi nombre y representación, presente la solicitud de asignación del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad correspondiente, conforme al Reglamento (UE) 2024/1028 del Parlamento Europeo y del Consejo.';
+
+// Database migrations: create tables and add missing columns
+async function runMigrations() {
+  try {
+    // authorization_documents table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS authorization_documents (
+        id SERIAL PRIMARY KEY,
+        document_id UUID NOT NULL UNIQUE,
+        order_id INTEGER REFERENCES orders(id),
+        form_type VARCHAR(20) NOT NULL,
+        client_name TEXT,
+        client_email TEXT,
+        ip TEXT,
+        timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        consent_text TEXT,
+        pdf_base64 TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    // New consent columns on orders table
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS authorization_document_id UUID`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS authorization_text TEXT`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS form_type VARCHAR(10)`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS authorization_timestamp TIMESTAMPTZ`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS authorization_ip TEXT`);
+    console.log('Migrations OK');
+  } catch (err) {
+    console.error('Migration error:', err.message);
+  }
+}
+
+// Generate authorization PDF with pdfkit
+async function generateAuthorizationPDF(data) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
+    const buffers = [];
+    doc.on('data', chunk => buffers.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+    doc.on('error', reject);
+
+    const BLUE = '#1e3a5f';
+    const GREEN = '#10b981';
+    const GRAY = '#6b7280';
+
+    const isNRUA = data.serviceType === 'nrua_request';
+    const docTitle = isNRUA
+      ? 'AUTORIZACIÓN DE REPRESENTACIÓN — SOLICITUD NRUA'
+      : 'AUTORIZACIÓN DE REPRESENTACIÓN — MODELO N2';
+
+    // ── Header bar ──
+    doc.rect(0, 0, doc.page.width, 75).fill(BLUE);
+    doc.fillColor('white').fontSize(20).font('Helvetica-Bold').text('DedosFácil', 50, 22);
+    doc.fillColor('white').fontSize(9).font('Helvetica').text('dedosfacil.es', 50, 48);
+    doc.fillColor('white').fontSize(8).text(`Document ID: ${data.documentId}`, 50, doc.page.margins ? 60 : 60, { align: 'right', width: doc.page.width - 100 });
+
+    doc.y = 95;
+
+    // ── Document title ──
+    doc.fillColor(BLUE).fontSize(13).font('Helvetica-Bold').text(docTitle, { align: 'center' });
+    doc.moveDown(0.4);
+    doc.moveTo(50, doc.y).lineTo(doc.page.width - 50, doc.y).strokeColor(GREEN).lineWidth(2).stroke();
+    doc.moveDown(0.8);
+
+    const sectionHeader = (num, title) => {
+      doc.fillColor(BLUE).fontSize(10).font('Helvetica-Bold')
+        .text(`${num}. ${title}`);
+      doc.moveDown(0.3);
+    };
+
+    const field = (label, value) => {
+      if (!value) return;
+      doc.fillColor('#374151').fontSize(9).font('Helvetica-Bold').text(`${label}: `, { continued: true })
+        .font('Helvetica').text(String(value));
+    };
+
+    // ── Sección 1: Datos del autorizante ──
+    sectionHeader('1', 'DATOS DEL AUTORIZANTE');
+    field('Nombre completo', data.clientName || data.email);
+    field('Email', data.email);
+    field('Teléfono', data.phone);
+    field('NIE/DNI', data.clientDocument);
+    field('Dirección del inmueble', data.propertyAddress);
+    if (!isNRUA) field('NRUA', data.nrua);
+    doc.moveDown(0.8);
+
+    // ── Sección 2: Datos del autorizado ──
+    sectionHeader('2', 'DATOS DEL AUTORIZADO');
+    field('Nombre', 'Irina Sheshina');
+    field('NIE', 'Y6189281H');
+    field('Empresa', 'Rental Connect Solutions Tmi');
+    field('Domicilio', 'Telttakuja 3D 39, 00770 Helsinki, Finlandia');
+    doc.moveDown(0.8);
+
+    // ── Sección 3: Objeto de la autorización ──
+    sectionHeader('3', 'OBJETO DE LA AUTORIZACIÓN');
+    const authText = data.authorizationText || (isNRUA ? AUTH_TEXT_NRUA : AUTH_TEXT_N2);
+    doc.fillColor('#374151').fontSize(9).font('Helvetica').text(authText, { align: 'justify' });
+    doc.moveDown(0.8);
+
+    // ── Sección 4: Registro de aceptación electrónica ──
+    sectionHeader('4', 'REGISTRO DE ACEPTACIÓN ELECTRÓNICA');
+    field('Fecha y hora', data.timestamp || 'Dato no disponible');
+    field('Dirección IP', data.ip || 'Dato no disponible');
+    field('Document ID', data.documentIdDisplay || (data.documentId ? data.documentId.toString() : 'Dato no disponible'));
+    doc.moveDown(0.8);
+
+    // ── Sección 5: Consentimiento RGPD ──
+    sectionHeader('5', 'CONSENTIMIENTO RGPD');
+    field('Consentimiento', 'Aceptado ✓');
+    field('Fecha y hora', (data.gdprTimestamp || data.timestamp) || 'Dato no disponible');
+    if (data.adminView && data.gdprIp) field('Dirección IP', data.gdprIp);
+    doc.moveDown(0.3);
+    const gdprText = isNRUA
+      ? 'Acepto el tratamiento de mis datos personales por parte de Rental Connect Solutions Tmi y su representante autorizada, con la finalidad exclusiva de gestionar la solicitud del número NRUA ante el Registro de la Propiedad.'
+      : 'Acepto el tratamiento de mis datos personales y de los datos contenidos en los archivos de reservas por parte de Rental Connect Solutions Tmi, con la finalidad exclusiva de gestionar la presentación del Modelo N2 ante el Registro de la Propiedad.';
+    doc.fillColor(GRAY).fontSize(8).font('Helvetica').text(gdprText, { align: 'justify' });
+
+    // ── Footer ──
+    const footerY = doc.page.height - 60;
+    const displayId = data.documentIdDisplay || (data.documentId ? data.documentId.toString() : 'N/A');
+    doc.moveTo(50, footerY).lineTo(doc.page.width - 50, footerY).strokeColor(GRAY).lineWidth(0.5).stroke();
+    doc.fillColor(GRAY).fontSize(7).font('Helvetica')
+      .text(`DedosFácil Document ID: ${displayId}`, 50, footerY + 8, { align: 'center', width: doc.page.width - 100 });
+    doc.text('dedosfacil.es/privacidad', 50, footerY + 20, { align: 'center', width: doc.page.width - 100, link: 'https://dedosfacil.es/privacidad' });
+
+    doc.end();
+  });
+}
+
 // Enviar email de confirmación
-async function sendConfirmationEmail(email, orderData) {
+async function sendConfirmationEmail(email, orderData, attachments = []) {
   try {
     await resend.emails.send({
       from: 'DedosFácil <noreply@dedosfacil.es>',
@@ -42,6 +177,7 @@ async function sendConfirmationEmail(email, orderData) {
       cc: 'support@dedosfacil.es',
       bcc: ['dedosfacil.es+b70c16ff1f@invite.trustpilot.com'],
       subject: `✅ Pedido DF-${orderData.orderId} confirmado - DedosFácil`,
+      ...(attachments.length > 0 && { attachments }),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%); padding: 30px; text-align: center;">
@@ -69,11 +205,17 @@ async function sendConfirmationEmail(email, orderData) {
               </ol>
             </div>
            <div style="text-align: center; margin: 20px 0;">
-  <a href="https://dedosfacil.es/factura/${orderData.orderId}" 
+  <a href="https://dedosfacil.es/factura/${orderData.orderId}"
      style="display: inline-block; padding: 12px 24px; background: #1e3a5f; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
     📄 Descargar Factura
   </a>
 </div>
+            ${attachments.length > 0 ? `
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 16px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0 0 6px 0; font-weight: 600; color: #1e40af;">📎 Documento adjunto: Autorización de representación</p>
+              <p style="margin: 0; font-size: 13px; color: #374151;">Encontrarás adjunto a este email el documento PDF con tu autorización de representación. Consérvalo como justificante de tu consentimiento.</p>
+            </div>` : ''}
+            <p style="color: #6b7280; font-size: 13px;">
               ¿Dudas? Escríbenos a support@dedosfacil.es indicando tu referencia DF-${orderData.orderId}
             </p>
           </div>
@@ -126,16 +268,80 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     );
     // Update affiliate referral status
     await pool.query('UPDATE affiliate_referrals SET status = $1 WHERE order_id = $2', ['completed', order.id]);
-    
+
+    // Generate authorization PDF
+    let emailAttachments = [];
+    try {
+      const clientData = await pool.query(
+        `SELECT
+           COALESCE(s.nrua, '') AS nrua,
+           COALESCE(s.address, nr.property_address, '') AS property_address,
+           COALESCE(s.authorization_ip, nr.authorization_ip, '') AS auth_ip
+         FROM orders o
+         LEFT JOIN submissions s ON s.order_id = o.id
+         LEFT JOIN nrua_requests nr ON nr.order_id = o.id
+         WHERE o.id = $1
+         LIMIT 1`,
+        [order.id]
+      );
+      const cd = clientData.rows[0] || {};
+      // Use the UUID assigned at order creation (stored in orders table)
+      const documentId = order.authorization_document_id || crypto.randomUUID();
+      const authTimestamp = order.authorization_timestamp || new Date();
+      const timestamp = new Date(authTimestamp).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'medium' });
+      const ip = order.authorization_ip || cd.auth_ip || 'N/A';
+
+      const pdfBuffer = await generateAuthorizationPDF({
+        documentId,
+        serviceType: order.service_type || 'n2',
+        clientName: order.contact_name,
+        email: session.customer_email,
+        phone: order.contact_phone,
+        clientDocument: order.client_document,
+        propertyAddress: cd.property_address || order.client_address,
+        nrua: cd.nrua,
+        authorizationText: order.authorization_text,
+        timestamp,
+        ip,
+      });
+
+      // Save record to DB (upsert by document_id to avoid duplicates)
+      await pool.query(
+        `INSERT INTO authorization_documents (document_id, order_id, form_type, client_name, client_email, ip, consent_text, pdf_base64)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         ON CONFLICT (document_id) DO UPDATE SET pdf_base64 = EXCLUDED.pdf_base64`,
+        [
+          documentId, order.id,
+          order.service_type === 'nrua_request' ? 'nrua' : 'n2',
+          order.contact_name, session.customer_email, ip,
+          order.authorization_text || (order.service_type === 'nrua_request' ? AUTH_TEXT_NRUA : AUTH_TEXT_N2),
+          pdfBuffer.toString('base64'),
+        ]
+      );
+
+      const isNRUA = order.service_type === 'nrua_request';
+      emailAttachments = [{
+        filename: isNRUA
+          ? `Autorizacion_NRUA_DF-${order.id}.pdf`
+          : `Autorizacion_N2_DF-${order.id}.pdf`,
+        content: pdfBuffer.toString('base64'),
+        type: 'application/pdf',
+      }];
+      console.log(`📄 Authorization PDF generated for order ${order.id} (${documentId})`);
+    } catch (pdfErr) {
+      console.error('PDF generation error:', pdfErr);
+      // Don't block the email if PDF fails
+    }
+
     // Enviar email...
     await sendConfirmationEmail(session.customer_email, {
       orderId: order.id,
       serviceType: order.service_type,
       plan: order.properties_count,
       amount: order.amount / 100
-    });
+    }, emailAttachments);
   }
-  
+
   console.log('Payment completed for session:', session.id);
 }
 
@@ -304,8 +510,8 @@ let affiliate = null;
     // Email de prueba que salta Stripe
     if (email === 'demiandreu@gmail.com') {
       const orderResult = await pool.query(
-        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',
-        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null]
+        'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address, authorization_document_id, authorization_text, form_type, authorization_timestamp, authorization_ip) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *',
+        [email, plan, priceData.properties, finalAmount, 'completed', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null, crypto.randomUUID(), AUTH_TEXT_N2, 'N2', new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress]
       );
       const orderId = orderResult.rows[0].id;
       
@@ -353,8 +559,8 @@ let affiliate = null;
 
     // Create order in database
     const orderResult = await pool.query(
-      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',
-      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null]
+      'INSERT INTO orders (email, plan, properties_count, amount, status, affiliate_code, discount_amount, contact_name, contact_phone, client_document, client_address, authorization_document_id, authorization_text, form_type, authorization_timestamp, authorization_ip) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *',
+      [email, plan, priceData.properties, finalAmount, 'pending', affiliate?.code || null, discountAmount, formData?.name || null, formData?.phone || null, formData?.clientDocument || null, formData?.clientAddress || null, crypto.randomUUID(), AUTH_TEXT_N2, 'N2', new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress]
     );
     const orderId = orderResult.rows[0].id;
 
@@ -493,8 +699,8 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
 
     if (email === 'demiandreu@gmail.com') {
       const orderResult = await pool.query(
-        'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
-        [email, 'nrua', 1, finalAmount, 'completed', 'nrua_request', affiliate?.code || null, discountAmount]
+        'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount, authorization_document_id, authorization_text, form_type, authorization_timestamp, authorization_ip) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *',
+        [email, 'nrua', 1, finalAmount, 'completed', 'nrua_request', affiliate?.code || null, discountAmount, crypto.randomUUID(), AUTH_TEXT_NRUA, 'NRUA', new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress]
       );
       const orderId = orderResult.rows[0].id;
 
@@ -537,8 +743,8 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
     }
 
     const orderResult = await pool.query(
-      'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id',
-      [email, 'nrua', 1, finalAmount, 'pending', 'nrua_request', affiliate?.code || null, discountAmount]
+      'INSERT INTO orders (email, plan, properties_count, amount, status, service_type, affiliate_code, discount_amount, authorization_document_id, authorization_text, form_type, authorization_timestamp, authorization_ip) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *',
+      [email, 'nrua', 1, finalAmount, 'pending', 'nrua_request', affiliate?.code || null, discountAmount, crypto.randomUUID(), AUTH_TEXT_NRUA, 'NRUA', new Date(), req.headers['x-forwarded-for'] || req.socket.remoteAddress]
     );
     const orderId = orderResult.rows[0].id;
 
@@ -1438,43 +1644,130 @@ app.get('/api/factura/:orderId', async (req, res) => {
 })
 
 // Get authorization data for PDF
+// Legacy JSON endpoint (kept for compatibility)
 app.get('/api/admin/authorization/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { submissionId } = req.query;
+    const result = await pool.query(
+      `SELECT
+         COALESCE(s.name, o.contact_name) AS name,
+         s.nrua,
+         COALESCE(s.address, o.client_address) AS address,
+         s.province,
+         COALESCE(s.phone, o.contact_phone) AS phone,
+         COALESCE(o.authorization_timestamp, s.authorization_timestamp) AS authorization_timestamp,
+         COALESCE(o.authorization_ip, s.authorization_ip) AS authorization_ip,
+         o.authorization_document_id,
+         o.authorization_text,
+         o.form_type,
+         COALESCE(o.client_document, '') AS client_document,
+         s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
+         o.email
+       FROM orders o
+       LEFT JOIN submissions s ON s.order_id = o.id
+       WHERE o.id = $1
+       LIMIT 1`,
+      [orderId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Pedido no encontrado' });
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener datos' });
+  }
+});
 
-    const result = submissionId
-      ? await pool.query(
-          `SELECT
-            s.name, s.nrua, s.address, s.province, s.phone,
-            s.authorization_timestamp, s.authorization_ip,
-            s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
-            o.email
-           FROM submissions s
-           JOIN orders o ON o.id = s.order_id
-           WHERE s.id = $1`,
-          [submissionId]
-        )
-      : await pool.query(
-          `SELECT
-            s.name, s.nrua, s.address, s.province, s.phone,
-            s.authorization_timestamp, s.authorization_ip,
-            s.gdpr_accepted, s.gdpr_timestamp, s.gdpr_ip,
-            o.email
-           FROM submissions s
-           JOIN orders o ON o.id = s.order_id
-           WHERE s.order_id = $1`,
-          [orderId]
-        );
-    
+// New PDF endpoint for admin — generates PDF server-side with pdfkit
+app.get('/api/admin/authorization-pdf/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Query all data needed for the PDF
+    const result = await pool.query(
+      `SELECT
+         o.id, o.email, o.contact_name, o.contact_phone, o.client_document, o.client_address,
+         o.service_type, o.created_at,
+         o.authorization_document_id,
+         o.authorization_text,
+         o.form_type,
+         o.authorization_timestamp AS o_auth_ts,
+         o.authorization_ip AS o_auth_ip,
+         COALESCE(s.name, nr.name, o.contact_name) AS name,
+         s.nrua,
+         COALESCE(s.address, nr.property_address, o.client_address) AS property_address,
+         COALESCE(s.province, nr.property_province) AS province,
+         COALESCE(s.phone, nr.phone, o.contact_phone) AS phone,
+         COALESCE(o.authorization_timestamp, s.authorization_timestamp, nr.authorization_timestamp) AS authorization_timestamp,
+         COALESCE(o.authorization_ip, s.authorization_ip, nr.authorization_ip) AS authorization_ip,
+         COALESCE(s.gdpr_accepted, nr.gdpr_accepted, false) AS gdpr_accepted,
+         COALESCE(s.gdpr_timestamp, nr.authorization_timestamp) AS gdpr_timestamp,
+         COALESCE(s.gdpr_ip, nr.authorization_ip) AS gdpr_ip,
+         COALESCE(o.client_document, nr.id_number) AS client_document_full,
+         CONCAT_WS(' ', nr.name, nr.surname) AS nrua_full_name,
+         nr.id_type, nr.id_number
+       FROM orders o
+       LEFT JOIN submissions s ON s.order_id = o.id
+       LEFT JOIN nrua_requests nr ON nr.order_id = o.id
+       WHERE o.id = $1
+       LIMIT 1`,
+      [orderId]
+    );
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Pedido no encontrado' });
     }
-    
-    res.json(result.rows[0]);
+
+    const row = result.rows[0];
+    const NA = 'Dato no disponible';
+
+    // Determine the document ID to show
+    const documentId = row.authorization_document_id
+      ? row.authorization_document_id.toString()
+      : NA;
+
+    // Format timestamp
+    const formatTs = (ts) => ts
+      ? new Date(ts).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      : NA;
+
+    const isNRUA = row.service_type === 'nrua_request';
+    const clientName = (isNRUA && row.nrua_full_name?.trim())
+      ? row.nrua_full_name
+      : (row.name || row.email || NA);
+    const clientDoc = row.client_document_full || (row.id_type && row.id_number ? `${row.id_type}: ${row.id_number}` : null);
+
+    const pdfBuffer = await generateAuthorizationPDF({
+      documentId: row.authorization_document_id || null,
+      serviceType: row.service_type || 'n2',
+      clientName,
+      email: row.email,
+      phone: row.phone,
+      clientDocument: clientDoc,
+      propertyAddress: row.property_address
+        ? (row.province ? `${row.property_address}, ${row.province}` : row.property_address)
+        : null,
+      nrua: row.nrua,
+      authorizationText: row.authorization_text,
+      timestamp: formatTs(row.authorization_timestamp),
+      ip: row.authorization_ip || NA,
+      // Admin-specific extras
+      adminView: true,
+      documentIdDisplay: documentId,
+      gdprAccepted: row.gdpr_accepted,
+      gdprTimestamp: formatTs(row.gdpr_timestamp),
+      gdprIp: row.gdpr_ip || NA,
+    });
+
+    const filename = isNRUA
+      ? `Autorizacion_NRUA_DF-${orderId}.pdf`
+      : `Autorizacion_N2_DF-${orderId}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    res.send(pdfBuffer);
   } catch (error) {
-    console.error('Authorization data error:', error);
-    res.status(500).json({ error: 'Error al obtener datos' });
+    console.error('Authorization PDF error:', error);
+    res.status(500).json({ error: 'Error al generar PDF' });
   }
 });
 
@@ -3195,6 +3488,7 @@ app.get('*', (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  await runMigrations();
 });

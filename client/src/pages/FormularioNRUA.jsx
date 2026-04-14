@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { 
-  ArrowRight, 
-  ArrowLeft, 
-  Upload, 
-  User, 
-  Home, 
+import {
+  ArrowRight,
+  ArrowLeft,
+  Upload,
+  User,
+  Home,
   CreditCard,
   Check,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Shield,
+  CheckCircle
 } from 'lucide-react'
 
 const translations = {
@@ -1426,19 +1428,48 @@ if (!acceptTerms || !acceptAuthorization) return
                 </div>
               </div>
 
-              {/* Authorization Checkbox */}
-<div className="authorization-box">
-  <label className="checkbox-label authorization">
-    <input 
-      type="checkbox" 
-      checked={acceptAuthorization} 
-      onChange={e => setAcceptAuthorization(e.target.checked)} 
-    />
-    <span>
-      <strong>Autorizo a Rental Connect Solutions Tmi</strong> a presentar el Modelo Informativo de Arrendamientos de Corta Duración (NRUA) correspondiente al ejercicio 2025 ante el Registro de la Propiedad en mi nombre, conforme al artículo 10.4 del Real Decreto 1312/2024.
-    </span>
-  </label>
-</div>
+              {/* Authorization Document */}
+              <div className="authorization-document" style={{marginTop: '20px'}}>
+                <div className="auth-doc-header">
+                  <Shield size={24} />
+                  <h3>
+                    {lang === 'es' ? 'Autorización de representación' :
+                     lang === 'en' ? 'Power of attorney' :
+                     lang === 'fr' ? 'Autorisation de représentation' :
+                     'Vollmacht'}
+                  </h3>
+                </div>
+                <div className="auth-doc-body">
+                  <p>
+                    {lang === 'es' ? <>Autorizo a <strong>Irina Sheshina (NIE: Y6189281H)</strong>, representante autorizada de <strong>Rental Connect Solutions Tmi</strong>, para que en mi nombre y representación presente el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) correspondiente al ejercicio 2025 ante el Registro de la Propiedad competente, conforme al artículo 10.4 del Real Decreto 1312/2024.</> :
+                     lang === 'en' ? <>I authorize <strong>Irina Sheshina (NIE: Y6189281H)</strong>, authorized representative of <strong>Rental Connect Solutions Tmi</strong>, to submit on my behalf the Short-Term Rental Declaration (Modelo N2) for the 2025 tax year to the competent Property Registry, in accordance with Article 10.4 of Royal Decree 1312/2024.</> :
+                     lang === 'fr' ? <>J'autorise <strong>Irina Sheshina (NIE: Y6189281H)</strong>, représentante autorisée de <strong>Rental Connect Solutions Tmi</strong>, à déposer en mon nom le Formulaire Informatif de Locations de Courte Durée (Modelo N2) pour l'exercice 2025 auprès du Registre de la Propriété compétent, conformément à l'article 10.4 du Décret Royal 1312/2024.</> :
+                     <>Ich bevollmächtige <strong>Irina Sheshina (NIE: Y6189281H)</strong>, bevollmächtigte Vertreterin von <strong>Rental Connect Solutions Tmi</strong>, in meinem Namen das Kurzzeitmietungsformular (Modelo N2) für das Jahr 2025 beim zuständigen Grundbuchamt einzureichen, gemäß Artikel 10.4 des Königlichen Dekrets 1312/2024.</>}
+                  </p>
+                  <div className="auth-signatory">
+                    <p><strong>{lang === 'es' ? 'Interesado/a:' : lang === 'en' ? 'Applicant:' : lang === 'fr' ? 'Intéressé/e:' : 'Antragsteller/in:'}</strong> {form.name}</p>
+                    {form.clientDocument && <p><strong>NIE/DNI:</strong> {form.clientDocument}</p>}
+                    <p><strong>{lang === 'es' ? 'Fecha:' : lang === 'en' ? 'Date:' : lang === 'fr' ? 'Date:' : 'Datum:'}</strong> {new Date().toLocaleDateString(lang === 'es' ? 'es-ES' : lang === 'en' ? 'en-GB' : lang === 'fr' ? 'fr-FR' : 'de-DE')}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="form-group" style={{marginTop: '12px'}}>
+                <label className="checkbox-label authorization">
+                  <input
+                    type="checkbox"
+                    checked={acceptAuthorization}
+                    onChange={e => setAcceptAuthorization(e.target.checked)}
+                  />
+                  <span>
+                    <strong>
+                      {lang === 'es' ? 'Confirmo que he leído y acepto esta autorización de representación *' :
+                       lang === 'en' ? 'I confirm that I have read and accept this power of attorney *' :
+                       lang === 'fr' ? "Je confirme avoir lu et accepté cette autorisation de représentation *" :
+                       'Ich bestätige, dass ich diese Vollmacht gelesen und akzeptiert habe *'}
+                    </strong>
+                  </span>
+                </label>
+              </div>
               {/* Terms */}
               <label className="checkbox-label terms">
                 <input type="checkbox" checked={acceptTerms} onChange={e => setAcceptTerms(e.target.checked)} />
