@@ -36,7 +36,7 @@ const PRICES = {
 };
 
 // Authorization texts (exact text shown in checkboxes)
-const AUTH_TEXT_N2 = 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que en mi nombre y representación presente el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) correspondiente al ejercicio 2025 ante el Registro de la Propiedad competente, conforme al artículo 10.4 del Real Decreto 1312/2024.';
+const AUTH_TEXT_N2 = 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que en mi nombre y representación presente el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) ante el Registro de la Propiedad competente, conforme al artículo 10.4 del Real Decreto 1312/2024.';
 const AUTH_TEXT_NRUA = 'Autorizo a Irina Sheshina (NIE: Y6189281H), representante autorizada de Rental Connect Solutions Tmi, para que, en mi nombre y representación, presente la solicitud de asignación del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad correspondiente, conforme al Reglamento (UE) 2024/1028 del Parlamento Europeo y del Consejo.';
 
 // Database migrations: create tables and add missing columns
@@ -121,14 +121,10 @@ async function generateAuthorizationPDF(data) {
         .font('Helvetica').text(String(value));
     };
 
-    // ── Sección 1: Datos del autorizante ──
+    // ── Sección 1: Datos del autorizante — solo nombre y NIE/DNI ──
     sectionHeader('1', 'DATOS DEL AUTORIZANTE');
-    field('Nombre completo', data.clientName || data.email);
-    field('Email', data.email);
-    field('Teléfono', data.phone);
+    field('Nombre', data.clientName || data.email);
     field('NIE/DNI', data.clientDocument);
-    field('Dirección del inmueble', data.propertyAddress);
-    if (!isNRUA) field('NRUA', data.nrua);
     doc.moveDown(0.8);
 
     // Fix 2: sección 2 solo nombre e NIE
@@ -137,13 +133,11 @@ async function generateAuthorizationPDF(data) {
     field('NIE', 'Y6189281H');
     doc.moveDown(0.8);
 
-    // Fix 2: texto simplificado en sección 3 (sin "representante autorizada de Rental Connect Solutions Tmi")
     sectionHeader('3', 'OBJETO DE LA AUTORIZACIÓN');
-    const simplifiedN2 = 'Autorizo a Irina Sheshina (NIE: Y6189281H) para que en mi nombre y representación presente el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) correspondiente al ejercicio 2025 ante el Registro de la Propiedad competente, conforme al artículo 10.4 del Real Decreto 1312/2024.';
-    const simplifiedNRUA = 'Autorizo a Irina Sheshina (NIE: Y6189281H) para que, en mi nombre y representación, presente la solicitud de asignación del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad correspondiente, conforme al Reglamento (UE) 2024/1028 del Parlamento Europeo y del Consejo.';
     const authText = (data.authorizationText || (isNRUA ? AUTH_TEXT_NRUA : AUTH_TEXT_N2))
-      .replace(', representante autorizada de Rental Connect Solutions Tmi', '');
-    doc.fillColor('#374151').fontSize(9).font('Helvetica').text(authText || (isNRUA ? simplifiedNRUA : simplifiedN2), { align: 'justify' });
+      .replace(', representante autorizada de Rental Connect Solutions Tmi', '')
+      .replace(/ correspondiente al ejercicio \d{4}/g, '');
+    doc.fillColor('#374151').fontSize(9).font('Helvetica').text(authText, { align: 'justify' });
     doc.moveDown(0.8);
 
     // ── Sección 4: Registro de aceptación electrónica ──
