@@ -88,11 +88,18 @@ async function generateAuthorizationPDF(data) {
       ? 'AUTORIZACIÓN DE REPRESENTACIÓN — SOLICITUD NRUA'
       : 'AUTORIZACIÓN DE REPRESENTACIÓN — MODELO N2';
 
+    // Fix 1: always have a valid document ID (generate on the fly if null)
+    const resolvedDocId = (data.documentId && data.documentId !== 'null')
+      ? String(data.documentId)
+      : (data.documentIdDisplay && data.documentIdDisplay !== 'Dato no disponible' && data.documentIdDisplay !== 'null')
+        ? data.documentIdDisplay
+        : crypto.randomUUID();
+
     // ── Header bar ──
     doc.rect(0, 0, doc.page.width, 75).fill(BLUE);
     doc.fillColor('white').fontSize(20).font('Helvetica-Bold').text('DedosFácil', 50, 22);
     doc.fillColor('white').fontSize(9).font('Helvetica').text('dedosfacil.es', 50, 48);
-    doc.fillColor('white').fontSize(8).text(`Document ID: ${data.documentId}`, 50, doc.page.margins ? 60 : 60, { align: 'right', width: doc.page.width - 100 });
+    doc.fillColor('white').fontSize(8).text(`Document ID: ${resolvedDocId}`, 50, 60, { align: 'right', width: doc.page.width - 100 });
 
     doc.y = 95;
 
@@ -124,30 +131,32 @@ async function generateAuthorizationPDF(data) {
     if (!isNRUA) field('NRUA', data.nrua);
     doc.moveDown(0.8);
 
-    // ── Sección 2: Datos del autorizado ──
+    // Fix 2: sección 2 solo nombre e NIE
     sectionHeader('2', 'DATOS DEL AUTORIZADO');
     field('Nombre', 'Irina Sheshina');
     field('NIE', 'Y6189281H');
-    field('Empresa', 'Rental Connect Solutions Tmi');
-    field('Domicilio', 'Telttakuja 3D 39, 00770 Helsinki, Finlandia');
     doc.moveDown(0.8);
 
-    // ── Sección 3: Objeto de la autorización ──
+    // Fix 2: texto simplificado en sección 3 (sin "representante autorizada de Rental Connect Solutions Tmi")
     sectionHeader('3', 'OBJETO DE LA AUTORIZACIÓN');
-    const authText = data.authorizationText || (isNRUA ? AUTH_TEXT_NRUA : AUTH_TEXT_N2);
-    doc.fillColor('#374151').fontSize(9).font('Helvetica').text(authText, { align: 'justify' });
+    const simplifiedN2 = 'Autorizo a Irina Sheshina (NIE: Y6189281H) para que en mi nombre y representación presente el Modelo Informativo de Arrendamientos de Corta Duración (Modelo N2) correspondiente al ejercicio 2025 ante el Registro de la Propiedad competente, conforme al artículo 10.4 del Real Decreto 1312/2024.';
+    const simplifiedNRUA = 'Autorizo a Irina Sheshina (NIE: Y6189281H) para que, en mi nombre y representación, presente la solicitud de asignación del Número de Registro de Alquiler (NRUA) ante el Registro de la Propiedad correspondiente, conforme al Reglamento (UE) 2024/1028 del Parlamento Europeo y del Consejo.';
+    const authText = (data.authorizationText || (isNRUA ? AUTH_TEXT_NRUA : AUTH_TEXT_N2))
+      .replace(', representante autorizada de Rental Connect Solutions Tmi', '');
+    doc.fillColor('#374151').fontSize(9).font('Helvetica').text(authText || (isNRUA ? simplifiedNRUA : simplifiedN2), { align: 'justify' });
     doc.moveDown(0.8);
 
     // ── Sección 4: Registro de aceptación electrónica ──
     sectionHeader('4', 'REGISTRO DE ACEPTACIÓN ELECTRÓNICA');
     field('Fecha y hora', data.timestamp || 'Dato no disponible');
     field('Dirección IP', data.ip || 'Dato no disponible');
-    field('Document ID', data.documentIdDisplay || (data.documentId ? data.documentId.toString() : 'Dato no disponible'));
+    field('Document ID', resolvedDocId);
     doc.moveDown(0.8);
 
     // ── Sección 5: Consentimiento RGPD ──
     sectionHeader('5', 'CONSENTIMIENTO RGPD');
-    field('Consentimiento', 'Aceptado ✓');
+    // Fix 3: avoid Unicode checkmark (not in Helvetica WinAnsi encoding) — use plain ASCII
+    field('Consentimiento', 'Aceptado');
     field('Fecha y hora', (data.gdprTimestamp || data.timestamp) || 'Dato no disponible');
     if (data.adminView && data.gdprIp) field('Dirección IP', data.gdprIp);
     doc.moveDown(0.3);
@@ -158,10 +167,9 @@ async function generateAuthorizationPDF(data) {
 
     // ── Footer ──
     const footerY = doc.page.height - 60;
-    const displayId = data.documentIdDisplay || (data.documentId ? data.documentId.toString() : 'N/A');
     doc.moveTo(50, footerY).lineTo(doc.page.width - 50, footerY).strokeColor(GRAY).lineWidth(0.5).stroke();
     doc.fillColor(GRAY).fontSize(7).font('Helvetica')
-      .text(`DedosFácil Document ID: ${displayId}`, 50, footerY + 8, { align: 'center', width: doc.page.width - 100 });
+      .text(`DedosFácil Document ID: ${resolvedDocId}`, 50, footerY + 8, { align: 'center', width: doc.page.width - 100 });
     doc.text('dedosfacil.es/privacidad', 50, footerY + 20, { align: 'center', width: doc.page.width - 100, link: 'https://dedosfacil.es/privacidad' });
 
     doc.end();
