@@ -933,6 +933,7 @@ useEffect(() => {
                       {/* Actions NRUA */}
                       <div style={{ ...styles.actionsBar, marginTop: '16px' }}>
                         <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={() => downloadAuthorizationPdf(req.order_id)} style={styles.btnSecondary}>📋 Autorización PDF</button>
                           {req.status === 'completed' && (
                             <button
                               onClick={() => sendNruaJustificante(req.id)}
