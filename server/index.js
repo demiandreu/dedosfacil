@@ -741,6 +741,7 @@ app.post('/api/create-checkout-nrua', async (req, res) => {
         );
       }
 
+      await sendConfirmationEmail(email, { orderId, serviceType: 'nrua_request', plan: 1, amount: finalAmount / 100 });
   return res.json({ url: `${req.headers.origin}/exito?order_id=${orderId}&service=nrua`, orderId });
     }
 
