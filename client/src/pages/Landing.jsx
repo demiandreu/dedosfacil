@@ -109,7 +109,7 @@ es: {
     },
     pricing: {
       title: "Precios claros",
-      note: "Tasas del Registro (27€/NRUA) ya incluidas en el precio",
+      note: "Tasas del Registro de la Propiedad ya incluidas en el precio",
  plans: [
   { name: "1 Propiedad", price: "99€", features: ["1 NRUA", "Presentación oficial", "Justificante", "Soporte email", "Entrega 48h"] },
   { name: "3 Propiedades", price: "259€", period: "ahorra 38€", features: ["Hasta 3 NRUA", "Presentación oficial", "Justificante", "Soporte prioritario", "Entrega 24h"], popular: true },
@@ -240,7 +240,7 @@ es: {
     },
     pricing: {
       title: "Clear pricing",
-      note: "Registry fees (27€/NRUA) already included in the price",
+      note: "Registry fees (Property Registry) already included in the price",
     plans: [
   { name: "1 Property", price: "€99", features: ["1 NRUA", "Official submission", "Certificate", "Email support", "Delivery 48h"] },
   { name: "3 Properties", price: "€259", period: "save €38", features: ["Up to 3 NRUA", "Official submission", "Certificate", "Priority support", "Delivery 24h"], popular: true },
@@ -372,7 +372,7 @@ es: {
     },
     pricing: {
       title: "Tarifs clairs",
-      note: "Frais de Registre (27€/NRUA) déjà inclus dans le prix",
+      note: "Frais du Registre de la Propriété déjà inclus dans le prix",
     plans: [
   { name: "1 Propriété", price: "99€", features: ["1 NRUA", "Dépôt officiel", "Certificat", "Support email", "Livraison 48h"] },
   { name: "3 Propriétés", price: "259€", period: "économisez 38€", features: ["Jusqu'à 3 NRUA", "Dépôt officiel", "Certificat", "Support prioritaire", "Livraison 24h"], popular: true },
@@ -503,7 +503,7 @@ es: {
     },
     pricing: {
       title: "Klare Preise",
-     note: "Registergebühren (27€/NRUA) bereits im Preis enthalten",
+     note: "Grundbuchgebühren bereits im Preis enthalten",
     plans: [
   { name: "1 Immobilie", price: "99€", features: ["1 NRUA", "Offizielle Einreichung", "Bescheinigung", "E-Mail-Support", "Lieferung 48h"] },
   { name: "3 Immobilien", price: "259€", period: "sparen Sie 38€", features: ["Bis zu 3 NRUA", "Offizielle Einreichung", "Bescheinigung", "Prioritäts-Support", "Lieferung 24h"], popular: true },
